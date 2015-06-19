@@ -120,10 +120,10 @@ class FrozenMapping(collections.Mapping):
         return len(self._base)
 
 
-class TDMapping(object):
-    def __init__(self, current_mapping, current_time):
+class StepMapping(object):
+    def __init__(self, current_mapping):
         self.now = current_mapping
-        self.future = BasedDictionary(self.now)
+        self.future = BasedDictionary(self.now, self.now)
 
     def step(self):
-        return TDMapping(self.future)
+        return StepMapping(self.future)
