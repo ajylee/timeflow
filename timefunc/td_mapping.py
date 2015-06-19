@@ -22,12 +22,19 @@ def chain_getitem(mappings, key):
         
 
 class BasedMapping(collections.Mapping):
-    def __init__(self, base):
-        # base is a Mapping. Could be another ModifiedDictionary
+    
+    def __init__(self, base, mapping):
+        # base is a Mapping. (Could even be another BasedMapping)
         self._base = base
         self._create = {}
         self._update = {}
-        self._delete = set()
+        self._delete = set(base) - set(mapping)
+
+        for k,v in mapping.iteritems():
+            if k in base:
+                self._update[k] = v
+            else:
+                self._create[k] = v
 
     def __getitem__(self, key):
         if key in self._delete:
@@ -49,10 +56,12 @@ class BasedMapping(collections.Mapping):
 
     # cache controlling methods
     def rebase(self, new_base):
-        """Change dependency on base"""
-        new_self = BasedMapping(new_base)
-        for k,v in self.iteritems():
-            if k not in new_base:
+        """Change dependency on base. You could also set new_base to self to make it independent!"""
+        new_self_proxy = BasedMapping(new_base, self)
+        self._base = new_base
+        self._create = new_self_proxy._create
+        self._update = new_self_proxy._update
+        self._delete = new_self_proxy._delete
 
 
 class BasedDictionary(BasedMapping):
