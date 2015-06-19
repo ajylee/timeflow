@@ -19,10 +19,10 @@ def chain_getitem(mappings, key):
             continue
     else:
         raise KeyError
-        
+
 
 class BasedMapping(collections.Mapping):
-    
+
     def __init__(self, base, mapping):
         # base is a Mapping. (Could even be another BasedMapping)
         self._base = base
@@ -56,7 +56,12 @@ class BasedMapping(collections.Mapping):
 
     # cache controlling methods
     def rebase(self, new_base):
-        """Change dependency on base. You could also set new_base to self to make it independent!"""
+        """Change dependency on base. You could also set new_base to self to make it independent!
+
+        This function only effects efficiency.
+
+        """
+
         new_self_proxy = BasedMapping(new_base, self)
         self._base = new_base
         self._create = new_self_proxy._create
@@ -99,7 +104,6 @@ class BasedDictionary(BasedMapping):
 
     def __repr__(self):
         return dict(self).__repr__()
-        
 
 
 class FrozenMapping(collections.Mapping):

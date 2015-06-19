@@ -1,22 +1,46 @@
+import toolz as tz
 
-class TDObject(object):
-    def __init__(self, time_mapping):
-        self.time_mapping = time_mapping
-        self.now = max(time_mapping)
-
-        self.next_future_time = None
-        self.next_future = None
+class TimeLine(object):
+    def __init__(self, time_mapping=None):
+        if time_mapping is not None:
+            self.time_mapping = time_mapping
+        else:
+            self.time_mapping = {}
+        self.latest = max(time_mapping)
 
     def __getitem__(self, time):
         return self.time_mapping[time]
 
-    def advance(self):
-        self.now = 
-    
+    def advance(self, time, future):
+        self.time_mapping[time] = plan
+        assert time > self.latest
+        self.latest_time = time
 
-class Observed(object):
-    def __init__(self, observed):
-        self.observed = observed
+    @property
+    def latest(self):
+        return self.time_mapping[self.latest_time]
+
+
+class TDObserver(object):
+    def __init__(self, rule, *observed_args, **observed_kwargs):
+        self.rule = rule
+        self.observed_args = observed_args
+        self.observed_kwargs = observed_kwargs
 
     def __getitem__(self, time):
-        return observed[time] = 
+        return rule(*[oa[time] for oa in observed_args],
+                    **{k:v[time] for k,v in observed_kwargs.iteritems()})
+
+
+def TDRule(rule):
+    # convenience
+    return tz.partial(TDObserver, rule)
+
+
+class BasedObject(object):
+    def __init__(self, base, actual):
+        self._base = _base
+        if self._base != actual:
+            self._actual = actual
+        else:
+            self._actual = no_change
