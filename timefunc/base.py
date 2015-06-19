@@ -1,24 +1,35 @@
+import collections
 import toolz as tz
 
-class TimeLine(object):
+class TimeLine(collections.Mapping):
     def __init__(self, time_mapping=None):
         if time_mapping is not None:
             self.time_mapping = time_mapping
+            self.latest_time = max(time_mapping)
         else:
             self.time_mapping = {}
-        self.latest = max(time_mapping)
+            self.latest_time = None
 
     def __getitem__(self, time):
         return self.time_mapping[time]
 
+    def __len__(self):
+        return len(self.time_mapping)
+
+    def __iter__(self):
+        return iter(self.time_mapping)
+
     def advance(self, time, future):
         self.time_mapping[time] = plan
-        assert time > self.latest
+        assert (self.latest_time is None) or (time > self.latest_time)
         self.latest_time = time
 
     @property
     def latest(self):
-        return self.time_mapping[self.latest_time]
+        if self.latest_time is not None:
+            return self.time_mapping[self.latest_time]
+        else:
+            return None
 
 
 class TDObserver(object):
