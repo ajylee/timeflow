@@ -1,8 +1,8 @@
-from timefunc.td_mapping import TDMapping
+from timefunc.td_mapping import StepMapping
 
 def test_td_mapping():
     now_copy = dict(a=10, b=20)
-    dd = TDMapping(now_copy)
+    dd = StepMapping(now_copy)
 
     dd.future['a'] = 30
     dd.future['b'] = 2 * dd.future['a']
