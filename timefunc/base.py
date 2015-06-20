@@ -1,17 +1,30 @@
 import collections
 import toolz as tz
+import uuid
+import bisect
+
+now = ('now', uuid.UUID('5e625fb4-7574-4720-bb91-3a598d2332bd'))
+
 
 class TimeLine(collections.Mapping):
-    def __init__(self, time_mapping=None):
-        if time_mapping is not None:
-            self.time_mapping = time_mapping
-            self.latest_time = max(time_mapping)
-        else:
-            self.time_mapping = {}
-            self.latest_time = None
+    def __init__(self, time_mapping):
+        self.time_mapping = time_mapping
+        self.mod_times = sorted(self.time_mapping)
+        if not self.mod_times:
+            raise ValueError, "time_mapping cannot be empty"
 
     def __getitem__(self, time):
-        return self.time_mapping[time]
+        if time is now:
+            return self.time_mapping[self.mod_times[-1]]
+        else:
+            try:
+                return self.time_mapping[time]
+            except KeyError:
+                index = bisect.bisect_right(self.mod_times, time)
+                if index == 0:
+                    raise ValueError, "requested time too early in timeline"
+                else:
+                    return self.time_mapping[self.mod_times[index - 1]]
 
     def __len__(self):
         return len(self.time_mapping)
@@ -20,16 +33,25 @@ class TimeLine(collections.Mapping):
         return iter(self.time_mapping)
 
     def advance(self, time, future):
-        self.time_mapping[time] = plan
-        assert (self.latest_time is None) or (time > self.latest_time)
-        self.latest_time = time
+        assert (time > self.mod_times[-1])
+        self.mod_times.append(time)
+        self.time_mapping[time] = future
 
-    @property
-    def latest(self):
-        if self.latest_time is not None:
-            return self.time_mapping[self.latest_time]
-        else:
-            return None
+    def forget(self, time_range, inclusive=True):
+        for index, time in enumerate(self.mod_times):
+            if inclusive:
+                left_bound = bisect.bisect_left(time_range[0])
+                right_bound = bisect.bisect_right(time_range[1])
+            else:
+                left_bound = bisect.bisect_right(time_range[0])
+                right_bound = bisect.bisect_left(time_range[1])
+
+        to_remove = self.mod_times[left_bound:right_bound]
+        to_keep = self.mod_times[0:left_bound] + self.mod_times[right_bound:-1]
+        for time in to_remove:
+            del self.time_mapping[time]
+        self.mod_times = to_keep
+
 
 
 class TDObserver(object):

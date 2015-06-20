@@ -23,18 +23,22 @@ def chain_getitem(mappings, key):
 
 class BasedMapping(collections.Mapping):
 
-    def __init__(self, base, mapping):
+    def __init__(self, base, mapping=None):
         # base is a Mapping. (Could even be another BasedMapping)
         self._base = base
         self._create = {}
         self._update = {}
-        self._delete = set(base) - set(mapping)
 
-        for k,v in mapping.iteritems():
-            if k in base:
-                self._update[k] = v
-            else:
-                self._create[k] = v
+        if mapping is not None:
+            self._delete = set(base) - set(mapping)
+            for k,v in mapping.iteritems():
+                if k in base:
+                    self._update[k] = v
+                else:
+                    self._create[k] = v
+        else:
+            self._delete = set()
+
 
     def __getitem__(self, key):
         if key in self._delete:
