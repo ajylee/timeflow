@@ -6,6 +6,17 @@ import bisect
 now = ('now', uuid.UUID('5e625fb4-7574-4720-bb91-3a598d2332bd'))
 
 
+def index_bounds(sorted_list, bounds, inclusive=True):
+    if inclusive:
+        left_bound = bisect.bisect_left(bounds[0])
+        right_bound = bisect.bisect_right(bounds[1])
+    else:
+        left_bound = bisect.bisect_right(bounds[0])
+        right_bound = bisect.bisect_left(bounds[1])
+
+    return left_bound, right_bound
+
+
 class TimeLine(collections.Mapping):
     def __init__(self, time_mapping):
         self.time_mapping = time_mapping
@@ -37,21 +48,17 @@ class TimeLine(collections.Mapping):
         self.mod_times.append(time)
         self.time_mapping[time] = future
 
-    def forget(self, time_range, inclusive=True):
-        for index, time in enumerate(self.mod_times):
-            if inclusive:
-                left_bound = bisect.bisect_left(time_range[0])
-                right_bound = bisect.bisect_right(time_range[1])
-            else:
-                left_bound = bisect.bisect_right(time_range[0])
-                right_bound = bisect.bisect_left(time_range[1])
+    def forget(self, time):
+        del self.time_mapping[time]
+        index = bisect.bisect_left(time)
+        del self.mod_times[index]
 
+    def forget_range(self, time_range, inclusive=True):
+        left_bound, right_bound = index_bounds(self.mod_times, time_range, inclusive)
         to_remove = self.mod_times[left_bound:right_bound]
-        to_keep = self.mod_times[0:left_bound] + self.mod_times[right_bound:-1]
         for time in to_remove:
             del self.time_mapping[time]
-        self.mod_times = to_keep
-
+        del self.mod_times[left_bound:right_bound]
 
 
 class TDObserver(object):
