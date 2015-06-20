@@ -62,7 +62,7 @@ class BasedMapping(collections.Mapping):
     def rebase(self, new_base):
         """Change dependency on base. You could also set new_base to self to make it independent!
 
-        This function only effects efficiency.
+        This method only affects efficiency.
 
         """
 
