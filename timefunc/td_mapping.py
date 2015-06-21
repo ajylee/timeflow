@@ -2,7 +2,7 @@ import collections
 import itertools
 import toolz as tz
 from operator import ne
-from .base import TimeLine, DerivedObject
+from .base import TimeLine, DerivedObject, DerivedStage
 
 delete = ('delete', object)
 no_element = ('no_element', object)

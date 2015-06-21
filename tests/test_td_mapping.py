@@ -9,24 +9,19 @@ class TestData:
 def test_td_mapping_2():
     original = TestData.original
     tl = TDMapping({0: DerivedMapping(original.copy())})
-    future = DerivedDictionary(tl[now])
+    stage = tl.new_stage()
 
-    future['a'] = 30
-    future['b'] = 2 * future['a']
-    del future['to_delete']
+    stage['a'] = 30
+    stage['b'] = 2 * stage['a']
+    del stage['to_delete']
 
-    tl.commit(1, future)
+    assert stage._base == tl[0]
+    assert tl[0] == original
 
-    future_copy = dict(a=30, b=60)
+    tl.commit(1, stage)
 
     assert tl[0] == original
-    assert tl[1] == future_copy
-    assert tl[1]._base == tl[0]
-
-    tl[0]._reroot_base(tl[1])
-
-    assert tl[0] == original
-    assert tl[1] == future_copy
+    assert tl[1] == dict(a=30, b=60)
     assert tl[0]._base == tl[1]
 
 
