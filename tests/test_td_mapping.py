@@ -39,8 +39,9 @@ def test_step_mapping():
     assert sm.head == {'a':30, 'b':20, 'new':100}
 
 
-@nose.tools.raises(TypeError)
 def test_step_mapping_errors():
     original = TestData.original
     sm = StepMapping(original.copy())
-    sm.head['x'] = 10
+
+    with nose.tools.assert_raises(TypeError):
+        sm.head['x'] = 10
