@@ -1,19 +1,6 @@
-from timefunc.td_mapping import StepMapping, BasedDictionary, BasedMapping
+from timefunc.td_mapping import StepDictionary, BasedDictionary, BasedMapping
 from timefunc.base import TimeLine, now
 from collections import OrderedDict
-
-def test_td_mapping():
-    now_copy = dict(a=10, b=20)
-    dd = StepMapping(now_copy)
-
-    dd.future['a'] = 30
-    dd.future['b'] = 2 * dd.future['a']
-
-    future_copy = dict(a=30, b=60)
-
-    assert dict(dd.now) == now_copy
-    assert dict(dd.future) == future_copy
-
 
 def test_td_mapping_2():
     now_copy = dict(a=10, b=20)
@@ -36,3 +23,15 @@ def test_td_mapping_2():
     assert tl[0] == now_copy
     assert tl[1] == future_copy
     assert tl[0]._base == tl[1]
+
+
+def test_step_dictionary():
+    original = dict(a=10, b=20)
+    sd = StepDictionary(original.copy(), copy=False)
+
+    sd.stage['a'] = 30
+    sd.stage['c'] = 100
+
+    assert sd.now == original
+    sd.commit()
+    assert sd.now == {'a':30, 'b':20, 'c':100}

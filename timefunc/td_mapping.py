@@ -22,6 +22,14 @@ def chain_getitem(mappings, key):
         raise KeyError
 
 
+def apply_modifications(base, modifications):
+    for k, v in modifications.iteritems():
+        if v == delete:
+            del base[k]
+        else:
+            base[k] = v
+
+
 class BasedMapping(collections.Mapping):
 
     def __init__(self, base, mapping=None):
@@ -88,14 +96,9 @@ class BasedMapping(collections.Mapping):
         root_base = bm1._base
         assert not bm1._modifications
 
-        bm1.rebase(bm2)  # could use bm2._modifications for optimization,
+        bm1.rebase(bm2)  # could use bm2._modifications for optimization
 
-        for k, v in bm2._modifications.iteritems():
-            if v == delete:
-                del root_base[k]
-            else:
-                root_base[k] = v
-
+        apply_modifications(root_base, bm2._modifications)
         bm2._modifications.clear()
         bm2._base = root_base
 
@@ -141,12 +144,12 @@ class FrozenMapping(collections.Mapping):
         return len(self._base)
 
 
-class StepMapping(object):
-    def __init__(self, current_mapping):
-        self.now = current_mapping
-        self.future = BasedDictionary(self.now, self.now)
+class StepDictionary(object):
+    """Drop in replacement for a regular Dict"""
+    def __init__(self, current_mapping, copy=True):
+        self.now = current_mapping.copy() if copy else current_mapping
+        self.stage = BasedDictionary(self.now)
 
-    def step(self):
-        return StepMapping(self.future)
-
-
+    def commit(self):
+        apply_modifications(self.now, self.stage._modifications)
+        self.stage._modifications.clear()
