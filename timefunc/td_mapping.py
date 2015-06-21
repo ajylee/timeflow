@@ -2,6 +2,7 @@ import collections
 import itertools
 import toolz as tz
 from operator import ne
+from .base import TimeLine
 
 delete = ('delete', object)
 no_element = ('no_element', object)
@@ -180,3 +181,12 @@ class StepMapping(object):
         # the underlying data for head will be changed
         apply_modifications(self._base, self.stage._modifications)
         self.stage._modifications.clear()
+
+
+class TDMapping(TimeLine):
+    def __init__(self, time_mapping):
+        TimeLine.__init__(self, time_mapping)
+        self.stage = DerivedDictionary(self[now])
+
+    def commit(self, time):
+        self.advance(time, self.stage)
