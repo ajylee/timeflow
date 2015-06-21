@@ -74,6 +74,9 @@ class BasedMapping(collections.Mapping):
         self._base = new_base
         self._modifications = new_self_proxy._modifications
 
+    def __repr__(self):
+        return dict(self).__repr__()
+
 
 class BasedDictionary(BasedMapping):
     def __delitem__(self, key):
