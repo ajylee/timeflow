@@ -1,6 +1,7 @@
 from timefunc import StepMapping, DerivedDictionary, DerivedMapping
 from timefunc import TimeLine, now
 from collections import OrderedDict
+import nose.tools
 
 class TestData:
     original = dict(a=10, b=20, to_delete=1000)
@@ -38,5 +39,8 @@ def test_step_mapping():
     assert sm.head == {'a':30, 'b':20, 'new':100}
 
 
+@nose.tools.raises(TypeError)
 def test_step_mapping_errors():
-    pass
+    original = TestData.original
+    sm = StepMapping(original.copy())
+    sm.head['x'] = 10
