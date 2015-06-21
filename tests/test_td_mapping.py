@@ -1,5 +1,5 @@
-from timefunc.td_mapping import StepDictionary, BasedDictionary, BasedMapping
-from timefunc.base import TimeLine, now
+from timefunc import StepDictionary, BasedDictionary, BasedMapping
+from timefunc import TimeLine, now
 from collections import OrderedDict
 
 def test_td_mapping_2():
