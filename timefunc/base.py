@@ -61,6 +61,15 @@ class TimeLine(collections.Mapping):
         del self.mod_times[left_bound:right_bound]
 
 
+class RootedTimeLine(TimeLine):
+    # override
+    def advance(self, time, future):
+        orig_latest_time = self.mod_times[-1]
+        TimeLine.advance(self, time, future)
+        new_latest_time = time
+        self.time_mapping[orig_latest_time]._reroot_base(self.time_mapping[new_latest_time])
+
+
 class TDObserver(object):
     def __init__(self, rule, *observed_args, **observed_kwargs):
         self.rule = rule
