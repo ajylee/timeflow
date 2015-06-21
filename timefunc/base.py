@@ -87,7 +87,7 @@ class DerivedObject(object):
         pass
 
     @abstractmethod
-    def new_stage(self):
+    def derive_mutable(self):
         pass
 
 
