@@ -93,7 +93,13 @@ class BasedDictionary(BasedMapping):
 
     def __setitem__(self, key, value):
         # NB never modifies the base mapping
-        self._modifications[key] = value
+        if self._base.get(key, no_element) != value:
+            self._modifications[key] = value
+        else:
+            try:
+                del self._modifications[key]
+            except KeyError:
+                pass
 
 
 class FrozenMapping(collections.Mapping):
