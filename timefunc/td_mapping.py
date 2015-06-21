@@ -170,6 +170,7 @@ class StepMapping(object):
     modifications to head.
 
     """
+
     def __init__(self, base_dictionary):
         self.head = FrozenMappingLayer(base_dictionary)
         self._base = base_dictionary
