@@ -112,11 +112,3 @@ def TDRule(rule):
     # convenience
     return tz.partial(TDObserver, rule)
 
-
-class BasedObject(object):
-    def __init__(self, base, actual):
-        self._base = _base
-        if self._base != actual:
-            self._actual = actual
-        else:
-            self._actual = no_change
