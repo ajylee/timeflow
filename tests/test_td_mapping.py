@@ -1,4 +1,4 @@
-from timefunc.td_mapping import StepMapping, BasedDictionary
+from timefunc.td_mapping import StepMapping, BasedDictionary, _reroot_base, BasedMapping
 from timefunc.base import TimeLine, now
 from collections import OrderedDict
 
@@ -17,7 +17,7 @@ def test_td_mapping():
 
 def test_td_mapping_2():
     now_copy = dict(a=10, b=20)
-    tl = TimeLine({0: now_copy})
+    tl = TimeLine({0: BasedMapping(now_copy)})
     future = BasedDictionary(tl[now])
 
     future['a'] = 30
@@ -28,4 +28,9 @@ def test_td_mapping_2():
     future_copy = dict(a=30, b=60)
 
     assert dict(tl[0]) == now_copy
-    assert dict(future) == future_copy
+    assert dict(tl[1]) == future_copy
+
+    _reroot_base(tl[0], tl[1])
+
+    assert dict(tl[0]) == now_copy
+    assert dict(tl[1]) == future_copy
