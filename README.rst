@@ -30,3 +30,28 @@ explicit reference to objects at various times.
   these relationships, and we updated them over time, we would have difficulty
   answering this question. With the timefunc package we model time-dependence
   explicitly such questions are easy to answer.
+
+
+
+Examples
+---------
+
+
+
+The simplest use case is to have only a head and a stage, to manage mutation.
+This is almost a drop-in replacement for existing dictionaries.
+
+.. code:: python
+
+  from timefunc import StepDictionary
+
+  original = dict(a=10, b=20, to_delete=1000)
+  sd = StepDictionary(original.copy())
+
+  sd.stage['a'] = 30
+  sd.stage['new'] = 100
+  del sd.stage['to_delete']
+
+  assert sd.head == original
+  sd.commit()
+  assert sd.head == {'a':30, 'b':20, 'new':100}
