@@ -1,6 +1,7 @@
 import collections
 import itertools
 import toolz as tz
+from operator import ne
 
 delete = ('delete', object)
 no_element = ('no_element', object)
@@ -26,37 +27,40 @@ class BasedMapping(collections.Mapping):
     def __init__(self, base, mapping=None):
         # base is a Mapping. (Could even be another BasedMapping)
         self._base = base
-        self._create = {}
-        self._update = {}
+        self._modifications = {}
 
         if mapping is not None:
-            self._delete = set(base) - set(mapping)
-            for k,v in mapping.iteritems():
-                if k in base:
-                    self._update[k] = v
-                else:
-                    self._create[k] = v
-        else:
-            self._delete = set()
+            for k in set(base) - set(mapping):
+                self._modifications[k] = delete
 
+            for k,v in mapping.iteritems():
+                if base.get(k, no_element) != v:
+                    self._modifications[k] = v
 
     def __getitem__(self, key):
-        if key in self._delete:
+        try:
+            val = chain_getitem((self._modifications, self._base), key)
+        except KeyError:
             raise KeyError
-        else:
-            try:
-                return chain_getitem((self._create, self._update, self._base), key)
-            except KeyError:
-                raise KeyError
+
+        if val is delete:
+            raise KeyError
+
+        return val
 
     def __iter__(self):
         return itertools.chain(
-            iter(self._create),
-            iter(self._update),
-            (k for k in self._base if k not in self._delete))
+            (k for k,v in self._modifications.iteritems() if v != delete),
+            (k for k in self._base if k not in self._modifications))
 
     def __len__(self):
-        return len(self._base) - len(self._delete) + len(self._create)
+        count = len(self._base)
+        for k,v in self._modifications.iteritems():
+            if k is delete:
+                count -= 1
+            elif k not in self._base:
+                count += 1
+        return count
 
     # cache controlling methods
     def rebase(self, new_base):
@@ -68,46 +72,28 @@ class BasedMapping(collections.Mapping):
 
         new_self_proxy = BasedMapping(new_base, self)
         self._base = new_base
-        self._create = new_self_proxy._create
-        self._update = new_self_proxy._update
-        self._delete = new_self_proxy._delete
+        self._modifications = new_self_proxy._modifications
 
 
 class BasedDictionary(BasedMapping):
     def __delitem__(self, key):
         # NB never modifies the base mapping
-        if key in self._delete:
+        if self._modifications.get(key) is delete:
             raise KeyError
-        elif key in self._create:
-            del self._create[key]
-        elif key in self._update:
-            del self._update[key]
-            self._delete.add(key)
-        elif key in self._base:
-            self._delete.add(key)
+
+        in_modifications = key in self._modifications
+        in_base = key in self._base
+
+        if in_base:
+            self._modifications[key] = delete
+        elif in_modifications: # not in_base
+            del self._modifications[key]
         else:
-            raise KeyError
+            raise KeyError, "no such key {}".format(key)
 
     def __setitem__(self, key, value):
         # NB never modifies the base mapping
-        if key in self._delete:
-            self._delete.remove(key)
-            if self._base[key] != value:
-                self._update[key] = value
-        elif key in self._update:
-            if self._base[key] != value:
-                self._update[key] = value
-            else:
-                del self._update[key]
-        elif key in self._base:
-            if self._base[key] != value:
-                self._update[key] = value
-        else:
-            # key either in self._create or not in any of _create, _update, _delete, _base
-            self._create[key] = value
-
-    def __repr__(self):
-        return dict(self).__repr__()
+        self._modifications[key] = value
 
 
 class FrozenMapping(collections.Mapping):
