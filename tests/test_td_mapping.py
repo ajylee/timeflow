@@ -2,10 +2,13 @@ from timefunc import StepDictionary, BasedDictionary, BasedMapping
 from timefunc import TimeLine, now
 from collections import OrderedDict
 
+class TestData:
+    original = dict(a=10, b=20, to_delete=1000)
+
 
 def test_td_mapping_2():
-    now_copy = dict(a=10, b=20)
-    tl = TimeLine({0: BasedMapping(now_copy.copy())})
+    original = TestData.original
+    tl = TimeLine({0: BasedMapping(original.copy())})
     future = BasedDictionary(tl[now])
 
     future['a'] = 30
@@ -27,12 +30,13 @@ def test_td_mapping_2():
 
 
 def test_step_dictionary():
-    original = dict(a=10, b=20)
+    original = TestData.original
     sd = StepDictionary(original.copy())
 
     sd.stage['a'] = 30
-    sd.stage['c'] = 100
+    sd.stage['new'] = 100
+    del sd.stage['to_delete']
 
     assert sd.head == original
     sd.commit()
-    assert sd.head == {'a':30, 'b':20, 'c':100}
+    assert sd.head == {'a':30, 'b':20, 'new':100}
