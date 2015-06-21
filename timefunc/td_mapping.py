@@ -146,10 +146,10 @@ class FrozenMapping(collections.Mapping):
 
 class StepDictionary(object):
     """Drop in replacement for a regular Dict"""
-    def __init__(self, current_mapping, copy=True):
-        self.now = current_mapping.copy() if copy else current_mapping
-        self.stage = BasedDictionary(self.now)
+    def __init__(self, base_dictionary):
+        self.head = base_dictionary
+        self.stage = BasedDictionary(self.head)
 
     def commit(self):
-        apply_modifications(self.now, self.stage._modifications)
+        apply_modifications(self.head, self.stage._modifications)
         self.stage._modifications.clear()

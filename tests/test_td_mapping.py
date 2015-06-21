@@ -27,11 +27,11 @@ def test_td_mapping_2():
 
 def test_step_dictionary():
     original = dict(a=10, b=20)
-    sd = StepDictionary(original.copy(), copy=False)
+    sd = StepDictionary(original.copy())
 
     sd.stage['a'] = 30
     sd.stage['c'] = 100
 
-    assert sd.now == original
+    assert sd.head == original
     sd.commit()
-    assert sd.now == {'a':30, 'b':20, 'c':100}
+    assert sd.head == {'a':30, 'b':20, 'c':100}
