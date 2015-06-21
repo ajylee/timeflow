@@ -27,15 +27,15 @@ def test_td_mapping_2():
 
 def test_step_mapping():
     original = TestData.original
-    sd = StepMapping(original.copy())
+    sm = StepMapping(original.copy())
 
-    sd.stage['a'] = 30
-    sd.stage['new'] = 100
-    del sd.stage['to_delete']
+    sm.stage['a'] = 30
+    sm.stage['new'] = 100
+    del sm.stage['to_delete']
 
-    assert sd.head == original
-    sd.commit()
-    assert sd.head == {'a':30, 'b':20, 'new':100}
+    assert sm.head == original
+    sm.commit()
+    assert sm.head == {'a':30, 'b':20, 'new':100}
 
 
 def test_step_mapping_errors():

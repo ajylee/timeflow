@@ -46,12 +46,12 @@ This is almost a drop-in replacement for existing dictionaries.
   from timefunc import StepMapping
 
   original = dict(a=10, b=20, to_delete=1000)
-  sd = StepMapping(original.copy())
+  sm = StepMapping(original.copy())
 
-  sd.stage['a'] = 30
-  sd.stage['new'] = 100
-  del sd.stage['to_delete']
+  sm.stage['a'] = 30
+  sm.stage['new'] = 100
+  del sm.stage['to_delete']
 
-  assert sd.head == original
-  sd.commit()
-  assert sd.head == {'a':30, 'b':20, 'new':100}
+  assert sm.head == original
+  sm.commit()
+  assert sm.head == {'a':30, 'b':20, 'new':100}
