@@ -27,12 +27,12 @@ def test_td_mapping_2():
 
     future_copy = dict(a=30, b=60)
 
-    assert dict(tl[0]) == now_copy
-    assert dict(tl[1]) == future_copy
+    assert tl[0] == now_copy
+    assert tl[1] == future_copy
     assert tl[1]._base == tl[0]
 
     tl[0]._reroot_base(tl[1])
 
-    assert dict(tl[0]) == now_copy
-    assert dict(tl[1]) == future_copy
+    assert tl[0] == now_copy
+    assert tl[1] == future_copy
     assert tl[0]._base == tl[1]
