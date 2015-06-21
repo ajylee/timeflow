@@ -62,6 +62,9 @@ class BasedMapping(collections.Mapping):
                 count += 1
         return count
 
+    def __repr__(self):
+        return dict(self).__repr__()
+
     # cache controlling methods
     def rebase(self, new_base):
         """Change dependency on base.
@@ -74,8 +77,27 @@ class BasedMapping(collections.Mapping):
         self._base = new_base
         self._modifications = new_self_proxy._modifications
 
-    def __repr__(self):
-        return dict(self).__repr__()
+    def _reroot_base(bm1, bm2):
+        """For efficiency only. Mutates bm1._base. Make sure nothing refers to
+        it.
+
+        Involves implementation details of BasedMapping.
+
+        """
+
+        root_base = bm1._base
+        assert not bm1._modifications
+
+        bm1.rebase(bm2)  # could use bm2._modifications for optimization,
+
+        for k, v in bm2._modifications.iteritems():
+            if v == delete:
+                del root_base[k]
+            else:
+                root_base[k] = v
+
+        bm2._modifications.clear()
+        bm2._base = root_base
 
 
 class BasedDictionary(BasedMapping):
@@ -128,24 +150,3 @@ class StepMapping(object):
         return StepMapping(self.future)
 
 
-def _reroot_base(bm1, bm2):
-    """For efficiency only. Mutates bm1._base. Make sure nothing refers to
-    it.
-
-    Involves implementation details of BasedMapping.
-
-    """
-
-    root_base = bm1._base
-    assert not bm1._modifications
-
-    bm1.rebase(bm2)  # could use bm2._modifications for optimization,
-
-    for k, v in bm2._modifications.iteritems():
-        if v == delete:
-            del root_base[k]
-        else:
-            root_base[k] = v
-
-    bm2._modifications.clear()
-    bm2._base = root_base
