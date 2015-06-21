@@ -64,7 +64,7 @@ class BasedMapping(collections.Mapping):
 
     # cache controlling methods
     def rebase(self, new_base):
-        """Change dependency on base. You could also set new_base to self to make it independent!
+        """Change dependency on base.
 
         This method only affects efficiency.
 
