@@ -1,4 +1,4 @@
-from timefunc import StepMapping, DerivedDictionary, DerivedMapping
+from timefunc import StepMapping, DerivedDictionary, DerivedMapping, TDMapping
 from timefunc import TimeLine, now
 from collections import OrderedDict
 
@@ -8,14 +8,14 @@ class TestData:
 
 def test_td_mapping_2():
     original = TestData.original
-    tl = TimeLine({0: DerivedMapping(original.copy())})
+    tl = TDMapping({0: DerivedMapping(original.copy())})
     future = DerivedDictionary(tl[now])
 
     future['a'] = 30
     future['b'] = 2 * future['a']
     del future['to_delete']
 
-    tl.advance(1, future)
+    tl.commit(1, future)
 
     future_copy = dict(a=30, b=60)
 
@@ -30,7 +30,7 @@ def test_td_mapping_2():
     assert tl[0]._base == tl[1]
 
 
-def test_step_dictionary():
+def test_step_mapping():
     original = TestData.original
     sd = StepMapping(original.copy())
 
@@ -41,3 +41,7 @@ def test_step_dictionary():
     assert sd.head == original
     sd.commit()
     assert sd.head == {'a':30, 'b':20, 'new':100}
+
+
+def test_step_mapping_errors():
+    pass

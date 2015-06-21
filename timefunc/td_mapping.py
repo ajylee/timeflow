@@ -2,7 +2,7 @@ import collections
 import itertools
 import toolz as tz
 from operator import ne
-from .base import TimeLine
+from .base import TimeLine, DerivedObject
 
 delete = ('delete', object)
 no_element = ('no_element', object)
@@ -45,20 +45,22 @@ def reversed_modifications(base, modifications):
     return _out
 
 
-class DerivedMapping(collections.Mapping):
+def derive_modifications(base, mapping):
+    _modifications = {}
+    for k in set(base) - set(mapping):
+        _modifications[k] = delete
 
-    def __init__(self, base, mapping=None):
+    for k,v in mapping.iteritems():
+        if base.get(k, no_element) != v:
+            _modifications[k] = v
+
+
+class DerivedMapping(collections.Mapping, DerivedObject):
+
+    def __init__(self, base, modifications=None):
         # base is a Mapping. (Could even be another DerivedMapping)
         self._base = base
-        self._modifications = {}
-
-        if mapping is not None:
-            for k in set(base) - set(mapping):
-                self._modifications[k] = delete
-
-            for k,v in mapping.iteritems():
-                if base.get(k, no_element) != v:
-                    self._modifications[k] = v
+        self._modifications = {} if modifications is None else modifications
 
     def __getitem__(self, key):
         try:
@@ -96,9 +98,9 @@ class DerivedMapping(collections.Mapping):
 
         """
 
-        new_self_proxy = DerivedMapping(new_base, self)
+        new_modifications = derive_modifications(new_base, self)
         self._base = new_base
-        self._modifications = new_self_proxy._modifications
+        self._modifications = new_modifications
 
     def _reroot_base(bm1, bm2):
         """For efficiency only. Mutates bm1._base. Make sure nothing refers to
@@ -119,7 +121,7 @@ class DerivedMapping(collections.Mapping):
         bm2._base = root_base
 
 
-class DerivedDictionary(DerivedMapping):
+class DerivedDictionary(DerivedMapping, DerivedStage, collections.MutableMapping):
     def __delitem__(self, key):
         # NB never modifies the base mapping
         if self._modifications.get(key) is delete:
@@ -144,6 +146,9 @@ class DerivedDictionary(DerivedMapping):
                 del self._modifications[key]
             except KeyError:
                 pass
+
+    def frozen_view(self):
+        return DerivedMapping(self._base, self._modifications)
 
 
 class FrozenMappingLayer(collections.Mapping):
@@ -186,7 +191,6 @@ class StepMapping(object):
 class TDMapping(TimeLine):
     def __init__(self, time_mapping):
         TimeLine.__init__(self, time_mapping)
-        self.stage = DerivedDictionary(self[now])
 
-    def commit(self, time):
-        self.advance(time, self.stage)
+    def new_stage(self):
+        return DerivedDictionary(self.head)

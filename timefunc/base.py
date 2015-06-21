@@ -2,6 +2,8 @@ import collections
 import toolz as tz
 import uuid
 import bisect
+from abc import abstractmethod
+
 
 now = ('now', uuid.UUID('5e625fb4-7574-4720-bb91-3a598d2332bd'))
 
@@ -24,9 +26,29 @@ class TimeLine(collections.Mapping):
         if not self.mod_times:
             raise ValueError, "time_mapping cannot be empty"
 
+    @abstractmethod
+    def new_stage(self):
+        pass
+
+    @property
+    def head(self):
+        return self.time_mapping[self.mod_times[-1]]
+
+    def commit(self, time, stage):
+        """For timelines with the head as the root. That means the latest value in the
+        timeline is a standalone mapping, and all others are derived from it.
+
+        """
+        orig_latest_time = self.mod_times[-1]
+        new_latest_time = time
+        assert new_latest_time > orig_latest_time
+        self.mod_times.append(new_latest_time)
+        self.time_mapping[new_latest_time] = stage.frozen_view()
+        self.time_mapping[orig_latest_time]._reroot_base(self.time_mapping[new_latest_time])
+
     def __getitem__(self, time):
         if time is now:
-            return self.time_mapping[self.mod_times[-1]]
+            return self.head
         else:
             try:
                 return self.time_mapping[time]
@@ -43,11 +65,6 @@ class TimeLine(collections.Mapping):
     def __iter__(self):
         return iter(self.time_mapping)
 
-    def advance(self, time, future):
-        assert (time > self.mod_times[-1])
-        self.mod_times.append(time)
-        self.time_mapping[time] = future
-
     def forget(self, time):
         del self.time_mapping[time]
         index = bisect.bisect_left(time)
@@ -61,15 +78,20 @@ class TimeLine(collections.Mapping):
         del self.mod_times[left_bound:right_bound]
 
 
-def advance_with_head_root(self, time, future):
-    """For timelines with the head as the root. That means the latest value in the
-    timeline is a standalone mapping, and all others are derived from it.
+class DerivedObject(object):
+    @abstractmethod
+    def _reroot_base(self, new_root):
+        """For efficiency only. Results of all public API calls must remain
+        invariant, but private variables may mutate.
 
-    """
-    orig_latest_time = self.mod_times[-1]
-    TimeLine.advance(self, time, future)
-    new_latest_time = time
-    self.time_mapping[orig_latest_time]._reroot_base(self.time_mapping[new_latest_time])
+        """
+        pass
+
+
+class DerivedStage(object):
+    @abstractmethod
+    def frozen_view(self):
+        pass
 
 
 class TDObserver(object):
