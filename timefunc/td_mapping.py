@@ -145,26 +145,37 @@ class BasedDictionary(BasedMapping):
                 pass
 
 
-class FrozenMapping(collections.Mapping):
+class FrozenMappingLayer(collections.Mapping):
     def __init__(self, base):
         self._base = base
 
     def __getitem__(self, key):
-        return self._base
+        return self._base[key]
 
-    def __iter__(self, key):
+    def __iter__(self):
         return iter(self._base)
 
     def __len__(self):
         return len(self._base)
 
+    def __repr__(self):
+        return dict(self).__repr__()
+
 
 class StepDictionary(object):
-    """Drop in replacement for a regular Dict"""
+    """Drop in replacement for a regular Dict
+
+    Obtain data from :attr:`head`. Head cannot be modified directly via the
+    public API; instead, modify :attr:`stage`, then commit. This applies
+    modifications to head.
+
+    """
     def __init__(self, base_dictionary):
-        self.head = base_dictionary
-        self.stage = BasedDictionary(self.head)
+        self.head = FrozenMappingLayer(base_dictionary)
+        self._base = base_dictionary
+        self.stage = BasedDictionary(self._base)
 
     def commit(self):
-        apply_modifications(self.head, self.stage._modifications)
+        # the underlying data for head will be changed
+        apply_modifications(self._base, self.stage._modifications)
         self.stage._modifications.clear()
