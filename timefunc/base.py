@@ -61,13 +61,15 @@ class TimeLine(collections.Mapping):
         del self.mod_times[left_bound:right_bound]
 
 
-class RootedTimeLine(TimeLine):
-    # override
-    def advance(self, time, future):
-        orig_latest_time = self.mod_times[-1]
-        TimeLine.advance(self, time, future)
-        new_latest_time = time
-        self.time_mapping[orig_latest_time]._reroot_base(self.time_mapping[new_latest_time])
+def advance_with_head_root(self, time, future):
+    """For timelines with the head as the root. That means the latest value in the
+    timeline is a standalone mapping, and all others are derived from it.
+
+    """
+    orig_latest_time = self.mod_times[-1]
+    TimeLine.advance(self, time, future)
+    new_latest_time = time
+    self.time_mapping[orig_latest_time]._reroot_base(self.time_mapping[new_latest_time])
 
 
 class TDObserver(object):
