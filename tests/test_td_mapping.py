@@ -17,7 +17,7 @@ def test_td_mapping():
 
 def test_td_mapping_2():
     now_copy = dict(a=10, b=20)
-    tl = TimeLine({0: BasedMapping(now_copy)})
+    tl = TimeLine({0: BasedMapping(now_copy.copy())})
     future = BasedDictionary(tl[now])
 
     future['a'] = 30
@@ -29,8 +29,10 @@ def test_td_mapping_2():
 
     assert dict(tl[0]) == now_copy
     assert dict(tl[1]) == future_copy
+    assert tl[1]._base == tl[0]
 
     _reroot_base(tl[0], tl[1])
 
     assert dict(tl[0]) == now_copy
     assert dict(tl[1]) == future_copy
+    assert tl[0]._base == tl[1]
