@@ -30,6 +30,20 @@ def apply_modifications(base, modifications):
             base[k] = v
 
 
+def reversed_modifications(base, modifications):
+    _out = {}
+    for k in modifications:
+        base_v = base.get(k, no_element)
+        if base_v is no_element:
+            # assert v is not delete  # debug
+            _out[k] = delete
+        else:
+            # assert v != base_v      # debug
+            _out[k] = base[k]
+
+    return _out
+
+
 class BasedMapping(collections.Mapping):
 
     def __init__(self, base, mapping=None):
@@ -96,7 +110,8 @@ class BasedMapping(collections.Mapping):
         root_base = bm1._base
         assert not bm1._modifications
 
-        bm1.rebase(bm2)  # could use bm2._modifications for optimization
+        bm1._modifications = reversed_modifications(root_base, bm2._modifications)
+        bm1._base = bm2
 
         apply_modifications(root_base, bm2._modifications)
         bm2._modifications.clear()
