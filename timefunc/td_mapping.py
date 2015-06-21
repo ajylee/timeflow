@@ -44,10 +44,10 @@ def reversed_modifications(base, modifications):
     return _out
 
 
-class BasedMapping(collections.Mapping):
+class DerivedMapping(collections.Mapping):
 
     def __init__(self, base, mapping=None):
-        # base is a Mapping. (Could even be another BasedMapping)
+        # base is a Mapping. (Could even be another DerivedMapping)
         self._base = base
         self._modifications = {}
 
@@ -95,7 +95,7 @@ class BasedMapping(collections.Mapping):
 
         """
 
-        new_self_proxy = BasedMapping(new_base, self)
+        new_self_proxy = DerivedMapping(new_base, self)
         self._base = new_base
         self._modifications = new_self_proxy._modifications
 
@@ -103,7 +103,7 @@ class BasedMapping(collections.Mapping):
         """For efficiency only. Mutates bm1._base. Make sure nothing refers to
         it.
 
-        Involves implementation details of BasedMapping.
+        Involves implementation details of DerivedMapping.
 
         """
 
@@ -118,7 +118,7 @@ class BasedMapping(collections.Mapping):
         bm2._base = root_base
 
 
-class BasedDictionary(BasedMapping):
+class DerivedDictionary(DerivedMapping):
     def __delitem__(self, key):
         # NB never modifies the base mapping
         if self._modifications.get(key) is delete:
@@ -162,7 +162,7 @@ class FrozenMappingLayer(collections.Mapping):
         return dict(self).__repr__()
 
 
-class StepDictionary(object):
+class StepMapping(object):
     """Drop in replacement for a regular Dict
 
     Obtain data from :attr:`head`. Head cannot be modified directly via the
@@ -173,7 +173,7 @@ class StepDictionary(object):
     def __init__(self, base_dictionary):
         self.head = FrozenMappingLayer(base_dictionary)
         self._base = base_dictionary
-        self.stage = BasedDictionary(self._base)
+        self.stage = DerivedDictionary(self._base)
 
     def commit(self):
         # the underlying data for head will be changed

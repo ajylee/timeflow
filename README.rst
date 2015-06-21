@@ -43,10 +43,10 @@ This is almost a drop-in replacement for existing dictionaries.
 
 .. code:: python
 
-  from timefunc import StepDictionary
+  from timefunc import StepMapping
 
   original = dict(a=10, b=20, to_delete=1000)
-  sd = StepDictionary(original.copy())
+  sd = StepMapping(original.copy())
 
   sd.stage['a'] = 30
   sd.stage['new'] = 100

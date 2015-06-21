@@ -5,7 +5,7 @@
 ##################
 
 from .td_mapping import (
-    BasedDictionary, StepDictionary, BasedMapping
+    DerivedDictionary, StepMapping, DerivedMapping
 )
 
 from .base import (
