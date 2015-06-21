@@ -26,13 +26,12 @@ class TimeLine(collections.Mapping):
         if not self.mod_times:
             raise ValueError, "time_mapping cannot be empty"
 
-    @abstractmethod
-    def new_stage(self):
-        pass
-
     @property
     def head(self):
         return self.time_mapping[self.mod_times[-1]]
+
+    def new_stage(self):
+        return self.head.derive_mutable()
 
     def commit(self, time, stage):
         """For timelines with the head as the root. That means the latest value in the
@@ -85,6 +84,10 @@ class DerivedObject(object):
         invariant, but private variables may mutate.
 
         """
+        pass
+
+    @abstractmethod
+    def new_stage(self):
         pass
 
 

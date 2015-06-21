@@ -90,6 +90,9 @@ class DerivedMapping(collections.Mapping, DerivedObject):
     def __repr__(self):
         return dict(self).__repr__()
 
+    def derive_mutable(self):
+        return DerivedDictionary(self)
+
     # cache controlling methods
     def rebase(self, new_base):
         """Change dependency on base.
@@ -186,11 +189,3 @@ class StepMapping(object):
         # the underlying data for head will be changed
         apply_modifications(self._base, self.stage._modifications)
         self.stage._modifications.clear()
-
-
-class TDMapping(TimeLine):
-    def __init__(self, time_mapping):
-        TimeLine.__init__(self, time_mapping)
-
-    def new_stage(self):
-        return DerivedDictionary(self.head)

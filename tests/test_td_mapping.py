@@ -1,4 +1,4 @@
-from timefunc import StepMapping, DerivedDictionary, DerivedMapping, TDMapping
+from timefunc import StepMapping, DerivedDictionary, DerivedMapping
 from timefunc import TimeLine, now
 from collections import OrderedDict
 
@@ -8,7 +8,7 @@ class TestData:
 
 def test_td_mapping_2():
     original = TestData.original
-    tl = TDMapping({0: DerivedMapping(original.copy())})
+    tl = TimeLine({0: DerivedMapping(original.copy())})
     stage = tl.new_stage()
 
     stage['a'] = 30
