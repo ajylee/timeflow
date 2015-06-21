@@ -2,6 +2,7 @@ from timefunc import StepDictionary, BasedDictionary, BasedMapping
 from timefunc import TimeLine, now
 from collections import OrderedDict
 
+
 def test_td_mapping_2():
     now_copy = dict(a=10, b=20)
     tl = TimeLine({0: BasedMapping(now_copy.copy())})
