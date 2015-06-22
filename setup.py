@@ -22,5 +22,5 @@ setup(
         packages=[MAIN_PKG],
         #license='LICENSE.txt',
         long_description=open('README.rst').read(),
-        install_requires=['pytoolz >= 1.6.0'],
+        install_requires=['toolz >= 0.7.2'],
         )
