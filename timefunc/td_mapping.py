@@ -154,6 +154,20 @@ class DerivedDictionary(DerivedMapping, DerivedStage, collections.MutableMapping
         return DerivedMapping(self._base, self._modifications)
 
 
+class DerivedDefaultDictionary(DerivedDictionary):
+    def __init__(self, base, modifications, default_thunk):
+        DerivedDictionary.__init__(self, base, modifications)
+        self._default_thunk = default_thunk
+
+    def __getitem__(self, key):
+        try:
+            return DerivedDictionary.__getitem__(self, key)
+        except KeyError:
+            _default = self._default_thunk()
+            self.__setitem__(self, key, _default)
+            return _default
+
+
 class FrozenMappingLayer(collections.Mapping):
     def __init__(self, base):
         self._base = base
@@ -189,3 +203,14 @@ class StepMapping(FrozenMappingLayer):
         # the underlying data for head will be changed
         apply_modifications(self._base, self.stage._modifications)
         self.stage._modifications.clear()
+
+
+class StepDefaultMapping(StepMapping):
+    """Similar to StepMapping, but allows defaultdict functionality for the stage"""
+
+    def __init__(self, base_dictionary, default_thunk):
+        self.head = FrozenMappingLayer(base_dictionary)
+        self._base = base_dictionary
+        self.stage = DerivedDefaultDictionary(base = self._base,
+                                           modifications = None,
+                                           default_thunk = default_thunk)
