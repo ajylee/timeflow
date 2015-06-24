@@ -171,7 +171,7 @@ class FrozenMappingLayer(collections.Mapping):
         return dict(self).__repr__()
 
 
-class StepMapping(object):
+class StepMapping(FrozenMappingLayer):
     """Drop in replacement for a regular Dict
 
     Obtain data from :attr:`head`. Head cannot be modified directly via the
