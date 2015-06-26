@@ -117,6 +117,12 @@ class FrozenSetLayer(collections.Set):
     def __repr__(self):
         return set(self).__repr__()
 
+    def intersection(self, other):
+        return self.__and__(other)
+
+    def union(self, other):
+        return self.__or__(other)
+
 
 class StepSet(FrozenSetLayer):
     """Drop in replacement for a regular Dict
@@ -127,7 +133,9 @@ class StepSet(FrozenSetLayer):
 
     """
 
-    def __init__(self, base_set):
+    def __init__(self, base_set=None):
+        if base_set is None:
+            base_set = set()
         self.head = FrozenSetLayer(base_set)
         self._base = base_set
         self.stage = DerivedMutableSet(self._base, None, None)
