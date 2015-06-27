@@ -1,4 +1,4 @@
-timefunc
+timeflow
 =========
 
 *Handle time dependence naturally*
@@ -9,7 +9,7 @@ FRP-style data structures for python. The data structures
 become a function of time, allowing you to construct the future with
 explicit reference to objects at various times.
 
-- The timefunc package allows the efficient representation of time-dependent
+- The timeflow package allows the efficient representation of time-dependent
   datastructures.
 
 - Simplify the modification of data structures via a git-like workflow. The past
@@ -28,7 +28,7 @@ explicit reference to objects at various times.
   The question depends crucially on the ability to determine relationships at
   different times. If we used python dictionaries to keep track of all these
   these relationships, and we updated them over time, we would have difficulty
-  answering this question. With the timefunc package we model time-dependence
+  answering this question. With the timeflow package we model time-dependence
   explicitly such questions are easy to answer.
 
 
@@ -43,7 +43,7 @@ This is almost a drop-in replacement for existing dictionaries.
 
 .. code:: python
 
-  from timefunc import StepMapping
+  from timeflow import StepMapping
 
   original = dict(a=10, b=20, to_delete=1000)
   sm = StepMapping(original.copy())

@@ -1,5 +1,5 @@
-from timefunc import StepSet, DerivedSet
-from timefunc import TimeLine, now
+from timeflow import StepSet, DerivedSet
+from timeflow import TimeLine, now
 from collections import OrderedDict
 import nose.tools
 

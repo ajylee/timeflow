@@ -1,5 +1,5 @@
-from timefunc import StepMapping, DerivedDictionary, DerivedMapping
-from timefunc import TimeLine, now
+from timeflow import StepMapping, DerivedDictionary, DerivedMapping
+from timeflow import TimeLine, now
 from collections import OrderedDict
 import nose.tools
 

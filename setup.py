@@ -1,6 +1,6 @@
 from distutils.core import setup
 
-MAIN_PKG = 'timefunc'
+MAIN_PKG = 'timeflow'
 
 
 ##################
