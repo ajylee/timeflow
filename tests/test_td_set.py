@@ -1,4 +1,4 @@
-from timeflow import StepSet, DerivedSet
+from timeflow import StepSet, DerivedSet, Plan, StepPlan
 from timeflow import TimeLine, now
 from collections import OrderedDict
 import nose.tools
@@ -10,15 +10,16 @@ class TestData:
 def test_td_set():
     original = TestData.original
     tl = TimeLine({0: DerivedSet(original.copy(), None, None)})
-    stage = tl.new_stage()
 
-    stage.add(30)
-    stage.remove('to_delete')
+    plan = Plan([tl], 0)
 
-    assert stage._base == tl[0]
+    plan[tl].add(30)
+    plan[tl].remove('to_delete')
+
+    assert plan[tl]._base == tl[0]
     assert tl[0] == original
 
-    tl.commit(1, stage)
+    plan.commit(1)
 
     assert tl[0] == original
     assert tl[1] == {10, 20, 30, 1000}
@@ -29,18 +30,20 @@ def test_step_set():
     original = TestData.original
     ss = StepSet(original.copy())
 
-    ss.stage.add(30)
-    ss.stage.add(100)
-    ss.stage.remove('to_delete')
+    plan = StepPlan([ss])
+
+    plan[ss].add(30)
+    plan[ss].add(100)
+    plan[ss].remove('to_delete')
 
     assert ss.head == original
-    ss.commit()
+    plan.commit()
     assert ss.head == {10, 20, 30, 100, 1000}
 
-    ss.stage.add(40)
-    ss.stage.remove(10)
+    plan[ss].add(40)
+    plan[ss].remove(10)
     assert ss.head == {10, 20, 30, 100, 1000}
-    ss.commit()
+    plan.commit()
     assert ss.head == {20, 30, 40, 100, 1000}
 
 
@@ -50,6 +53,6 @@ def test_step_mapping_errors():
 
     with nose.tools.assert_raises(AttributeError):
         sm.head.add(30)
-        
+
     with nose.tools.assert_raises(AttributeError):
         sm.head.remove('to_delete')

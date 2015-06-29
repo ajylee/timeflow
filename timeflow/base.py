@@ -8,6 +8,38 @@ from abc import abstractmethod
 now = ('now', uuid.UUID('5e625fb4-7574-4720-bb91-3a598d2332bd'))
 
 
+class Plan(object):
+    def __init__(self, timelines, base_time):
+        self.stage = {
+            timeline: timeline[base_time].new_stage()
+            for timeline in timelines}
+
+        self.base_time = base_time
+
+    def __getitem__(self, timeline):
+        try:
+            return self.stage[timeline]
+        except KeyError:
+            _stage = timeline.new_stage()
+            self.stage[timeline] = _stage
+            return _stage
+
+
+class StepPlan(object):
+    def __init__(self, step_structures):
+        self.stage = {
+            step: step.new_stage()
+            for step in timelines}
+
+    def __getitem__(self, timeline):
+        try:
+            return self.stage[timeline]
+        except KeyError:
+            _stage = timeline.new_stage()
+            self.stage[timeline] = _stage
+            return _stage
+
+
 def index_bounds(sorted_list, bounds, inclusive=True):
     if inclusive:
         left_bound = bisect.bisect_left(bounds[0])
