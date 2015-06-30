@@ -24,20 +24,28 @@ class Plan(object):
             self.stage[timeline] = _stage
             return _stage
 
+    def commit(self, time):
+        for timeline, stage in self.stage.items():
+            timeline.commit(time, stage)
+
 
 class StepPlan(object):
-    def __init__(self, step_structures):
+    def __init__(self, step_objs):
         self.stage = {
             step: step.new_stage()
-            for step in timelines}
+            for step in step_objs}
 
-    def __getitem__(self, timeline):
+    def __getitem__(self, step_obj):
         try:
-            return self.stage[timeline]
+            return self.stage[step_obj]
         except KeyError:
-            _stage = timeline.new_stage()
-            self.stage[timeline] = _stage
+            _stage = step_obj.new_stage()
+            self.stage[step_obj] = _stage
             return _stage
+
+    def commit(self):
+        for step_obj, stage in self.stage.items():
+            step_obj.commit(stage)
 
 
 def index_bounds(sorted_list, bounds, inclusive=True):

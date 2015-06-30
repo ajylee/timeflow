@@ -197,12 +197,13 @@ class StepMapping(FrozenMappingLayer):
     def __init__(self, base_dictionary):
         self.head = FrozenMappingLayer(base_dictionary)
         self._base = base_dictionary
-        self.stage = DerivedDictionary(self._base)
 
-    def commit(self):
+    def new_stage(self):
+        return DerivedDictionary(self._base)
+
+    def commit(self, stage):
         # the underlying data for head will be changed
-        apply_modifications(self._base, self.stage._modifications)
-        self.stage._modifications.clear()
+        apply_modifications(self._base, stage._modifications)
 
 
 class StepDefaultMapping(StepMapping):
@@ -211,6 +212,9 @@ class StepDefaultMapping(StepMapping):
     def __init__(self, base_dictionary, default_thunk):
         self.head = FrozenMappingLayer(base_dictionary)
         self._base = base_dictionary
-        self.stage = DerivedDefaultDictionary(base = self._base,
-                                           modifications = None,
-                                           default_thunk = default_thunk)
+        self._default_thunk = default_thunk
+
+    def new_stage(self):
+        return DerivedDefaultDictionary(base = self._base,
+                                        modifications = None,
+                                        default_thunk = self._default_thunk)

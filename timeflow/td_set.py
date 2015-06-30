@@ -138,10 +138,10 @@ class StepSet(FrozenSetLayer):
             base_set = set()
         self.head = FrozenSetLayer(base_set)
         self._base = base_set
-        self.stage = DerivedMutableSet(self._base, None, None)
+
+    def new_stage(self):
+        return DerivedMutableSet(self._base, None, None)
 
     def commit(self):
         # the underlying data for head will be changed
-        apply_modifications(self._base, self.stage._additions, self.stage._removals)
-        self.stage._additions.clear()
-        self.stage._removals.clear()
+        apply_modifications(self._base, stage._additions, stage._removals)
