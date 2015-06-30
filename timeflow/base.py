@@ -37,6 +37,9 @@ class Plan(object):
             self.stage[timeline] = _stage
             return _stage
 
+    def update(self, other_plan):
+        self.stage.update(other_plan.stage)
+
     def commit(self, time):
         for timeline, stage in self.stage.values():
             timeline.commit(time, stage)
