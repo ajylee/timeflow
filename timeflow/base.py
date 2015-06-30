@@ -11,40 +11,32 @@ now = ('now', uuid.UUID('5e625fb4-7574-4720-bb91-3a598d2332bd'))
 class Plan(object):
     def __init__(self, timelines, base_time):
         self.stage = {
-            timeline: timeline[base_time].new_stage()
+            id(timeline): (timeline, timeline[base_time].new_stage())
             for timeline in timelines}
 
         self.base_time = base_time
 
     def __getitem__(self, timeline):
         try:
-            return self.stage[timeline]
+            return self.stage[id(timeline)][1]
         except KeyError:
             _stage = timeline.new_stage()
-            self.stage[timeline] = _stage
+            self.stage[id(timeline)] = (timeline, _stage)
             return _stage
 
     def commit(self, time):
-        for timeline, stage in self.stage.items():
+        for timeline, stage in self.stage.values():
             timeline.commit(time, stage)
 
 
-class StepPlan(object):
+class StepPlan(Plan):
     def __init__(self, step_objs):
         self.stage = {
-            step: step.new_stage()
+            id(step): (step, step.new_stage())
             for step in step_objs}
 
-    def __getitem__(self, step_obj):
-        try:
-            return self.stage[step_obj]
-        except KeyError:
-            _stage = step_obj.new_stage()
-            self.stage[step_obj] = _stage
-            return _stage
-
     def commit(self):
-        for step_obj, stage in self.stage.items():
+        for step_obj, stage in self.stage.values():
             step_obj.commit(stage)
 
 
