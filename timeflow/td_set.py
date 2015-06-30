@@ -139,6 +139,9 @@ class StepSet(FrozenSetLayer):
         self.head = FrozenSetLayer(base_set)
         self._base = base_set
 
+    def __hash__(self):
+        return object.__hash__(self)
+
     def new_stage(self):
         return DerivedMutableSet(self._base, None, None)
 

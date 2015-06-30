@@ -198,6 +198,9 @@ class StepMapping(FrozenMappingLayer):
         self.head = FrozenMappingLayer(base_dictionary)
         self._base = base_dictionary
 
+    def __hash__(self):
+        return object.__hash__(self)
+
     def new_stage(self):
         return DerivedDictionary(self._base)
 
