@@ -48,7 +48,7 @@ class DerivedSet(collections.Set, DerivedObject):
             (element in self._base or element in self._additions)
             and element not in self._removals)
 
-    def derive_mutable(self):
+    def new_stage(self):
         return DerivedMutableSet(self, None, None)
 
     # cache controlling methods

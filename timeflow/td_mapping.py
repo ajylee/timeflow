@@ -90,7 +90,7 @@ class DerivedMapping(collections.Mapping, DerivedObject):
     def __repr__(self):
         return dict(self).__repr__()
 
-    def derive_mutable(self):
+    def new_stage(self):
         return DerivedDictionary(self)
 
     # cache controlling methods
