@@ -2,7 +2,7 @@ import collections
 import itertools
 import toolz as tz
 from operator import ne
-from .base import TimeLine, DerivedObject, DerivedStage
+from .base import TimeLine, DerivedObject, DerivedStage, new_timeflow_id
 
 delete = ('delete', object)
 no_element = ('no_element', object)
@@ -197,9 +197,7 @@ class StepMapping(FrozenMappingLayer):
     def __init__(self, base_dictionary):
         self.head = FrozenMappingLayer(base_dictionary)
         self._base = base_dictionary
-
-    def __hash__(self):
-        return object.__hash__(self)
+        self._timeflow_id = new_timeflow_id()
 
     def new_stage(self):
         return DerivedDictionary(self._base)

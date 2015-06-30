@@ -2,7 +2,7 @@ import collections
 import itertools
 import toolz as tz
 from operator import ne
-from .base import TimeLine, DerivedObject, DerivedStage
+from .base import TimeLine, DerivedObject, DerivedStage, new_timeflow_id
 
 
 def apply_modifications(base, additions, removals):
@@ -138,9 +138,7 @@ class StepSet(FrozenSetLayer):
             base_set = set()
         self.head = FrozenSetLayer(base_set)
         self._base = base_set
-
-    def __hash__(self):
-        return object.__hash__(self)
+        self._timeflow_id = new_timeflow_id()
 
     def new_stage(self):
         return DerivedMutableSet(self._base, None, None)

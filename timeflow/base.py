@@ -8,35 +8,48 @@ from abc import abstractmethod
 now = ('now', uuid.UUID('5e625fb4-7574-4720-bb91-3a598d2332bd'))
 
 
+_id_count = -1
+
+def new_timeflow_id():
+    global _id_count
+    _id_count += 1
+    return _id_count
+
+
 class Plan(object):
     def __init__(self, timelines, base_time):
+        self._count = 0
+        self.base_time = base_time
+
         self.stage = {
-            timeline: timeline[base_time].new_stage()
+            timeline._timeflow_id: (timeline, timeline[base_time].new_stage())
             for timeline in timelines}
 
-        self.base_time = base_time
+    def _gen_id(self):
+        self._count += 1
+        return self._count
 
     def __getitem__(self, timeline):
         try:
-            return self.stage[timeline]
+            return self.stage[timeline._timeflow_id][1]
         except KeyError:
             _stage = timeline.new_stage()
             self.stage[timeline] = _stage
             return _stage
 
     def commit(self, time):
-        for timeline, stage in self.stage.items():
+        for timeline, stage in self.stage.values():
             timeline.commit(time, stage)
 
 
 class StepPlan(Plan):
     def __init__(self, step_objs):
         self.stage = {
-            step: step.new_stage()
-            for step in step_objs}
+            step_obj._timeflow_id: (step_obj, step_obj.new_stage())
+            for step_obj in step_objs}
 
     def commit(self):
-        for step_obj, stage in self.stage.items():
+        for step_obj, stage in self.stage.values():
             step_obj.commit(stage)
 
 
@@ -57,9 +70,7 @@ class TimeLine(collections.Mapping):
         self.mod_times = sorted(self.time_mapping)
         if not self.mod_times:
             raise ValueError, "time_mapping cannot be empty"
-
-    def __hash__(self):
-        return object.__hash__(self)
+        self._timeflow_id = new_timeflow_id()
 
     @property
     def head(self):
