@@ -34,7 +34,7 @@ class Plan(object):
             return self.stage[timeline._timeflow_id][1]
         except KeyError:
             _stage = timeline.new_stage()
-            self.stage[timeline] = _stage
+            self.stage[timeline._timeflow_id] = (timeline, _stage)
             return _stage
 
     def update(self, other_plan):
