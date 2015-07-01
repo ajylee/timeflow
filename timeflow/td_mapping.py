@@ -199,6 +199,9 @@ class StepMapping(FrozenMappingLayer):
         self._base = base_dictionary
         self._timeflow_id = new_timeflow_id()
 
+    def stage(self, plan):
+        return plan[self]
+
     def new_stage(self):
         return DerivedDictionary(self._base)
 

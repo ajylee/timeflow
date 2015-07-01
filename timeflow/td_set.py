@@ -140,6 +140,9 @@ class StepSet(FrozenSetLayer):
         self._base = base_set
         self._timeflow_id = new_timeflow_id()
 
+    def stage(self, plan):
+        return plan[self]
+
     def new_stage(self):
         return DerivedMutableSet(self._base, None, None)
 

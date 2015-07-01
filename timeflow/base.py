@@ -79,6 +79,9 @@ class TimeLine(collections.Mapping):
     def head(self):
         return self.time_mapping[self.mod_times[-1]]
 
+    def stage(self, plan):
+        return plan[self]
+
     def commit(self, time, stage):
         """For timelines with the head as the root. That means the latest value in the
         timeline is a standalone mapping, and all others are derived from it.
