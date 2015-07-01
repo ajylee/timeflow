@@ -202,6 +202,13 @@ class StepMapping(FrozenMappingLayer):
     def stage(self, plan):
         return plan[self]
 
+    def at(self, plan_or_now):
+        if isinstance(plan_or_now, Plan):
+            return plan_or_now[self]
+        else:
+            assert plan_or_now is now
+            return self.head
+
     def new_stage(self):
         return DerivedDictionary(self._base)
 

@@ -89,8 +89,11 @@ class TimeLine(collections.Mapping):
     def head(self):
         return self.time_mapping[self.mod_times[-1]]
 
-    def stage(self, plan):
-        return plan[self]
+    def at(self, plan_or_time):
+        if isinstance(plan_or_time, Plan):
+            return plan_or_time[self]
+        else:
+            return self[plan_or_time]
 
     def commit(self, time, stage):
         """For timelines with the head as the root. That means the latest value in the

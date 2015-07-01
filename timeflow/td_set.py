@@ -2,7 +2,7 @@ import collections
 import itertools
 import toolz as tz
 from operator import ne
-from .base import TimeLine, DerivedObject, DerivedStage, new_timeflow_id
+from .base import TimeLine, DerivedObject, DerivedStage, new_timeflow_id, now
 
 
 def apply_modifications(base, additions, removals):
@@ -146,6 +146,13 @@ class StepSet(FrozenSetLayer):
 
     def stage(self, plan):
         return plan[self]
+
+    def at(self, plan_or_now):
+        if isinstance(plan_or_now, Plan):
+            return plan_or_now[self]
+        else:
+            assert plan_or_now is now
+            return self.head
 
     def new_stage(self):
         return DerivedMutableSet(self._base, None, None)
