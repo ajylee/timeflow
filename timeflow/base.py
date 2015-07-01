@@ -22,7 +22,7 @@ class Plan(object):
         self.base_time = base_time
 
         self.stage = {
-            timeline._timeflow_id: (timeline, timeline[base_time].new_stage())
+            id(timeline): (timeline, timeline[base_time].new_stage())
             for timeline in timelines}
 
     def _gen_id(self):
@@ -31,10 +31,10 @@ class Plan(object):
 
     def __getitem__(self, timeline):
         try:
-            return self.stage[timeline._timeflow_id][1]
+            return self.stage[id(timeline)][1]
         except KeyError:
             _stage = timeline.new_stage()
-            self.stage[timeline._timeflow_id] = (timeline, _stage)
+            self.stage[id(timeline)] = (timeline, _stage)
             return _stage
 
     def update(self, other_plan):
@@ -48,7 +48,7 @@ class Plan(object):
 class StepPlan(Plan):
     def __init__(self, step_objs):
         self.stage = {
-            step_obj._timeflow_id: (step_obj, step_obj.new_stage())
+            id(step_obj): (step_obj, step_obj.new_stage())
             for step_obj in step_objs}
 
     def commit(self):
