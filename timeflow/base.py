@@ -34,11 +34,21 @@ class Plan(object):
             return self.stage[id(timeline)][1]
         except KeyError:
             _stage = timeline.new_stage()
-            self.stage[id(timeline)] = (timeline, _stage)
+            self[timeline] = _stage
             return _stage
 
+    def __setitem__(self, timeline, small_stage):
+        self.stage[id(timeline)] = (timeline, small_stage)
+
+    def __contains__(self, timeline):
+        return id(timeline) in self.stage
+
     def update(self, other_plan):
-        self.stage.update(other_plan.stage)
+        for timeline, _other_stage in other_plan.stage.values():
+            if timeline in self:
+                self[timeline].update(_other_stage)
+            else:
+                self[timeline] = _other_stage
 
     def commit(self, time):
         for timeline, stage in self.stage.values():

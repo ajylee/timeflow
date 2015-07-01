@@ -100,6 +100,10 @@ class DerivedMutableSet(DerivedSet, DerivedStage, collections.MutableSet):
     def frozen_view(self):
         return DerivedSet(self._base, self._additions, self._removals)
 
+    def update(self, other):
+        for elt in other:
+            self.add(elt)
+
 
 class FrozenSetLayer(collections.Set):
     def __init__(self, base):
