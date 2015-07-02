@@ -33,7 +33,7 @@ class Plan(object):
         try:
             return self.stage[id(timeline)][1]
         except KeyError:
-            _stage = timeline[self.base_time].new_stage()
+            _stage = timeline.at_time(self.base_time).new_stage()
             self[timeline] = _stage
             return _stage
 
@@ -62,14 +62,6 @@ class StepPlan(Plan):
             id(step_obj): (step_obj, step_obj.new_stage())
             for step_obj in step_objs}
 
-    def __getitem__(self, step_obj):
-        try:
-            return self.stage[id(step_obj)][1]
-        except KeyError:
-            _stage = step_obj.head.new_stage()
-            self[step_obj] = _stage
-            return _stage
-
     def commit(self):
         for step_obj, stage in self.stage.values():
             step_obj.commit(stage)
@@ -86,7 +78,32 @@ def index_bounds(sorted_list, bounds, inclusive=True):
     return left_bound, right_bound
 
 
-class TimeLine(collections.Mapping):
+class BaseTimeLine(object):
+
+    def at(self, plan_or_time):
+        if isinstance(plan_or_time, Plan):
+            return plan_or_time[self]
+        else:
+            return self.at_time(plan_or_time)
+
+    @abstractmethod
+    def at_time(self, time):
+        pass
+
+    def stage(self, plan):
+        return plan[self]
+
+    def read_at(self, plan_or_time):
+        if isinstance(plan_or_time, Plan):
+            if self in plan_or_time:
+                return plan_or_time[self]
+            else:
+                return self.at(plan_or_time.base_time)
+        else:
+            return self.at(plan_or_time)
+
+
+class TimeLine(collections.Mapping, BaseTimeLine):
     def __init__(self, time_mapping):
         self.time_mapping = time_mapping
         self.mod_times = sorted(self.time_mapping)
@@ -98,11 +115,8 @@ class TimeLine(collections.Mapping):
     def head(self):
         return self.time_mapping[self.mod_times[-1]]
 
-    def at(self, plan_or_time):
-        if isinstance(plan_or_time, Plan):
-            return plan_or_time[self]
-        else:
-            return self[plan_or_time]
+    def at_time(self, time):
+        return self[time]
 
     def commit(self, time, stage):
         """For timelines with the head as the root. That means the latest value in the
