@@ -33,7 +33,7 @@ class Plan(object):
         try:
             return self.stage[id(timeline)][1]
         except KeyError:
-            _stage = timeline.new_stage()
+            _stage = timeline[self.base_time].new_stage()
             self[timeline] = _stage
             return _stage
 
@@ -50,16 +50,25 @@ class Plan(object):
             else:
                 self[timeline] = _other_stage
 
-    def commit(self, time):
+    def commit(self):
         for timeline, stage in self.stage.values():
-            timeline.commit(time, stage)
+            timeline.commit(self.base_time, stage)
 
 
 class StepPlan(Plan):
     def __init__(self, step_objs):
+        self.base_time = now
         self.stage = {
             id(step_obj): (step_obj, step_obj.new_stage())
             for step_obj in step_objs}
+
+    def __getitem__(self, step_obj):
+        try:
+            return self.stage[id(step_obj)][1]
+        except KeyError:
+            _stage = step_obj.head.new_stage()
+            self[step_obj] = _stage
+            return _stage
 
     def commit(self):
         for step_obj, stage in self.stage.values():
