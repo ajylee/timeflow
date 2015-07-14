@@ -27,6 +27,8 @@ class Plan(object):
 
         self.categories = collections.defaultdict(set)
 
+        self.frozen = set()    # a set of frozen timeline ids
+
     def _gen_id(self):
         self._count += 1
         return self._count
@@ -40,6 +42,7 @@ class Plan(object):
             return _stage
 
     def __setitem__(self, timeline, small_stage):
+        assert id(timeline) not in self.frozen, 'Tried to set frozen timeline'
         self.stage[id(timeline)] = (timeline, small_stage)
 
     def __contains__(self, timeline):
@@ -58,11 +61,14 @@ class Plan(object):
 
 
 class SubPlan(Plan):
-    def __init__(self, super_plan, category_key):
+    def __init__(self, super_plan, category_key, readable_category_keys):
         self.category_key = category_key
         self.category = super_plan.categories[self.category_key]
         self.super_plan = super_plan
         self.stage = super_plan.stage
+        self.readable = reduce(set.union,
+                            (super_plan.categories[_key]
+                             for _key in readable_category_keys))
 
     def __setitem__(self, timeline, small_stage):
         self.super_plan.__setitem__(timeline, small_stage)
@@ -72,13 +78,17 @@ class SubPlan(Plan):
         return id(timeline) in self.category
 
     def __getitem__(self, timeline):
-        if timeline not in self:
+        if timeline not in self and id(timeline) not in self.readable:
             if timeline not in self.super_plan:
                 return timeline.at_time(self.super_plan.base_time)
             else:
-                raise KeyError, 'Access to timeline SubPlan'
+                raise KeyError, 'Access denied to timeline {}'.format(timeline)
         else:
             return self.super_plan.stage[id(timeline)][1]
+
+    def freeze(self):
+        """Freeze all timelines in the subplan"""
+        self.super_plan.frozen.update(self.category)
 
 
 class StepPlan(Plan):
@@ -87,6 +97,8 @@ class StepPlan(Plan):
         self.stage = {
             id(step_obj): (step_obj, step_obj.new_stage())
             for step_obj in step_objs}
+
+        self.frozen = set()
 
     def commit(self):
         for step_obj, stage in self.stage.values():
