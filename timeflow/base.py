@@ -25,6 +25,8 @@ class Plan(object):
             id(timeline): (timeline, timeline[base_time].new_stage())
             for timeline in timelines}
 
+        self.categories = collections.defaultdict(set)
+
     def _gen_id(self):
         self._count += 1
         return self._count
@@ -53,6 +55,30 @@ class Plan(object):
     def commit(self, time):
         for timeline, stage in self.stage.values():
             timeline.commit(time, stage)
+
+
+class SubPlan(Plan):
+    def __init__(self, super_plan, category_key):
+        self.category_key = category_key
+        self.category = super_plan.categories[self.category_key]
+        self.super_plan = super_plan
+        self.stage = super_plan.stage
+
+    def __setitem__(self, timeline, small_stage):
+        self.super_plan.__setitem__(timeline, small_stage)
+        self.category_set.add(id(timeline))
+
+    def __contains__(self, timeline):
+        return id(timeline) in self.category
+
+    def __getitem__(self, timeline):
+        if timeline not in self:
+            if timeline not in self.super_plan:
+                return timeline.at_time(self.super_plan.base_time)
+            else:
+                raise KeyError, 'Access to timeline SubPlan'
+        else:
+            return self.super_plan.stage[id(timeline)][1]
 
 
 class StepPlan(Plan):
