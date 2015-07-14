@@ -50,9 +50,9 @@ class Plan(object):
             else:
                 self[timeline] = _other_stage
 
-    def commit(self):
+    def commit(self, time):
         for timeline, stage in self.stage.values():
-            timeline.commit(self.base_time, stage)
+            timeline.commit(time, stage)
 
 
 class StepPlan(Plan):
