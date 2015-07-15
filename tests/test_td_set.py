@@ -46,6 +46,28 @@ def test_step_set():
     plan.commit()
     assert ss.head == {20, 30, 40, 100, 1000}
 
+    
+def test_step_set_at_interface():
+    """Test the 'at' interface for extending plans"""
+    original = TestData.original
+    ss = StepSet(original.copy())
+
+    plan = StepPlan([])
+
+    ss.at(plan).add(30)
+    ss.at(plan).add(100)
+    ss.at(plan).remove('to_delete')
+
+    assert ss.head == original
+    plan.commit()
+    assert ss.head == {10, 20, 30, 100, 1000}
+
+    ss.at(plan).add(40)
+    ss.at(plan).remove(10)
+    assert ss.head == {10, 20, 30, 100, 1000}
+    plan.commit()
+    assert ss.head == {20, 30, 40, 100, 1000}
+
 
 def test_step_mapping_errors():
     original = TestData.original

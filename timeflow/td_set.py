@@ -127,6 +127,9 @@ class FrozenSetLayer(collections.Set):
     def union(self, other):
         return self.__or__(other)
 
+    def new_stage(self):
+        return DerivedMutableSet(self._base, None, None)
+
 
 class StepSet(FrozenSetLayer, BaseTimeLine):
     """Drop in replacement for a regular Dict

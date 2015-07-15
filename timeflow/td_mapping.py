@@ -184,6 +184,9 @@ class FrozenMappingLayer(collections.Mapping):
     def __repr__(self):
         return dict(self).__repr__()
 
+    def new_stage(self):
+        return DerivedDictionary(self._base)
+
 
 class StepMapping(FrozenMappingLayer, BaseTimeLine):
     """Drop in replacement for a regular Dict
