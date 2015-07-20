@@ -2,7 +2,7 @@ import collections
 import itertools
 import toolz as tz
 from operator import ne
-from .base import BaseTimeLine, TimeLine, DerivedObject, DerivedStage, new_timeflow_id, now
+from .base import StepFlow, TimeLine, DerivedObject, DerivedStage, new_timeflow_id, now
 
 
 def apply_modifications(base, additions, removals):
@@ -134,7 +134,7 @@ class FrozenSetLayer(collections.Set):
         return DerivedMutableSet(self._base, None, None)
 
 
-class StepSet(FrozenSetLayer, BaseTimeLine):
+class StepSet(FrozenSetLayer, StepFlow):
     """Drop in replacement for a regular Dict
 
     Obtain data from :attr:`head`. Head cannot be modified directly via the
@@ -149,14 +149,6 @@ class StepSet(FrozenSetLayer, BaseTimeLine):
         self.head = FrozenSetLayer(base_set)
         self._base = base_set
         self._timeflow_id = new_timeflow_id()
-
-    def at_time(self, time):
-        assert time is now
-        return self.head
-
-    def commit(self, stage):
-        # the underlying data for head will be changed
-        stage._apply_modifications(self._base)
 
 
 # Aliases

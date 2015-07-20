@@ -138,6 +138,17 @@ class BaseTimeLine(object):
             return self.at(plan_or_time)
 
 
+class StepFlow(BaseTimeLine):
+
+    def at_time(self, time):
+        assert time is now
+        return self.head
+
+    def commit(self, stage):
+        # the underlying data for head will be changed
+        stage._apply_modifications(self._base)
+
+
 class TimeLine(collections.Mapping, BaseTimeLine):
     def __init__(self, time_mapping):
         self.time_mapping = time_mapping

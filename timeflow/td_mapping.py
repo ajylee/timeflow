@@ -2,7 +2,7 @@ import collections
 import itertools
 import toolz as tz
 from operator import ne
-from .base import BaseTimeLine, TimeLine, DerivedObject, DerivedStage, new_timeflow_id, now
+from .base import StepFlow, TimeLine, DerivedObject, DerivedStage, new_timeflow_id, now
 
 delete = ('delete', object)
 no_element = ('no_element', object)
@@ -191,7 +191,7 @@ class FrozenMappingLayer(collections.Mapping):
         return DerivedDictionary(self._base)
 
 
-class StepMapping(FrozenMappingLayer, BaseTimeLine):
+class StepMapping(FrozenMappingLayer, StepFlow):
     """Drop in replacement for a regular Dict
 
     Obtain data from :attr:`head`. Head cannot be modified directly via the
@@ -204,14 +204,6 @@ class StepMapping(FrozenMappingLayer, BaseTimeLine):
         self.head = FrozenMappingLayer(base_dictionary)
         self._base = base_dictionary
         self._timeflow_id = new_timeflow_id()
-
-    def at_time(self, time):
-        assert time is now
-        return self.head
-
-    def commit(self, stage):
-        # the underlying data for head will be changed
-        stage._apply_modifications(self._base)
 
 
 class StepDefaultMapping(StepMapping):
