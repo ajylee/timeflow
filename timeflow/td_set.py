@@ -147,9 +147,6 @@ class StepSet(FrozenSetLayer, BaseTimeLine):
         self._base = base_set
         self._timeflow_id = new_timeflow_id()
 
-    def stage(self, plan):
-        return plan[self]
-
     def at_time(self, time):
         assert time is now
         return self.head
