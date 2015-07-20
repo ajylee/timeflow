@@ -26,6 +26,8 @@ def test_td_mapping_2():
     assert tl[1] == dict(a=30, b=60)
     assert tl[0]._base == tl[1]
 
+    assert tl.at(0)['a'] == 10
+
 
 def test_step_mapping():
     original = TestData.original
