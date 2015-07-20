@@ -154,13 +154,9 @@ class StepSet(FrozenSetLayer, BaseTimeLine):
         assert time is now
         return self.head
 
-    def new_stage(self):
-        return DerivedMutableSet(self._base, None, None)
-
     def commit(self, stage):
         # the underlying data for head will be changed
         apply_modifications(self._base, stage._additions, stage._removals)
-
 
 
 # Aliases

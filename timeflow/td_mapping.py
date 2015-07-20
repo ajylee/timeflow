@@ -206,9 +206,6 @@ class StepMapping(FrozenMappingLayer, BaseTimeLine):
         assert time is now
         return self.head
 
-    def new_stage(self):
-        return DerivedDictionary(self._base)
-
     def commit(self, stage):
         # the underlying data for head will be changed
         apply_modifications(self._base, stage._modifications)
