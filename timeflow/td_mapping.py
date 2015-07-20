@@ -123,6 +123,9 @@ class DerivedMapping(collections.Mapping, DerivedObject):
         bm2._modifications.clear()
         bm2._base = root_base
 
+    def _apply_modifications(self, base):
+        apply_modifications(base, self._modifications)
+
 
 class DerivedDictionary(DerivedMapping, DerivedStage, collections.MutableMapping):
     def __delitem__(self, key):
@@ -208,7 +211,7 @@ class StepMapping(FrozenMappingLayer, BaseTimeLine):
 
     def commit(self, stage):
         # the underlying data for head will be changed
-        apply_modifications(self._base, stage._modifications)
+        stage._apply_modifications(self._base)
 
 
 class StepDefaultMapping(StepMapping):
