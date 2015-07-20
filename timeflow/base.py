@@ -128,9 +128,6 @@ class BaseTimeLine(object):
     def at_time(self, time):
         pass
 
-    def stage(self, plan):
-        return plan[self]
-
     def read_at(self, plan_or_time):
         if isinstance(plan_or_time, Plan):
             if self in plan_or_time:
