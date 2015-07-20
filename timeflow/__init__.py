@@ -5,11 +5,12 @@
 ##################
 
 from .td_mapping import (
-    DerivedDictionary, StepMapping, DerivedMapping
+    DerivedDictionary, StepMapping, DerivedMapping,
+    SnapshotMapping
 )
 
 from .td_set import (
-    DerivedSet, StepSet
+    DerivedSet, StepSet, SnapshotSet
 )
 
 from .base import (

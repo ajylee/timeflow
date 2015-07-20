@@ -1,4 +1,4 @@
-from timeflow import StepSet, DerivedSet, Plan, StepPlan
+from timeflow import StepSet, Plan, StepPlan, SnapshotSet
 from timeflow import TimeLine, now
 from collections import OrderedDict
 import nose.tools
@@ -9,7 +9,7 @@ class TestData:
 
 def test_td_set():
     original = TestData.original
-    tl = TimeLine({0: DerivedSet(original.copy(), None, None)})
+    tl = TimeLine({0: SnapshotSet(original)})
 
     plan = Plan([tl], 0)
 

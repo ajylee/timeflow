@@ -1,4 +1,4 @@
-from timeflow import StepMapping, DerivedDictionary, DerivedMapping, Plan, StepPlan
+from timeflow import StepMapping, DerivedDictionary, SnapshotMapping, Plan, StepPlan
 from timeflow import TimeLine, now
 from collections import OrderedDict
 import nose.tools
@@ -9,7 +9,7 @@ class TestData:
 
 def test_td_mapping_2():
     original = TestData.original
-    tl = TimeLine({0: DerivedMapping(original.copy())})
+    tl = TimeLine({0: SnapshotMapping(original)})
 
     plan = Plan([tl], 0)
 

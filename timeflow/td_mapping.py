@@ -226,3 +226,15 @@ class StepDefaultMapping(StepMapping):
         return DerivedDefaultDictionary(base = self._base,
                                         modifications = None,
                                         default_thunk = self._default_thunk)
+
+
+
+# Aliases
+# ################################################################################
+
+
+def SnapshotMapping(base, copy=True):
+    if copy:
+        return DerivedMapping(base.copy())
+    else:
+        return DerivedMapping(base)

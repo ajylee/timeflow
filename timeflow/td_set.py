@@ -160,3 +160,15 @@ class StepSet(FrozenSetLayer, BaseTimeLine):
     def commit(self, stage):
         # the underlying data for head will be changed
         apply_modifications(self._base, stage._additions, stage._removals)
+
+
+
+# Aliases
+# ################################################################################
+
+
+def SnapshotSet(base, copy=True):
+    if copy:
+        return DerivedSet(base.copy(), additions=None, removals=None)
+    else:
+        return DerivedSet(base, additions=None, removals=None)
