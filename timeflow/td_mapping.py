@@ -204,6 +204,9 @@ class StepMapping(FrozenMappingLayer, StepFlow):
         self.head = FrozenMappingLayer(base_dictionary)
         self._base = base_dictionary
 
+    def __hash__(self):
+        return object.__hash__(self)
+
 
 class StepDefaultMapping(StepMapping):
     """Similar to StepMapping, but allows defaultdict functionality for the stage"""

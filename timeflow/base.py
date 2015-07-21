@@ -148,6 +148,9 @@ class TimeLine(collections.Mapping, BaseTimeLine):
         if not self.mod_times:
             raise ValueError, "time_mapping cannot be empty"
 
+    def __hash__(self):
+        return object.__hash__(self)
+
     @property
     def head(self):
         return self.time_mapping[self.mod_times[-1]]
