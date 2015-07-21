@@ -57,7 +57,7 @@ class SubPlan(Plan):
                              for _key in readable_category_keys))
 
     def __setitem__(self, timeline, small_stage):
-        self.super_plan.__setitem__(timeline, small_stage)
+        self.super_plan[timeline] = small_stage
         self.category_set.add(timeline)
 
     def __contains__(self, timeline):
