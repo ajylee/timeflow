@@ -13,9 +13,8 @@ class Plan(object):
         self._count = 0
         self.base_time = base_time
 
-        self.stage = {
-            id(timeline): (timeline, timeline[base_time].new_stage())
-            for timeline in timelines}
+        self.stage = {timeline: timeline[base_time].new_stage()
+                   for timeline in timelines}
 
         self.categories = collections.defaultdict(set)
 
@@ -27,28 +26,28 @@ class Plan(object):
 
     def __getitem__(self, timeline):
         try:
-            return self.stage[id(timeline)][1]
+            return self.stage[timeline]
         except KeyError:
             _stage = timeline.at_time(self.base_time).new_stage()
             self[timeline] = _stage
             return _stage
 
     def __setitem__(self, timeline, small_stage):
-        assert id(timeline) not in self.frozen, 'Tried to set frozen timeline'
-        self.stage[id(timeline)] = (timeline, small_stage)
+        assert timeline not in self.frozen, 'Tried to set frozen timeline'
+        self.stage[timeline] = small_stage
 
     def __contains__(self, timeline):
-        return id(timeline) in self.stage
+        return timeline in self.stage
 
     def update(self, other_plan):
-        for timeline, _other_stage in other_plan.stage.values():
+        for timeline, _other_stage in other_plan.stage.items():
             if timeline in self:
                 self[timeline].update(_other_stage)
             else:
                 self[timeline] = _other_stage
 
     def commit(self, time):
-        for timeline, stage in self.stage.values():
+        for timeline, stage in self.stage.items():
             timeline.commit(time, stage)
 
 
@@ -86,14 +85,13 @@ class SubPlan(Plan):
 class StepPlan(Plan):
     def __init__(self, step_objs):
         self.base_time = now
-        self.stage = {
-            id(step_obj): (step_obj, step_obj.new_stage())
-            for step_obj in step_objs}
+        self.stage = {step_obj: step_obj.new_stage()
+                   for step_obj in step_objs}
 
         self.frozen = set()
 
     def commit(self):
-        for step_obj, stage in self.stage.values():
+        for step_obj, stage in self.stage.items():
             step_obj.commit(stage)
 
 
