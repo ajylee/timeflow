@@ -166,7 +166,6 @@ class StepMapping(StepFlow, collections.Mapping):
 
     def __init__(self, base_dictionary):
         self.head = DerivedMapping(base_dictionary)
-        self._base = base_dictionary
 
 
     # drop-in convenience methods

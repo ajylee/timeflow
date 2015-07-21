@@ -105,7 +105,6 @@ class StepSet(StepFlow, collections.Set):
         if base_set is None:
             base_set = set()
         self.head = DerivedSet(base_set)
-        self._base = base_set
 
 
     # drop-in convenience methods
