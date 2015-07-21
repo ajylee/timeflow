@@ -10,7 +10,6 @@ now = ('now', uuid.UUID('5e625fb4-7574-4720-bb91-3a598d2332bd'))
 
 class Plan(object):
     def __init__(self, timelines, base_time):
-        self._count = 0
         self.base_time = base_time
 
         self.stage = {timeline: timeline[base_time].new_stage()
@@ -19,10 +18,6 @@ class Plan(object):
         self.categories = collections.defaultdict(set)
 
         self.frozen = set()    # a set of frozen timeline ids
-
-    def _gen_id(self):
-        self._count += 1
-        return self._count
 
     def __getitem__(self, timeline):
         try:
@@ -63,19 +58,19 @@ class SubPlan(Plan):
 
     def __setitem__(self, timeline, small_stage):
         self.super_plan.__setitem__(timeline, small_stage)
-        self.category_set.add(id(timeline))
+        self.category_set.add(timeline)
 
     def __contains__(self, timeline):
-        return id(timeline) in self.category
+        return timeline in self.category
 
     def __getitem__(self, timeline):
-        if timeline not in self and id(timeline) not in self.readable:
+        if timeline not in self and timeline not in self.readable:
             if timeline not in self.super_plan:
                 return timeline.at_time(self.super_plan.base_time)
             else:
                 raise KeyError, 'Access denied to timeline {}'.format(timeline)
         else:
-            return self.super_plan.stage[id(timeline)][1]
+            return self.super_plan.stage[timeline]
 
     def freeze(self):
         """Freeze all timelines in the subplan"""
