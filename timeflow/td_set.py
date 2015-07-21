@@ -1,8 +1,6 @@
 import collections
 import itertools
-import toolz as tz
-from operator import ne
-from .base import StepFlow, TimeLine, DerivedObject, DerivedStage, new_timeflow_id, now
+from .base import StepFlow, DerivedObject, DerivedStage, new_timeflow_id
 
 
 def apply_modifications(base, additions, removals):
