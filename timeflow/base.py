@@ -11,7 +11,7 @@ class Plan(object):
     def __init__(self, timelines, base_time):
         self.base_time = base_time
 
-        self.stage = {timeline: timeline[base_time].new_stage()
+        self.stage = {timeline: timeline.at_time(base_time).new_stage()
                    for timeline in timelines}
 
         self.categories = collections.defaultdict(set)
@@ -78,15 +78,10 @@ class SubPlan(Plan):
 
 class StepPlan(Plan):
     def __init__(self, step_objs):
-        self.base_time = now
-        self.stage = {step_obj: step_obj.new_stage()
-                   for step_obj in step_objs}
-
-        self.frozen = set()
+        Plan.__init__(self, step_objs, now)
 
     def commit(self):
-        for step_obj, stage in self.stage.items():
-            step_obj.commit(stage)
+        Plan.commit(self, now)
 
 
 def index_bounds(sorted_list, bounds, inclusive=True):
@@ -128,7 +123,7 @@ class StepFlow(BaseFlow):
         assert time is now
         return self.head
 
-    def commit(self, stage):
+    def commit(self, time, stage):
         # the underlying data for head will be changed
         stage._apply_modifications(self._base)
 
