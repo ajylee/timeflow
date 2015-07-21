@@ -1,5 +1,4 @@
 import collections
-import toolz as tz
 import uuid
 import bisect
 from abc import abstractmethod
