@@ -128,7 +128,9 @@ class StepFlow(BaseFlow):
 
     def commit(self, time, stage):
         # the underlying data for head will be changed
-        stage._apply_modifications(self._base)
+        old_head = self.head
+        self.head = stage.frozen_view()
+        old_head._reroot_base(self.head)
 
 
 class TimeLine(BaseFlow, collections.Mapping):
