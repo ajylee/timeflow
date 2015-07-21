@@ -53,7 +53,7 @@ def derive_modifications(base, mapping):
             _modifications[k] = v
 
 
-class DerivedMapping(collections.Mapping, DerivedObject):
+class DerivedMapping(DerivedObject, collections.Mapping):
 
     def __init__(self, base, modifications):
         # base is a Mapping. (Could even be another DerivedMapping)
