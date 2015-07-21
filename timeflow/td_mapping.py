@@ -155,20 +155,6 @@ class DerivedDictionary(DerivedMapping, DerivedStage, collections.MutableMapping
         return DerivedMapping(self._base, self._modifications)
 
 
-class DerivedDefaultDictionary(DerivedDictionary):
-    def __init__(self, base, modifications, default_thunk):
-        DerivedDictionary.__init__(self, base, modifications)
-        self._default_thunk = default_thunk
-
-    def __getitem__(self, key):
-        try:
-            return DerivedDictionary.__getitem__(self, key)
-        except KeyError:
-            _default = self._default_thunk()
-            self.__setitem__(self, key, _default)
-            return _default
-
-
 class FrozenMappingLayer(collections.Mapping):
     def __init__(self, base):
         self._base = base
