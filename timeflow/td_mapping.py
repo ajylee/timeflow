@@ -55,10 +55,10 @@ def derive_modifications(base, mapping):
 
 class DerivedMapping(collections.Mapping, DerivedObject):
 
-    def __init__(self, base, modifications=None):
+    def __init__(self, base, modifications):
         # base is a Mapping. (Could even be another DerivedMapping)
         self._base = base
-        self._modifications = {} if modifications is None else modifications
+        self._modifications = modifications
 
     def __getitem__(self, key):
         try:
