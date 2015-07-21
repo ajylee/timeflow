@@ -8,14 +8,6 @@ from abc import abstractmethod
 now = ('now', uuid.UUID('5e625fb4-7574-4720-bb91-3a598d2332bd'))
 
 
-_id_count = -1
-
-def new_timeflow_id():
-    global _id_count
-    _id_count += 1
-    return _id_count
-
-
 class Plan(object):
     def __init__(self, timelines, base_time):
         self._count = 0
@@ -155,7 +147,6 @@ class TimeLine(collections.Mapping, BaseTimeLine):
         self.mod_times = sorted(self.time_mapping)
         if not self.mod_times:
             raise ValueError, "time_mapping cannot be empty"
-        self._timeflow_id = new_timeflow_id()
 
     @property
     def head(self):

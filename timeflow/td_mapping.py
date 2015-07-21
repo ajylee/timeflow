@@ -2,7 +2,7 @@ import collections
 import itertools
 import toolz as tz
 from operator import ne
-from .base import StepFlow, TimeLine, DerivedObject, DerivedStage, new_timeflow_id, now
+from .base import StepFlow, TimeLine, DerivedObject, DerivedStage, now
 
 delete = ('delete', object)
 no_element = ('no_element', object)
@@ -203,7 +203,6 @@ class StepMapping(FrozenMappingLayer, StepFlow):
     def __init__(self, base_dictionary):
         self.head = FrozenMappingLayer(base_dictionary)
         self._base = base_dictionary
-        self._timeflow_id = new_timeflow_id()
 
 
 class StepDefaultMapping(StepMapping):

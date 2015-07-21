@@ -1,6 +1,6 @@
 import collections
 import itertools
-from .base import StepFlow, DerivedObject, DerivedStage, new_timeflow_id
+from .base import StepFlow, DerivedObject, DerivedStage
 
 
 def apply_modifications(base, additions, removals):
@@ -132,7 +132,6 @@ class StepSet(FrozenSetLayer, StepFlow):
             base_set = set()
         self.head = FrozenSetLayer(base_set)
         self._base = base_set
-        self._timeflow_id = new_timeflow_id()
 
 
 # Aliases
