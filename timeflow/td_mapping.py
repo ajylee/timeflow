@@ -208,21 +208,6 @@ class StepMapping(FrozenMappingLayer, StepFlow):
         return object.__hash__(self)
 
 
-class StepDefaultMapping(StepMapping):
-    """Similar to StepMapping, but allows defaultdict functionality for the stage"""
-
-    def __init__(self, base_dictionary, default_thunk):
-        self.head = FrozenMappingLayer(base_dictionary)
-        self._base = base_dictionary
-        self._default_thunk = default_thunk
-
-    def new_stage(self):
-        return DerivedDefaultDictionary(base = self._base,
-                                        modifications = None,
-                                        default_thunk = self._default_thunk)
-
-
-
 # Aliases
 # ################################################################################
 
