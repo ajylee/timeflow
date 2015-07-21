@@ -92,11 +92,11 @@ class StepPlan(Plan):
 
 def index_bounds(sorted_list, bounds, inclusive=True):
     if inclusive:
-        left_bound = bisect.bisect_left(bounds[0])
-        right_bound = bisect.bisect_right(bounds[1])
+        left_bound = bisect.bisect_left(sorted_list, bounds[0])
+        right_bound = bisect.bisect_right(sorted_list, bounds[1])
     else:
-        left_bound = bisect.bisect_right(bounds[0])
-        right_bound = bisect.bisect_left(bounds[1])
+        left_bound = bisect.bisect_right(sorted_list, bounds[0])
+        right_bound = bisect.bisect_left(sorted_list, bounds[1])
 
     return left_bound, right_bound
 
