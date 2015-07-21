@@ -97,6 +97,9 @@ def index_bounds(sorted_list, bounds, inclusive=True):
 
 class BaseFlow(object):
 
+    def __hash__(self):
+        return object.__hash__(self)
+
     def at(self, plan_or_time):
         if isinstance(plan_or_time, Plan):
             return plan_or_time[self]
@@ -128,15 +131,12 @@ class StepFlow(BaseFlow):
         stage._apply_modifications(self._base)
 
 
-class TimeLine(collections.Mapping, BaseFlow):
+class TimeLine(BaseFlow, collections.Mapping):
     def __init__(self, time_mapping):
         self.time_mapping = time_mapping
         self.mod_times = sorted(self.time_mapping)
         if not self.mod_times:
             raise ValueError, "time_mapping cannot be empty"
-
-    def __hash__(self):
-        return object.__hash__(self)
 
     @property
     def head(self):

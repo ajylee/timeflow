@@ -155,7 +155,7 @@ class DerivedDictionary(DerivedMapping, DerivedStage, collections.MutableMapping
         return DerivedMapping(self._base, self._modifications)
 
 
-class StepMapping(collections.Mapping, StepFlow):
+class StepMapping(StepFlow, collections.Mapping):
     """Drop in replacement for a regular Dict
 
     Obtain data from :attr:`head`. Head cannot be modified directly via the
@@ -167,9 +167,6 @@ class StepMapping(collections.Mapping, StepFlow):
     def __init__(self, base_dictionary):
         self.head = DerivedMapping(base_dictionary)
         self._base = base_dictionary
-
-    def __hash__(self):
-        return object.__hash__(self)
 
 
     # drop-in convenience methods

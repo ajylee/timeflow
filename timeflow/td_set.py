@@ -92,7 +92,7 @@ class DerivedMutableSet(DerivedSet, DerivedStage, collections.MutableSet):
             self.add(elt)
 
 
-class StepSet(collections.Set, StepFlow):
+class StepSet(StepFlow, collections.Set):
     """Drop in replacement for a regular Dict
 
     Obtain data from :attr:`head`. Head cannot be modified directly via the
@@ -106,9 +106,6 @@ class StepSet(collections.Set, StepFlow):
             base_set = set()
         self.head = DerivedSet(base_set)
         self._base = base_set
-
-    def __hash__(self):
-        return object.__hash__(self)
 
 
     # drop-in convenience methods
