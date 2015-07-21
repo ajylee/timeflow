@@ -121,9 +121,6 @@ class DerivedMapping(collections.Mapping, DerivedObject):
         bm2._modifications.clear()
         bm2._base = root_base
 
-    def _apply_modifications(self, base):
-        apply_modifications(base, self._modifications)
-
 
 class DerivedDictionary(DerivedMapping, DerivedStage, collections.MutableMapping):
     def __delitem__(self, key):

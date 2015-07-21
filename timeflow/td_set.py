@@ -68,9 +68,6 @@ class DerivedSet(collections.Set, DerivedObject):
         bs2._removals = set()
         bs2._base = root_base
 
-    def _apply_modifications(self, base):
-        apply_modifications(base, self._additions, self._removals)
-
 
 class DerivedMutableSet(DerivedSet, DerivedStage, collections.MutableSet):
     def add(self, element):
