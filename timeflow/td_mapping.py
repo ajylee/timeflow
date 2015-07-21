@@ -155,27 +155,7 @@ class DerivedDictionary(DerivedMapping, DerivedStage, collections.MutableMapping
         return DerivedMapping(self._base, self._modifications)
 
 
-class FrozenMappingLayer(collections.Mapping):
-    def __init__(self, base):
-        self._base = base
-
-    def __getitem__(self, key):
-        return self._base[key]
-
-    def __iter__(self):
-        return iter(self._base)
-
-    def __len__(self):
-        return len(self._base)
-
-    def __repr__(self):
-        return dict(self).__repr__()
-
-    def new_stage(self):
-        return DerivedDictionary(self._base)
-
-
-class StepMapping(FrozenMappingLayer, StepFlow):
+class StepMapping(collections.Mapping, StepFlow):
     """Drop in replacement for a regular Dict
 
     Obtain data from :attr:`head`. Head cannot be modified directly via the
@@ -185,11 +165,27 @@ class StepMapping(FrozenMappingLayer, StepFlow):
     """
 
     def __init__(self, base_dictionary):
-        self.head = FrozenMappingLayer(base_dictionary)
+        self.head = DerivedMapping(base_dictionary)
         self._base = base_dictionary
 
     def __hash__(self):
         return object.__hash__(self)
+
+
+    # drop-in convenience methods
+    # ############################
+
+    def __getitem__(self, key):
+        return self.head[key]
+
+    def __iter__(self):
+        return iter(self.head)
+
+    def __len__(self):
+        return len(self.head)
+
+    def __repr__(self):
+        return repr(self.head)
 
 
 # Aliases

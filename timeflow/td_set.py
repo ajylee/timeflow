@@ -92,33 +92,7 @@ class DerivedMutableSet(DerivedSet, DerivedStage, collections.MutableSet):
             self.add(elt)
 
 
-class FrozenSetLayer(collections.Set):
-    def __init__(self, base):
-        self._base = base
-
-    def __contains__(self, element):
-        return self._base.__contains__(element)
-
-    def __iter__(self):
-        return iter(self._base)
-
-    def __len__(self):
-        return len(self._base)
-
-    def __repr__(self):
-        return set(self).__repr__()
-
-    def intersection(self, other):
-        return self.__and__(other)
-
-    def union(self, other):
-        return self.__or__(other)
-
-    def new_stage(self):
-        return DerivedMutableSet(self._base, None, None)
-
-
-class StepSet(FrozenSetLayer, StepFlow):
+class StepSet(collections.Set, StepFlow):
     """Drop in replacement for a regular Dict
 
     Obtain data from :attr:`head`. Head cannot be modified directly via the
@@ -130,11 +104,33 @@ class StepSet(FrozenSetLayer, StepFlow):
     def __init__(self, base_set=None):
         if base_set is None:
             base_set = set()
-        self.head = FrozenSetLayer(base_set)
+        self.head = DerivedSet(base_set)
         self._base = base_set
 
     def __hash__(self):
         return object.__hash__(self)
+
+
+    # drop-in convenience methods
+    # ############################
+
+    def __contains__(self, element):
+        return self.head.__contains__(element)
+
+    def __iter__(self):
+        return iter(self.head)
+
+    def __len__(self):
+        return len(self.head)
+
+    def __repr__(self):
+        return repr(self.head)
+
+    def intersection(self, other):
+        return self.head.__and__(other)
+
+    def union(self, other):
+        return self.head.__or__(other)
 
 
 
