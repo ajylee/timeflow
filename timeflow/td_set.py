@@ -8,20 +8,6 @@ def apply_modifications(base, additions, removals):
     base.difference_update(removals)
 
 
-def reversed_modifications(base, additions, removals):
-    _out = {}
-    for k in modifications:
-        base_v = base.get(k, no_element)
-        if base_v is no_element:
-            # assert v is not delete  # debug
-            _out[k] = delete
-        else:
-            # assert v != base_v      # debug
-            _out[k] = base[k]
-
-    return _out
-
-
 class DerivedSet(collections.Set, DerivedObject):
     def __init__(self, base, additions=None, removals=None):
         # base is a Mapping. (Could even be another DerivedMapping)
