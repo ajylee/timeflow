@@ -89,7 +89,7 @@ class DerivedMapping(DerivedObject, collections.Mapping):
         return dict(self).__repr__()
 
     def new_stage(self):
-        return DerivedDictionary(self)
+        return DerivedDictionary(self, modifications={})
 
     # cache controlling methods
     def rebase(self, new_base):
@@ -162,7 +162,7 @@ class StepMapping(StepFlow, collections.Mapping):
     """
 
     def __init__(self, base_dictionary):
-        self.head = DerivedMapping(base_dictionary)
+        self.head = SnapshotMapping(base_dictionary)
 
 
     # drop-in convenience methods
@@ -186,7 +186,9 @@ class StepMapping(StepFlow, collections.Mapping):
 
 
 def SnapshotMapping(base, copy=True):
+    modifications = {}
+
     if copy:
-        return DerivedMapping(base.copy())
+        return DerivedMapping(base.copy(), modifications=modifications)
     else:
-        return DerivedMapping(base)
+        return DerivedMapping(base, modifications=modifications)
