@@ -1,7 +1,13 @@
 from timeflow import StepMapping, DerivedDictionary, SnapshotMapping, Plan, StepPlan
-from timeflow import TimeLine, now
+from timeflow import TimeLine, now, Event
 from collections import OrderedDict
 import nose.tools
+
+def commit(plan):
+    event = Event(parent=plan.base_time)
+    plan.commit(event)
+    return event
+
 
 class TestData:
     original = dict(a=10, b=20, to_delete=1000)
@@ -9,24 +15,25 @@ class TestData:
 
 def test_td_mapping_2():
     original = TestData.original
-    tl = TimeLine({0: SnapshotMapping(original)})
+    tl = TimeLine({Event(): SnapshotMapping(original)})
 
-    plan = Plan([tl], 0)
+    e0 = tl.events[0]
+    plan = Plan([tl], e0)
 
     tl.at(plan)['a'] = 30
-    tl.at(plan)['b'] = 2 * plan[tl]['a']
+    tl.at(plan)['b'] = 2 * tl.at(plan)['a']
     del tl.at(plan)['to_delete']
 
-    assert tl.at(plan)._base == tl.at(0)
-    assert tl.at(0) == original
+    assert tl.at(plan)._base == tl.at(e0)
+    assert tl.at(e0) == original
 
-    plan.commit(1)
+    e1 = commit(plan)
 
-    assert tl.at(0) == original
-    assert tl.at(1) == dict(a=30, b=60)
-    assert tl.at(0)._base == tl.at(1)
+    assert tl.at(e0) == original
+    assert tl.at(e1) == dict(a=30, b=60)
+    assert tl.at(e0)._base == tl.at(e1)
 
-    assert tl.at(0)['a'] == 10
+    assert tl.at(e0)['a'] == 10
 
 
 def test_step_mapping():
