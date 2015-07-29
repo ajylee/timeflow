@@ -137,6 +137,7 @@ class TimeLine(BaseFlow):
     def __init__(self, time_mapping):
         self.time_mapping = time_mapping
         self.mod_times = sorted(self.time_mapping)
+        self.events = self.mod_times
         if not self.mod_times:
             raise ValueError, "time_mapping cannot be empty"
 
