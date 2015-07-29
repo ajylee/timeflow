@@ -13,18 +13,18 @@ def test_td_mapping_2():
 
     plan = Plan([tl], 0)
 
-    plan[tl]['a'] = 30
-    plan[tl]['b'] = 2 * plan[tl]['a']
-    del plan[tl]['to_delete']
+    tl.at(plan)['a'] = 30
+    tl.at(plan)['b'] = 2 * plan[tl]['a']
+    del tl.at(plan)['to_delete']
 
-    assert plan[tl]._base == tl[0]
-    assert tl[0] == original
+    assert tl.at(plan)._base == tl.at(0)
+    assert tl.at(0) == original
 
     plan.commit(1)
 
-    assert tl[0] == original
-    assert tl[1] == dict(a=30, b=60)
-    assert tl[0]._base == tl[1]
+    assert tl.at(0) == original
+    assert tl.at(1) == dict(a=30, b=60)
+    assert tl.at(0)._base == tl.at(1)
 
     assert tl.at(0)['a'] == 10
 
@@ -35,9 +35,9 @@ def test_step_mapping():
 
     plan = StepPlan([sm])
 
-    plan[sm]['a'] = 30
-    plan[sm]['new'] = 100
-    del plan[sm]['to_delete']
+    sm.at(plan)['a'] = 30
+    sm.at(plan)['new'] = 100
+    del sm.at(plan)['to_delete']
 
     assert sm.head == original
     plan.commit()

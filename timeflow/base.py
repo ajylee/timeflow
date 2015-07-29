@@ -133,7 +133,7 @@ class StepFlow(BaseFlow):
         old_head._reroot_base(self.head)
 
 
-class TimeLine(BaseFlow, collections.Mapping):
+class TimeLine(BaseFlow):
     def __init__(self, time_mapping):
         self.time_mapping = time_mapping
         self.mod_times = sorted(self.time_mapping)
@@ -145,21 +145,6 @@ class TimeLine(BaseFlow, collections.Mapping):
         return self.time_mapping[self.mod_times[-1]]
 
     def at_time(self, time):
-        return self[time]
-
-    def commit(self, time, stage):
-        """For timelines with the head as the root. That means the latest value in the
-        timeline is a standalone mapping, and all others are derived from it.
-
-        """
-        orig_latest_time = self.mod_times[-1]
-        new_latest_time = time
-        assert new_latest_time > orig_latest_time
-        self.mod_times.append(new_latest_time)
-        self.time_mapping[new_latest_time] = stage.frozen_view()
-        self.time_mapping[orig_latest_time]._reroot_base(self.time_mapping[new_latest_time])
-
-    def __getitem__(self, time):
         if time is now:
             return self.head
         else:
@@ -172,11 +157,17 @@ class TimeLine(BaseFlow, collections.Mapping):
                 else:
                     return self.time_mapping[self.mod_times[index - 1]]
 
-    def __len__(self):
-        return len(self.time_mapping)
+    def commit(self, time, stage):
+        """For timelines with the head as the root. That means the latest value in the
+        timeline is a standalone mapping, and all others are derived from it.
 
-    def __iter__(self):
-        return iter(self.time_mapping)
+        """
+        orig_latest_time = self.mod_times[-1]
+        new_latest_time = time
+        assert new_latest_time > orig_latest_time
+        self.mod_times.append(new_latest_time)
+        self.time_mapping[new_latest_time] = stage.frozen_view()
+        self.time_mapping[orig_latest_time]._reroot_base(self.time_mapping[new_latest_time])
 
     def forget(self, time):
         del self.time_mapping[time]
