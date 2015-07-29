@@ -17,7 +17,7 @@ from .base import (
     TimeLine, now, Plan, StepPlan
 )
 
-
+from .event import Event
 
 
 ##################
