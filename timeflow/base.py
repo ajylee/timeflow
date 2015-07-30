@@ -80,9 +80,6 @@ class StepPlan(Plan):
     def __init__(self, step_objs):
         Plan.__init__(self, step_objs, now)
 
-    def commit(self):
-        Plan.commit(self, now)
-
 
 def index_bounds(sorted_list, bounds, inclusive=True):
     if inclusive:
@@ -118,19 +115,6 @@ class BaseFlow(object):
                 return self.at(plan_or_time.base_time)
         else:
             return self.at(plan_or_time)
-
-
-class StepFlow(BaseFlow):
-
-    def at_time(self, time):
-        assert time is now
-        return self.head
-
-    def commit(self, time, stage):
-        # the underlying data for head will be changed
-        old_head = self.head
-        self.head = stage.frozen_view()
-        old_head._reroot_base(self.head)
 
 
 class TimeLine(BaseFlow):
@@ -181,6 +165,12 @@ class TimeLine(BaseFlow):
         for time in to_remove:
             del self.time_mapping[time]
         del self.mod_times[left_bound:right_bound]
+
+
+class StepFlow(TimeLine):
+    def commit(self, time, stage):
+        TimeLine.commit(self, time, stage)
+        # TODO: forget past
 
 
 class DerivedObject(object):
