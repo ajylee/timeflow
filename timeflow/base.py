@@ -2,6 +2,7 @@ import collections
 import uuid
 import bisect
 from abc import abstractmethod
+import weakref
 
 
 now = ('now', uuid.UUID('5e625fb4-7574-4720-bb91-3a598d2332bd'))
@@ -118,26 +119,14 @@ class BaseFlow(object):
 
 
 class TimeLine(BaseFlow):
-    def __init__(self, time_mapping):
-        self.time_mapping = time_mapping
-        self.mod_times = sorted(self.time_mapping)
-        self.events = self.mod_times
-        if not self.mod_times:
-            raise ValueError, "time_mapping cannot be empty"
+    def __init__(self, event_mapping):
+        self.event_mapping = event_mapping
+        self.events = sorted(event_mapping)
+        self._parent = weakref.WeakValueDictionary()
 
 
     def at_time(self, time):
-        if time is now:
-            return self.head
-        else:
-            try:
-                return self.time_mapping[time]
-            except KeyError:
-                index = bisect.bisect_right(self.mod_times, time)
-                if index == 0:
-                    raise ValueError, "requested time too early in timeline"
-                else:
-                    return self.time_mapping[self.mod_times[index - 1]]
+        return self.event_mapping[time]
 
     def commit(self, event, stage):
         """For timelines with the head as the root. That means the latest value in the
@@ -145,24 +134,21 @@ class TimeLine(BaseFlow):
 
         """
         parent_event = event.parent()
-        self.time_mapping[event] = stage.frozen_view()
-        while parent_event is not None:
-            if parent_event in self.time_mapping:
-                self.time_mapping[parent_event]._reroot_base(self.time_mapping[event])
-                break
-            parent_event = parent_event.parent()
+        self.event_mapping[event] = stage.frozen_view()
+        if parent_event is not None:
+            self.event_mapping[parent_event]._reroot_base(self.event_mapping[event])
 
     def forget(self, time):
-        del self.time_mapping[time]
+        del self.event_mapping[time]
         index = bisect.bisect_left(time)
         del self.mod_times[index]
 
     def forget_range(self, time_range, inclusive=True):
-        left_bound, right_bound = index_bounds(self.mod_times, time_range, inclusive)
+        left_bound, right_bound = index_bounds(self.events, time_range, inclusive)
         to_remove = self.mod_times[left_bound:right_bound]
         for time in to_remove:
-            del self.time_mapping[time]
-        del self.mod_times[left_bound:right_bound]
+            del self.event_mapping[time]
+        del self.events[left_bound:right_bound]
 
 
 class StepFlow(TimeLine):
