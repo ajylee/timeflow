@@ -1,4 +1,5 @@
 import time as _time
+import bisect
 import weakref
 
 def empty_ref():
@@ -49,3 +50,12 @@ class Event(object):
 
     def __repr__(self):
         return 'Event(time={self.time}, count={self.count})'.format(self=self)
+
+
+def representative_event(events, event):
+    """If event is not in the list of events, return the event recorded just before."""
+    index = bisect.bisect_right(events, event)
+    if index == 0:
+        raise ValueError, "requested time too early in timeline"
+    else:
+        return events[index - 1]
