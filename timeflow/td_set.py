@@ -1,6 +1,6 @@
 import collections
 import itertools
-from .base import StepFlow, DerivedObject, DerivedStage
+from .base import TimeLine, DerivedObject, DerivedStage
 
 
 def apply_modifications(base, additions, removals):
@@ -89,7 +89,7 @@ class DerivedMutableSet(DerivedSet, DerivedStage, collections.MutableSet):
             self.add(elt)
 
 
-class StepSet(StepFlow, collections.Set):
+class StepSet(TimeLine, collections.Set):
     """Drop in replacement for a regular Dict
 
     Obtain data from :attr:`head`. Head cannot be modified directly via the
@@ -97,12 +97,6 @@ class StepSet(StepFlow, collections.Set):
     modifications to head.
 
     """
-
-    def __init__(self, base_set=None):
-        if base_set is None:
-            base_set = set()
-        self.head = DerivedSet(base_set)
-
 
     # drop-in convenience methods
     # ############################

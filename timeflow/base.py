@@ -151,12 +151,6 @@ class TimeLine(BaseFlow):
         del self.events[left_bound:right_bound]
 
 
-class StepFlow(TimeLine):
-    def commit(self, time, stage):
-        TimeLine.commit(self, time, stage)
-        # TODO: forget past
-
-
 class DerivedObject(object):
     @abstractmethod
     def _reroot_base(self, new_root):
