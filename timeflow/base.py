@@ -3,7 +3,7 @@ import uuid
 import bisect
 from abc import abstractmethod
 import weakref
-from event import index_bounds
+from event import index_bounds, Event
 
 
 now = ('now', uuid.UUID('5e625fb4-7574-4720-bb91-3a598d2332bd'))
@@ -42,9 +42,8 @@ class Plan(object):
             else:
                 self[timeline] = _other_stage
 
-    def commit(self, time):
-        for timeline, stage in self.stage.items():
-            timeline.commit(time, stage)
+    def commit(self):
+        self.timeline.commit(self)
 
 
 class SubPlan(Plan):
@@ -83,17 +82,15 @@ class StepPlan(Plan):
         Plan.__init__(self, step_objs, now)
 
 
-class TimeLine(object):
-    def __init__(self, event_mapping):
-        self.event_mapping = event_mapping
-        self.events = sorted(event_mapping)
-        self._parent = weakref.WeakValueDictionary()
+class TDItem(object):
+    def __hash__(self):
+        return object.__hash__(self)
 
-    def at(self, plan_or_time):
-        if isinstance(plan_or_time, Plan):
-            return plan_or_time[self]
+    def at(self, plan_or_event):
+        if isinstance(plan_or_event, Plan):
+            return plan_or_event[self]
         else:
-            return self.at_time(plan_or_time)
+            return self.at_event(plan_or_event)
 
     def at_time(self, time):
         return self.event_mapping[time]
@@ -108,15 +105,38 @@ class TimeLine(object):
             return self.at(plan_or_time)
 
 
-    def commit(self, event, stage):
+class TimeLine(object):
+    def __init__(self, mapping):
+        self.mapping = mapping
+        self.events = sorted(event for td_item, event in mapping)
+        self.current_branch = 'master'
+        self.refs = {'HEAD': None,
+                  self.current_branch: None}
+        self.event_map = {}
+        self.flow_map = {}
+
+    @property
+    def HEAD(self):
+        return self.refs['HEAD']
+
+    def new_plan(self, timelines):
+        base_event = self.HEAD
+        return Plan(timelines, base_event)
+
+    def commit(self, plan):
         """For timelines with the head as the root. That means the latest value in the
         timeline is a standalone mapping, and all others are derived from it.
 
         """
+        event = Event(parent=plan.base_time)
         parent_event = event.parent()
-        self.event_mapping[event] = stage.frozen_view()
-        if parent_event is not None:
-            self.event_mapping[parent_event]._reroot_base(self.event_mapping[event])
+
+        for td_item, stage in plan.stage.items():
+            frozen_item = stage.frozen_view()
+            self.event_mapping[td_item, event] = frozen_item
+
+            if parent_event is not None:
+                self.event_mapping[td_item, parent_event]._reroot_base(frozen_item)
 
     def forget(self, time):
         del self.event_mapping[time]

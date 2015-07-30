@@ -1,6 +1,6 @@
 import collections
 import itertools
-from .base import TimeLine, DerivedObject, DerivedStage
+from .base import TimeLine, DerivedObject, DerivedStage, TDItem
 
 delete = ('delete', object)
 no_element = ('no_element', object)
@@ -152,7 +152,7 @@ class DerivedDictionary(DerivedMapping, DerivedStage, collections.MutableMapping
         return DerivedMapping(self._base, self._modifications)
 
 
-class StepMapping(TimeLine, collections.Mapping):
+class StepMapping(TDItem, collections.Mapping):
     """Drop in replacement for a regular Dict
 
     Obtain data from :attr:`head`. Head cannot be modified directly via the
@@ -160,6 +160,9 @@ class StepMapping(TimeLine, collections.Mapping):
     modifications to head.
 
     """
+
+    def __init__(self, base_mapping):
+        self.head = SnapshotMapping(base_mapping)
 
     # drop-in convenience methods
     # ############################
