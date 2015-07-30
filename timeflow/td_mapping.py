@@ -161,10 +161,6 @@ class StepMapping(StepFlow, collections.Mapping):
 
     """
 
-    def __init__(self, base_dictionary):
-        self.head = SnapshotMapping(base_dictionary)
-
-
     # drop-in convenience methods
     # ############################
 
