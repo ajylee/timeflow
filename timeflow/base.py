@@ -135,7 +135,7 @@ class TimeLine(object):
 
     def forget_range(self, time_range, inclusive=True):
         left_bound, right_bound = index_bounds(self.events, time_range, inclusive)
-        to_remove = self.mod_times[left_bound:right_bound]
+        to_remove = self.events[left_bound:right_bound]
         for time in to_remove:
             del self.event_mapping[time]
         del self.events[left_bound:right_bound]
