@@ -75,14 +75,18 @@ def test_step_mapping():
     sm.at(plan)['new'] = 100
     del sm.at(plan)['to_delete']
 
-    assert sm.head == original
+    assert sm.at(repo.HEAD) == original
     repo.commit(plan)
-    assert sm.head == {'a':30, 'b':20, 'new':100}
+    assert sm.at(repo.HEAD) == {'a':30, 'b':20, 'new':100}
 
 
 def test_step_mapping_errors():
+    repo = Repo()
+
     original = TestData.original
-    sm = StepMapping(original.copy())
+
+    e0 = repo.new_root_event()
+    sm = StepMapping({e0: SnapshotMapping(original.copy())})
 
     with nose.tools.assert_raises(TypeError):
-        sm.head['x'] = 10
+        sm.at(repo.HEAD)['a'] = 10
