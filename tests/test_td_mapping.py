@@ -24,6 +24,7 @@ class Repo(object):
         event = Event(parent=plan.base_time)
         plan.commit(event)
         self.refs[self.current_branch] = event
+        self.refs['HEAD'] = event
         return event
 
     def new_plan(self, timelines):
@@ -64,9 +65,11 @@ def test_td_mapping_2():
 def test_step_mapping():
     repo = Repo()
     original = TestData.original
-    sm = StepMapping(original.copy())
 
-    plan = StepPlan([sm])
+    e0 = repo.new_root_event()
+    sm = StepMapping({e0: SnapshotMapping(original.copy())})
+
+    plan = repo.new_plan([sm])
 
     sm.at(plan)['a'] = 30
     sm.at(plan)['new'] = 100
