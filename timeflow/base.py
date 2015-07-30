@@ -148,7 +148,6 @@ class TimeLine(BaseFlow):
 
         """
         parent_event = event.parent()
-        self.events.append(event)
         self.time_mapping[event] = stage.frozen_view()
         while parent_event is not None:
             if parent_event in self.time_mapping:
