@@ -125,9 +125,6 @@ class TimeLine(BaseFlow):
         if not self.mod_times:
             raise ValueError, "time_mapping cannot be empty"
 
-    @property
-    def head(self):
-        return self.time_mapping[self.mod_times[-1]]
 
     def at_time(self, time):
         if time is now:
