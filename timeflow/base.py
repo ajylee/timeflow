@@ -142,17 +142,19 @@ class TimeLine(BaseFlow):
                 else:
                     return self.time_mapping[self.mod_times[index - 1]]
 
-    def commit(self, time, stage):
+    def commit(self, event, stage):
         """For timelines with the head as the root. That means the latest value in the
         timeline is a standalone mapping, and all others are derived from it.
 
         """
-        orig_latest_time = self.mod_times[-1]
-        new_latest_time = time
-        assert new_latest_time > orig_latest_time
-        self.mod_times.append(new_latest_time)
-        self.time_mapping[new_latest_time] = stage.frozen_view()
-        self.time_mapping[orig_latest_time]._reroot_base(self.time_mapping[new_latest_time])
+        parent_event = event.parent()
+        self.events.append(event)
+        self.time_mapping[event] = stage.frozen_view()
+        while parent_event is not None:
+            if parent_event in self.time_mapping:
+                self.time_mapping[parent_event]._reroot_base(self.time_mapping[event])
+                break
+            parent_event = parent_event.parent()
 
     def forget(self, time):
         del self.time_mapping[time]
