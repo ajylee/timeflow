@@ -93,10 +93,11 @@ def index_bounds(sorted_list, bounds, inclusive=True):
     return left_bound, right_bound
 
 
-class BaseFlow(object):
-
-    def __hash__(self):
-        return object.__hash__(self)
+class TimeLine(object):
+    def __init__(self, event_mapping):
+        self.event_mapping = event_mapping
+        self.events = sorted(event_mapping)
+        self._parent = weakref.WeakValueDictionary()
 
     def at(self, plan_or_time):
         if isinstance(plan_or_time, Plan):
@@ -104,9 +105,8 @@ class BaseFlow(object):
         else:
             return self.at_time(plan_or_time)
 
-    @abstractmethod
     def at_time(self, time):
-        pass
+        return self.event_mapping[time]
 
     def read_at(self, plan_or_time):
         if isinstance(plan_or_time, Plan):
@@ -117,16 +117,6 @@ class BaseFlow(object):
         else:
             return self.at(plan_or_time)
 
-
-class TimeLine(BaseFlow):
-    def __init__(self, event_mapping):
-        self.event_mapping = event_mapping
-        self.events = sorted(event_mapping)
-        self._parent = weakref.WeakValueDictionary()
-
-
-    def at_time(self, time):
-        return self.event_mapping[time]
 
     def commit(self, event, stage):
         """For timelines with the head as the root. That means the latest value in the
