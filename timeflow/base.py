@@ -3,6 +3,7 @@ import uuid
 import bisect
 from abc import abstractmethod
 import weakref
+from event import index_bounds
 
 
 now = ('now', uuid.UUID('5e625fb4-7574-4720-bb91-3a598d2332bd'))
@@ -80,17 +81,6 @@ class SubPlan(Plan):
 class StepPlan(Plan):
     def __init__(self, step_objs):
         Plan.__init__(self, step_objs, now)
-
-
-def index_bounds(sorted_list, bounds, inclusive=True):
-    if inclusive:
-        left_bound = bisect.bisect_left(sorted_list, bounds[0])
-        right_bound = bisect.bisect_right(sorted_list, bounds[1])
-    else:
-        left_bound = bisect.bisect_right(sorted_list, bounds[0])
-        right_bound = bisect.bisect_left(sorted_list, bounds[1])
-
-    return left_bound, right_bound
 
 
 class TimeLine(object):
