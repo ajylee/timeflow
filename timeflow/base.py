@@ -10,38 +10,42 @@ now = ('now', uuid.UUID('5e625fb4-7574-4720-bb91-3a598d2332bd'))
 
 
 class Plan(object):
+    modified_flow = 'modified_flow'
+    new_flow = 'new_flow'
+
     def __init__(self, timeline, flows, base_event):
         self.timeline = timeline
         self.base_event = base_event
 
-        self.stage = {timeline: timeline.instance[flow, base_event].new_stage()
+        self.stage = {timeline: (timeline.instance[flow, base_event].new_stage(), self.modified)
                    for flow in flows}
 
         self.categories = collections.defaultdict(set)
 
         self.frozen = set()    # a set of frozen timeline ids
+        self.new_flows = []
 
     def __getitem__(self, flow):
         try:
             return self.stage[flow]
         except KeyError:
             _stage = self.timeline.instance[flow, self.base_event].new_stage()
-            self[flow] = _stage
+            self[flow] = [_stage, self.modified]
             return _stage
 
-    def __setitem__(self, timeline, small_stage):
-        assert timeline not in self.frozen, 'Tried to set frozen timeline'
-        self.stage[timeline] = small_stage
+    def __setitem__(self, flow, instance, status):
+        assert flow not in self.frozen, 'Tried to set frozen flow'
+        self.stage[flow] = (instance, status)
 
-    def __contains__(self, timeline):
-        return timeline in self.stage
+    def __contains__(self, flow):
+        return flow in self.stage
 
     def update(self, other_plan):
-        for timeline, _other_stage in other_plan.stage.items():
-            if timeline in self:
-                self[timeline].update(_other_stage)
+        for flow, _other_stage in other_plan.stage.items():
+            if flow in self:
+                self[flow].update(_other_stage)
             else:
-                self[timeline] = _other_stage
+                self[flow] = _other_stage
 
     def commit(self):
         return self.timeline.commit(self)
@@ -49,6 +53,7 @@ class Plan(object):
     def introduce(self, snapshot_or_stage):
         flow = TDItem(self.timeline.instance)
         self[flow] = snapshot_or_stage
+        self.new_flows.append(flow)
         return flow
 
 
@@ -138,15 +143,23 @@ class TimeLine(object):
         timeline is a standalone mapping, and all others are derived from it.
 
         """
-        event = Event(parent=plan.base_event)
-        parent_event = event._parent()
+        parent_event = plan.base_event
+        event = Event(parent=parent_event)
 
-        for td_item, stage in plan.stage.items():
-            frozen_item = stage.frozen_view()
-            self.instance[td_item, event] = frozen_item
+        for flow in self.event_map.get(parent_event, ()):
+            _stage = plan.stage.get(flow, None)
+            if _stage is not None:
+                frozen_item = _stage.frozen_view()
 
-            if (td_item, parent_event) in self.instance:
-                self.instance[td_item, parent_event]._reroot_base(frozen_item)
+                self.instance[flow, event] = frozen_item
+
+                if (flow, parent_event) in self.instance:
+                    self.instance[flow, parent_event]._reroot_base(frozen_item)
+
+            else:
+                self.instance[flow, event] = self.instance[flow, parent_event]
+
+        plan.new_flows
 
         self.refs['HEAD'] = self.refs[self.current_branch] = event
         return event
