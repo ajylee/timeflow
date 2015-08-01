@@ -45,6 +45,11 @@ class Plan(object):
     def commit(self):
         self.timeline.commit(self)
 
+    def introduce(self, snapshot_or_stage):
+        flow = TDItem()
+        self[flow] = snapshot_or_stage
+        return flow
+
 
 class SubPlan(Plan):
     def __init__(self, super_plan, category_key, readable_category_keys):
@@ -135,7 +140,7 @@ class TimeLine(object):
             frozen_item = stage.frozen_view()
             self.event_mapping[td_item, event] = frozen_item
 
-            if parent_event is not None:
+            if (td_item, parent_event) in self.event_mapping:
                 self.event_mapping[td_item, parent_event]._reroot_base(frozen_item)
 
     def forget(self, time):

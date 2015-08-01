@@ -68,6 +68,9 @@ class DerivedSet(collections.Set, DerivedObject):
         bs2._removals = set()
         bs2._base = root_base
 
+    def frozen_view(self):
+        return self
+
 
 class DerivedMutableSet(DerivedSet, DerivedStage, collections.MutableSet):
     def add(self, element):

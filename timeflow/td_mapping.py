@@ -121,6 +121,9 @@ class DerivedMapping(DerivedObject, collections.Mapping):
         bm2._modifications.clear()
         bm2._base = root_base
 
+    def frozen_view(self):
+        return self
+
 
 class DerivedDictionary(DerivedMapping, DerivedStage, collections.MutableMapping):
     def __delitem__(self, key):
