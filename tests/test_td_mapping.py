@@ -55,23 +55,23 @@ def test_td_mapping_2():
     assert tdi.at(e0)['a'] == 10
 
 
-def nottest_step_mapping():
-    repo = Repo()
+def test_step_mapping():
+    tl = TimeLine()
     original = TestData.original
 
-    initial = repo.new_plan([])
+    initial = tl.new_plan([])
     sm = initial.introduce(SnapshotMapping(original.copy()))
+    initial.commit()
 
-
-    plan = repo.new_plan([sm])
+    plan = tl.new_plan([sm])
 
     sm.at(plan)['a'] = 30
     sm.at(plan)['new'] = 100
     del sm.at(plan)['to_delete']
 
-    assert sm.at(repo.HEAD) == original
-    repo.commit(plan)
-    assert sm.at(repo.HEAD) == {'a':30, 'b':20, 'new':100}
+    assert sm.at(tl.HEAD) == original
+    plan.commit()
+    assert sm.at(tl.HEAD) == {'a':30, 'b':20, 'new':100}
 
 
 def nottest_step_mapping_errors():
