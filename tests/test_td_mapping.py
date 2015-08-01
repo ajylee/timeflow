@@ -35,7 +35,7 @@ def test_td_mapping_2():
 
     tdi = initial_plan.introduce(SnapshotMapping(original))
 
-    initial_plan.commit()
+    e0 = initial_plan.commit()
 
     plan = tl.new_plan([tdi])
 
