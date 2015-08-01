@@ -37,7 +37,7 @@ def test_td_mapping_2():
 
     initial_plan.commit()
 
-    plan = repo.new_plan([tdi])
+    plan = tl.new_plan([tdi])
 
     tdi.at(plan)['a'] = 30
     tdi.at(plan)['b'] = 2 * tdi.at(plan)['a']
