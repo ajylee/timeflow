@@ -17,7 +17,7 @@ class Plan(object):
         self.timeline = timeline
         self.base_event = base_event
 
-        self.stage = {timeline: (timeline.instance[flow, base_event].new_stage(), self.modified)
+        self.stage = {flow: timeline.instance[base_event][flow].new_stage()
                    for flow in flows}
 
         self.categories = collections.defaultdict(set)
@@ -29,13 +29,13 @@ class Plan(object):
         try:
             return self.stage[flow]
         except KeyError:
-            _stage = self.timeline.instance[flow, self.base_event].new_stage()
-            self[flow] = [_stage, self.modified]
+            _stage = self.timeline.instance.get(self.base_event, {}).get(flow, flow.default).new_stage()
+            self[flow] = _stage
             return _stage
 
-    def __setitem__(self, flow, instance, status):
+    def __setitem__(self, flow, instance):
         assert flow not in self.frozen, 'Tried to set frozen flow'
-        self.stage[flow] = (instance, status)
+        self.stage[flow] = instance
 
     def __contains__(self, flow):
         return flow in self.stage
@@ -50,9 +50,8 @@ class Plan(object):
     def commit(self):
         return self.timeline.commit(self)
 
-    def introduce(self, snapshot_or_stage):
-        flow = TDItem(self.timeline.instance)
-        self[flow] = snapshot_or_stage
+    def introduce(self, flow, snapshot_or_stage):
+        self[flow] = (snapshot_or_stage, self.new_flow)
         self.new_flows.append(flow)
         return flow
 
@@ -107,7 +106,7 @@ class TDItem(object):
             return self.at_event(plan_or_event)
 
     def at_event(self, event):
-        return self.instance[self, event]
+        return self.instance[event][self]
 
     def read_at(self, plan_or_time):
         if isinstance(plan_or_time, Plan):
@@ -147,15 +146,15 @@ class TimeLine(object):
         event = Event(parent=parent_event)
         self.instance[event] = {}
 
-        for flow, (instance, status) in plan.stage.items():
+        for flow, instance in plan.stage.items():
             frozen_item = instance.frozen_view()
             self.instance[event][flow] = frozen_item
 
-            if status is Plan.modified:
+            if frozen_item is not flow.default:
                 try:
                     _parent_item = self.instance[parent_event][flow]
                 except KeyError:
-                    pass
+                    _parent_item = flow.default
 
                 _parent_item._reroot_base(frozen_item)
 

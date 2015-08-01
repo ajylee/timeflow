@@ -1,6 +1,7 @@
 from timeflow import StepMapping, DerivedDictionary, SnapshotMapping, Plan, StepPlan
 from timeflow import TimeLine, now, Event
 from collections import OrderedDict
+from timeflow.td_mapping import MappingFlow
 import nose.tools
 
 class Repo(object):
@@ -33,7 +34,8 @@ def test_td_mapping_2():
 
     initial_plan = tl.new_plan([])
 
-    tdi = initial_plan.introduce(SnapshotMapping(original))
+    flow = tdi = MappingFlow(tl.instance)
+    flow.at(initial_plan).update(original)
 
     e0 = initial_plan.commit()
 
@@ -42,6 +44,7 @@ def test_td_mapping_2():
     tdi.at(plan)['a'] = 30
     tdi.at(plan)['b'] = 2 * tdi.at(plan)['a']
     del tdi.at(plan)['to_delete']
+
 
     assert tdi.at(plan)._base == tdi.at(e0)
     assert tdi.at(e0) == original
@@ -59,8 +62,9 @@ def test_step_mapping():
     tl = TimeLine()
     original = TestData.original
 
+    sm = MappingFlow(tl.instance)
     initial = tl.new_plan([])
-    sm = initial.introduce(SnapshotMapping(original.copy()))
+    sm.at(initial).update(original)
     initial.commit()
 
     plan = tl.new_plan([sm])

@@ -122,7 +122,10 @@ class DerivedMapping(DerivedObject, collections.Mapping):
         bm2._base = root_base
 
     def frozen_view(self):
-        return self
+        if len(self) > 0:
+            return self
+        else:
+            return empty_mapping
 
 
 class DerivedDictionary(DerivedMapping, DerivedStage, collections.MutableMapping):
@@ -181,6 +184,35 @@ class StepMapping(TDItem, collections.Mapping):
 
     def __repr__(self):
         return repr(self.head)
+
+
+class EmptyMapping(DerivedMapping):
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def __getitem__(key):
+        raise KeyError
+
+    @staticmethod
+    def __iter__():
+        return iter(())
+
+    @staticmethod
+    def __len__():
+        return 0
+
+    def _reroot_base(self, other):
+        other._base = other._modifications
+        other._modifications = {}
+
+
+empty_mapping = EmptyMapping()
+
+
+class MappingFlow(TDItem):
+    default = empty_mapping
+
 
 
 # Aliases
