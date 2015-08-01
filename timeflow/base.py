@@ -145,21 +145,19 @@ class TimeLine(object):
         """
         parent_event = plan.base_event
         event = Event(parent=parent_event)
+        self.instance[event] = {}
 
-        for flow in self.event_map.get(parent_event, ()):
-            _stage = plan.stage.get(flow, None)
-            if _stage is not None:
-                frozen_item = _stage.frozen_view()
+        for flow, (instance, status) in plan.stage.items():
+            frozen_item = instance.frozen_view()
+            self.instance[event][flow] = frozen_item
 
-                self.instance[flow, event] = frozen_item
+            if status is Plan.modified:
+                try:
+                    _parent_item = self.instance[parent_event][flow]
+                except KeyError:
+                    pass
 
-                if (flow, parent_event) in self.instance:
-                    self.instance[flow, parent_event]._reroot_base(frozen_item)
-
-            else:
-                self.instance[flow, event] = self.instance[flow, parent_event]
-
-        plan.new_flows
+                _parent_item._reroot_base(frozen_item)
 
         self.refs['HEAD'] = self.refs[self.current_branch] = event
         return event
