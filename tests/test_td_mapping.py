@@ -60,7 +60,7 @@ def nottest_step_mapping():
     original = TestData.original
 
     initial = repo.new_plan([])
-    sm.at(initial) = SnapshotMapping(original.copy())
+    sm = initial.introduce(SnapshotMapping(original.copy()))
 
 
     plan = repo.new_plan([sm])
