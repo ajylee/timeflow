@@ -39,7 +39,7 @@ class Plan(object):
 
     def update(self, other_plan):
         for flow, _other_stage in other_plan.stage.items():
-            if flow in self:
+            if flow in self.stage:
                 self[flow].update(_other_stage)
             else:
                 self[flow] = _other_stage
@@ -68,7 +68,7 @@ class SubPlan(Plan):
         return timeline in self.category
 
     def __getitem__(self, timeline):
-        if timeline not in self and timeline not in self.readable:
+        if timeline not in self.category and timeline not in self.readable:
             if timeline not in self.super_plan:
                 return timeline.at_time(self.super_plan.base_event)
             else:
