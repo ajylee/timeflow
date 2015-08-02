@@ -150,18 +150,6 @@ class TimeLine(object):
         self.HEAD = event
         return event
 
-    def forget(self, time):
-        del self.instance[time]
-        index = bisect.bisect_left(time)
-        del self.mod_times[index]
-
-    def forget_range(self, time_range, inclusive=True):
-        left_bound, right_bound = index_bounds(self.events, time_range, inclusive)
-        to_remove = self.events[left_bound:right_bound]
-        for time in to_remove:
-            del self.instance[time]
-        del self.events[left_bound:right_bound]
-
 
 class DerivedObject(object):
     @abstractmethod

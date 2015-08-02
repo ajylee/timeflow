@@ -75,6 +75,7 @@ def test_step_mapping():
 
     assert sm.at(tl.HEAD) == original
     plan.commit()
+    tl.HEAD.forget_parent()
     assert sm.at(tl.HEAD) == {'a':30, 'b':20, 'new':100}
 
 

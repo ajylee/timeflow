@@ -2,12 +2,19 @@ import time as _time
 import bisect
 import weakref
 
-def empty_ref():
-    return None
+
+def strong_ref(xx):
+    def _strong_ref():
+        return xx
+
+    return _strong_ref
+
+empty_ref = strong_ref(None)
+
 
 class Event(object):
     def __init__(self, parent=None):
-        self._parent = weakref.ref(parent) if parent else empty_ref
+        self._parent = strong_ref(parent) if parent else empty_ref
         if parent:
             parent._child = weakref.ref(self)
 
@@ -52,6 +59,9 @@ class Event(object):
 
     def __repr__(self):
         return 'Event(time={self.time}, count={self.count})'.format(self=self)
+
+    def forget_parent(self):
+        self._parent = empty_ref
 
 
 def representative_event(events, event):
