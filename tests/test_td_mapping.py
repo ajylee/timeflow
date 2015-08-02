@@ -1,5 +1,6 @@
 from timeflow import StepMapping, DerivedDictionary, SnapshotMapping, Plan
 from timeflow import TimeLine, StepLine, now, Event
+from timeflow.td_mapping import ReferrerPreservingDictionary
 
 import weakref
 from collections import OrderedDict
@@ -97,3 +98,25 @@ def nottest_step_mapping_errors():
 
     with nose.tools.assert_raises(TypeError):
         sm.at(repo.HEAD)['a'] = 10
+
+
+def test_referrent_preserving_dictionary():
+
+    dd = ReferrerPreservingDictionary()
+    dd._base = TestData.original.copy()
+
+    referrer = DerivedDictionary(dd, {})
+
+    dd._referrer = referrer
+
+    dd['a'] = 20
+    del dd['to_delete']
+
+    assert referrer == TestData.original
+
+
+    # Test adding and deleting a new k/v pair
+    dd['new'] = 'some value'
+    assert referrer == TestData.original
+    del dd['new']
+    assert referrer == TestData.original

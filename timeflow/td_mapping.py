@@ -159,6 +159,46 @@ class DerivedDictionary(DerivedMapping, DerivedStage, collections.MutableMapping
         return DerivedMapping(self._base, self._modifications)
 
 
+class ReferrerPreservingDictionary(collections.MutableMapping):
+    def __getitem__(self, key):
+        return self._base[key]
+
+    def __iter__(self):
+        return iter(self._base)
+
+    def __len__(self):
+        return len(self._base)
+
+    def __repr__(self):
+        return repr(self._base)
+
+    def __delitem__(self, key):
+        try:
+            original = self._referrer[key]
+        except KeyError:
+            pass
+
+        del self._base[key]
+
+        try:
+            self._referrer[key] = original
+        except NameError:
+            pass
+
+    def __setitem__(self, key, value):
+        try:
+            original = self._referrer[key]
+        except KeyError:
+            pass
+
+        self._base[key] = value
+
+        try:
+            self._referrer[key] = original
+        except NameError:
+            del self._referrer[key]
+
+
 class StepMapping(Flow, collections.Mapping):
     """Drop in replacement for a regular Dict
 
