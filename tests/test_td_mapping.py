@@ -37,7 +37,7 @@ def test_td_mapping_2():
 
     initial_plan = tl.new_plan([])
 
-    flow = tdi = MappingFlow(tl.instance)
+    flow = tdi = MappingFlow()
     flow.at(initial_plan).update(original)
 
     e0 = tl.commit(initial_plan)
@@ -65,7 +65,7 @@ def test_step_mapping():
     tl = StepLine()
     original = TestData.original
 
-    sm = MappingFlow(tl.instance)
+    sm = MappingFlow()
     initial = tl.new_plan([])
     sm.at(initial).update(original)
     tl.commit(initial)

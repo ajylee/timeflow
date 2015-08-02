@@ -1,7 +1,6 @@
 
 class Flow(object):
-    def __init__(self, instance):
-        self.instance = instance
+    default = 'need override'
 
     def __hash__(self):
         return object.__hash__(self)
