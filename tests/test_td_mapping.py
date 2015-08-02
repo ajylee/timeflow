@@ -1,5 +1,7 @@
 from timeflow import StepMapping, DerivedDictionary, SnapshotMapping, Plan
 from timeflow import TimeLine, StepLine, now, Event
+
+import weakref
 from collections import OrderedDict
 from timeflow.td_mapping import MappingFlow
 import nose.tools
@@ -73,9 +75,15 @@ def test_step_mapping():
     sm.at(plan)['new'] = 100
     del sm.at(plan)['to_delete']
 
+    test_refs = [weakref.ref(tl.HEAD),
+                 weakref.ref(sm.at(tl.HEAD))]
+
     assert sm.at(tl.HEAD) == original
+
     tl.commit(plan)
-    tl.HEAD.forget_parent()
+    del plan
+
+    assert all(test_ref() is None for test_ref in test_refs)
     assert sm.at(tl.HEAD) == {'a':30, 'b':20, 'new':100}
 
 
