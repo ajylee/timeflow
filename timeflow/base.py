@@ -3,7 +3,7 @@ import uuid
 import bisect
 from abc import abstractmethod
 import weakref
-from event import index_bounds, Event
+from event import index_bounds, Event, NullEvent
 
 
 now = ('now', uuid.UUID('5e625fb4-7574-4720-bb91-3a598d2332bd'))
@@ -17,7 +17,7 @@ class Plan(object):
         self.timeline = timeline
         self.base_event = base_event
 
-        self.stage = {flow: timeline.instance[base_event][flow].new_stage()
+        self.stage = {flow: timeline.HEAD.instance[flow].new_stage()
                    for flow in flows}
 
         self.categories = collections.defaultdict(set)
@@ -29,7 +29,7 @@ class Plan(object):
         try:
             return self.stage[flow]
         except KeyError:
-            _stage = self.timeline.instance.get(self.base_event, {}).get(flow, flow.default).new_stage()
+            _stage = self.timeline.instance.get(flow, flow.default).new_stage()
             self[flow] = _stage
             return _stage
 
@@ -106,7 +106,7 @@ class TDItem(object):
             return self.at_event(plan_or_event)
 
     def at_event(self, event):
-        return self.instance[event][self]
+        return event.instance[self]
 
     def read_at(self, plan_or_time):
         if isinstance(plan_or_time, Plan):
@@ -118,20 +118,14 @@ class TDItem(object):
             return self.at(plan_or_time)
 
 
+
 class TimeLine(object):
     def __init__(self):
-        self.mapping = {}
-        self.events = []
-        self.current_branch = 'master'
-        self.refs = {'HEAD': None,
-                  self.current_branch: None}
-        self.event_map = {}
-        self.flow_map = {}
-        self.instance = {}
+        self.HEAD = NullEvent
 
     @property
-    def HEAD(self):
-        return self.refs['HEAD']
+    def instance(self):
+        return self.HEAD.instance
 
     def new_plan(self, timelines):
         base_event = self.HEAD
@@ -144,21 +138,16 @@ class TimeLine(object):
         """
         parent_event = plan.base_event
         event = Event(parent=parent_event)
-        self.instance[event] = {}
 
         for flow, instance in plan.stage.items():
             frozen_item = instance.frozen_view()
-            self.instance[event][flow] = frozen_item
+            event.instance[flow] = frozen_item
 
             if frozen_item is not flow.default:
-                try:
-                    _parent_item = self.instance[parent_event][flow]
-                except KeyError:
-                    _parent_item = flow.default
-
+                _parent_item = parent_event.instance.get(flow, flow.default)
                 _parent_item._reroot_base(frozen_item)
 
-        self.refs['HEAD'] = self.refs[self.current_branch] = event
+        self.HEAD = event
         return event
 
     def forget(self, time):

@@ -11,6 +11,8 @@ class Event(object):
         if parent:
             parent._child = weakref.ref(self)
 
+        self.instance = {}
+
         self._child = empty_ref
         self.time = _time.time()
 
@@ -70,3 +72,40 @@ def index_bounds(sorted_list, bounds, inclusive=True):
         right_bound = bisect.bisect_left(sorted_list, bounds[1])
 
     return left_bound, right_bound
+
+
+# Infinity
+# ########
+
+class _NegativeInfinity:
+    @staticmethod
+    def __cmp__(other):
+        return -1
+
+    def __neg__(self):
+        return inf
+
+    def __repr__(self):
+        return 'NegativeInfinity'
+
+class _Infinity:
+    @staticmethod
+    def __cmp__(other):
+        return 1
+
+    def __neg__(self):
+        return _neg_inf
+
+    def __repr__(self):
+        return 'Infinity'
+
+inf = _Infinity()
+_neg_inf = _NegativeInfinity()
+
+
+
+# #########
+
+class NullEvent:
+    instance = {}
+    time = -inf
