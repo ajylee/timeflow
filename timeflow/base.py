@@ -81,7 +81,7 @@ class SubPlan(Plan):
         self.super_plan.frozen.update(self.category)
 
 
-class TDItem(object):
+class Flow(object):
     def __init__(self, instance):
         self.instance = instance
 
