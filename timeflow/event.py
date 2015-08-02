@@ -33,7 +33,7 @@ class Event(object):
             nn = nn - 1
             target = target._parent()
             if not target:
-                raise ValueError, 'No parent'
+                return NullEvent
 
         return target
 
