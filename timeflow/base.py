@@ -1,9 +1,7 @@
 import collections
 import uuid
-import bisect
 from abc import abstractmethod
-import weakref
-from event import index_bounds, Event, NullEvent
+from event import Event, NullEvent
 
 
 now = ('now', uuid.UUID('5e625fb4-7574-4720-bb91-3a598d2332bd'))
