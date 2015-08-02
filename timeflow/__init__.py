@@ -14,7 +14,7 @@ from .td_set import (
 )
 
 from .base import (
-    TimeLine, now, Plan, StepPlan
+    TimeLine, StepLine, now, Plan
 )
 
 from .event import Event

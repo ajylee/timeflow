@@ -83,11 +83,6 @@ class SubPlan(Plan):
         self.super_plan.frozen.update(self.category)
 
 
-class StepPlan(Plan):
-    def __init__(self, step_objs):
-        Plan.__init__(self, step_objs, now)
-
-
 class TDItem(object):
     def __init__(self, instance):
         self.instance = instance
@@ -144,6 +139,12 @@ class TimeLine(object):
 
         self.HEAD = event
         return event
+
+
+class StepLine(TimeLine):
+    def commit(self, plan):
+        TimeLine.commit(self, plan)
+        self.HEAD.forget_parent()
 
 
 class DerivedObject(object):

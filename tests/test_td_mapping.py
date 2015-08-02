@@ -1,5 +1,5 @@
 from timeflow import StepMapping, DerivedDictionary, SnapshotMapping, Plan, StepPlan
-from timeflow import TimeLine, now, Event
+from timeflow import TimeLine, StepLine, now, Event
 from collections import OrderedDict
 from timeflow.td_mapping import MappingFlow
 import nose.tools
