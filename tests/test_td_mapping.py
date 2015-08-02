@@ -1,4 +1,4 @@
-from timeflow import StepMapping, DerivedDictionary, SnapshotMapping, Plan, StepPlan
+from timeflow import StepMapping, DerivedDictionary, SnapshotMapping, Plan
 from timeflow import TimeLine, StepLine, now, Event
 from collections import OrderedDict
 from timeflow.td_mapping import MappingFlow
@@ -37,7 +37,7 @@ def test_td_mapping_2():
     flow = tdi = MappingFlow(tl.instance)
     flow.at(initial_plan).update(original)
 
-    e0 = initial_plan.commit()
+    e0 = tl.commit(initial_plan)
 
     plan = tl.new_plan([tdi])
 
@@ -59,13 +59,13 @@ def test_td_mapping_2():
 
 
 def test_step_mapping():
-    tl = TimeLine()
+    tl = StepLine()
     original = TestData.original
 
     sm = MappingFlow(tl.instance)
     initial = tl.new_plan([])
     sm.at(initial).update(original)
-    initial.commit()
+    tl.commit(initial)
 
     plan = tl.new_plan()
 
