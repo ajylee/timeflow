@@ -71,12 +71,12 @@ class NullEvent:
 
 
 class Event(object):
-    def __init__(self, parent=NullEvent):
+    def __init__(self, parent=NullEvent, instance_map=None):
         self._parent = strong_ref(parent) if parent else empty_ref
         if parent:
             parent._child = weakref.ref(self)
 
-        self.instance = ({} if parent is None or parent is NullEvent else parent.instance.copy())
+        self.instance = (instance_map if instance_map is not None else {})
 
         self._child = empty_ref
         self.time = _time.time()

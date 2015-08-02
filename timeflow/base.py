@@ -99,18 +99,18 @@ class TimeLine(object):
 
         """
         parent_event = plan.base_event
-        event = Event(parent=parent_event)
+        instance_map = parent_event.instance.copy()
 
         for flow, instance in plan.stage.items():
             frozen_item = instance.frozen_view()
-            event.instance[flow] = frozen_item
+            instance_map[flow] = frozen_item
 
             if frozen_item is not flow.default:
                 _parent_item = parent_event.instance.get(flow, flow.default)
                 _parent_item._reroot_base(frozen_item)
 
-        self.HEAD = event
-        return event
+        self.HEAD = Event(parent=parent_event, instance_map=instance_map)
+        return self.HEAD
 
 
 class StepLine(TimeLine):
