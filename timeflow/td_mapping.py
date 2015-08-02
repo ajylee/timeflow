@@ -1,6 +1,7 @@
 import collections
 import itertools
-from .base import TimeLine, DerivedObject, DerivedStage, Flow
+from .base import DerivedObject, DerivedStage
+from .flow import Flow
 
 delete = ('delete', object)
 no_element = ('no_element', object)

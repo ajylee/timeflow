@@ -17,6 +17,8 @@ from .base import (
     TimeLine, StepLine, now, Plan
 )
 
+from .flow import Flow
+
 from .event import Event
 
 

@@ -86,6 +86,9 @@ class Event(object):
         else:
             self.count = 0
 
+    def get_flow(self, flow):
+        return self.instance.get(flow, flow.default)
+
     def __hash__(self):
         return hash((self.time, self.count))
 

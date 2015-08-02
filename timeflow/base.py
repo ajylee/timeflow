@@ -22,7 +22,7 @@ class Plan(object):
 
         self.frozen = set()    # a set of frozen flows
 
-    def __getitem__(self, flow):
+    def get_flow(self, flow):
         try:
             return self.stage[flow]
         except KeyError:
@@ -79,32 +79,6 @@ class SubPlan(Plan):
     def freeze(self):
         """Freeze all timelines in the subplan"""
         self.super_plan.frozen.update(self.category)
-
-
-class Flow(object):
-    def __init__(self, instance):
-        self.instance = instance
-
-    def __hash__(self):
-        return object.__hash__(self)
-
-    def at(self, plan_or_event):
-        if isinstance(plan_or_event, Plan):
-            return plan_or_event[self]
-        else:
-            return self.at_event(plan_or_event)
-
-    def at_event(self, event):
-        return event.instance[self]
-
-    def read_at(self, plan_or_time):
-        if isinstance(plan_or_time, Plan):
-            if self in plan_or_time:
-                return plan_or_time[self]
-            else:
-                return self.at(plan_or_time.base_event)
-        else:
-            return self.at(plan_or_time)
 
 
 class TimeLine(object):
