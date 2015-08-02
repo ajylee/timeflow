@@ -67,14 +67,14 @@ def test_step_mapping():
     sm.at(initial).update(original)
     initial.commit()
 
-    plan = tl.new_plan([sm])
+    plan = tl.new_plan()
 
     sm.at(plan)['a'] = 30
     sm.at(plan)['new'] = 100
     del sm.at(plan)['to_delete']
 
     assert sm.at(tl.HEAD) == original
-    plan.commit()
+    tl.commit(plan)
     tl.HEAD.forget_parent()
     assert sm.at(tl.HEAD) == {'a':30, 'b':20, 'new':100}
 

@@ -13,23 +13,22 @@ class Plan(object):
     modified_flow = 'modified_flow'
     new_flow = 'new_flow'
 
-    def __init__(self, timeline, flows, base_event):
-        self.timeline = timeline
+    def __init__(self,  base_event, only_flows=None):
+        self.only_flows = only_flows   # unimplemented; restricts modifications
+
         self.base_event = base_event
 
-        self.stage = {flow: timeline.HEAD.instance[flow].new_stage()
-                   for flow in flows}
+        self.stage = {}
 
         self.categories = collections.defaultdict(set)
 
-        self.frozen = set()    # a set of frozen timeline ids
-        self.new_flows = []
+        self.frozen = set()    # a set of frozen flows
 
     def __getitem__(self, flow):
         try:
             return self.stage[flow]
         except KeyError:
-            _stage = self.timeline.instance.get(flow, flow.default).new_stage()
+            _stage = self.base_event.instance.get(flow, flow.default).new_stage()
             self[flow] = _stage
             return _stage
 
@@ -46,9 +45,6 @@ class Plan(object):
                 self[flow].update(_other_stage)
             else:
                 self[flow] = _other_stage
-
-    def commit(self):
-        return self.timeline.commit(self)
 
     def introduce(self, flow, snapshot_or_stage):
         self[flow] = (snapshot_or_stage, self.new_flow)
@@ -118,7 +114,6 @@ class TDItem(object):
             return self.at(plan_or_time)
 
 
-
 class TimeLine(object):
     def __init__(self):
         self.HEAD = NullEvent
@@ -127,9 +122,9 @@ class TimeLine(object):
     def instance(self):
         return self.HEAD.instance
 
-    def new_plan(self, timelines):
+    def new_plan(self, only_flows=None):
         base_event = self.HEAD
-        return Plan(self, timelines, base_event)
+        return Plan(base_event, only_flows)
 
     def commit(self, plan):
         """For timelines with the head as the root. That means the latest value in the
