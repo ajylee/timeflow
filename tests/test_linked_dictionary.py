@@ -58,7 +58,10 @@ class LinkedDictionary(collections.MutableMapping):
         try:
             val = self.diff_base[k][self.diff_side]
         except KeyError:
-            return self.base[k]
+            try:
+                return self.base[k]
+            except KeyError:
+                raise KeyError
 
         if val == delete:
             raise KeyError
