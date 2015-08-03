@@ -75,7 +75,18 @@ class LinkedDictionary(collections.MutableMapping):
         return count
 
     def __delitem__(self, k):
-        pass
+        if self.diff_side is None:
+            try:
+                del self.base[k]
+            except KeyError:
+                raise KeyError
+
+        if self.parent():
+            try:
+                self.diff_parent[k] = (self.parent()[k], delete)
+            except KeyError:
+                # parent has no such key
+                pass
 
 
 def transfer_core(self, other):
