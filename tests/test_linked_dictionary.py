@@ -46,7 +46,7 @@ class LinkedDictionary(collections.MutableMapping):
         if self.parent():
             self.diff_parent[k] = (self.parent().get(k, delete), v)
 
-        if self.base is not self.parent():
+        if self.diff_side is None:
             self.base[k] = v
 
     def __getitem__(self, k):
