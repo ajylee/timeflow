@@ -80,7 +80,7 @@ class DerivedMapping(DerivedObject, collections.Mapping):
     def __len__(self):
         count = len(self._base)
         for k,v in self._modifications.iteritems():
-            if k is delete:
+            if v is delete:
                 count -= 1
             elif k not in self._base:
                 count += 1
