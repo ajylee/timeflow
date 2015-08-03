@@ -1,12 +1,14 @@
 import collections
 import itertools
 import weakref
+import nose.tools
+
 
 delete = ('delete', object)
 
 class LinkedDictionary(collections.MutableMapping):
     def __init__(self, parent, base):
-        self.parent = weakref.ref(parent)
+        self.parent = weakref.ref(parent) if parent is not None else lambda : None
 
         self.del_hooks = []
 
@@ -37,12 +39,15 @@ class LinkedDictionary(collections.MutableMapping):
     def __del__(self):
         # TODO: delete children's parent refs and diff_parent.
         #del self.parent.diff_child
-        del self.diff_parent
+
+        if self.parent():
+            del self.diff_parent
 
         for del_hook in self.del_hooks:
             del_hook()
 
     def __setitem__(self, k, v):
+        # cannot have children
         if self.parent():
             self.diff_parent[k] = (self.parent().get(k, delete), v)
 
@@ -75,6 +80,7 @@ class LinkedDictionary(collections.MutableMapping):
         return count
 
     def __delitem__(self, k):
+        # cannot have children
         if self.diff_side is None:
             try:
                 del self.base[k]
@@ -85,8 +91,11 @@ class LinkedDictionary(collections.MutableMapping):
             try:
                 self.diff_parent[k] = (self.parent()[k], delete)
             except KeyError:
-                # parent has no such key
-                pass
+                # parent has no such key => key in self.diff_parent or KeyError
+                try:
+                    del self.diff_parent[k]
+                except KeyError:
+                    raise KeyError, 'no such key'
 
 
 def transfer_core(self, other):
@@ -101,30 +110,48 @@ def transfer_core(self, other):
             core[k] = v[other.diff_side]
 
     self.base = other
-    self.other.base = core
+    other.base = core
+    other.diff_base = {}
+    other.diff_side = None
+
+    if other.parent() is self:
+        self.diff_base = other.diff_parent
+        self.diff_side = 0
+    else:
+        self.diff_base = self.diff_parent
+        self.diff_side = 1
 
 
 def test_linked_dictionary():
+    class X(object):
+        pass
+
     aa = LinkedDictionary(None, None)
     aa[1] = 10
+    aa['to_delete'] = X()
 
     bb = LinkedDictionary(aa, aa)
 
     bb[1] = 20
     bb[2] = 30
+    del bb['to_delete']
+
+    with nose.tools.assert_raises(KeyError):
+        del bb['no_such_key']
 
     assert aa[1] == 10
     assert bb[1] == 20
+    assert 2 not in aa
 
     transfer_core(aa, bb)
 
     assert aa[1] == 10
     assert bb[1] == 20
+    assert 2 not in aa
 
     assert hasattr(bb, 'diff_parent')
-    test_ref = weakref.ref(bb.diff_parent)
+    test_ref = weakref.ref(aa['to_delete'])
     del aa
     assert not hasattr(bb, 'diff_parent')
     assert test_ref() is None
 
-    #assert 2 not in aa
