@@ -202,6 +202,12 @@ def test_transfer_core():
     assert bb[1] == 20
     assert 2 not in aa
 
+    transfer_core(bb, aa)
+
+    assert aa[1] == 10
+    assert bb[1] == 20
+    assert 2 not in aa
+
 
 def test_memory_management():
     aa, bb = setup_tests()
