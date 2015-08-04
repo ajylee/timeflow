@@ -114,14 +114,17 @@ class LinkedDictionary(LinkedMapping, collections.MutableMapping):
                 raise KeyError
 
         if self.parent():
-            try:
-                self.diff_parent[k] = (self.parent()[k], delete)
-            except KeyError:
-                # parent has no such key => key in self.diff_parent or KeyError
+            if self.diff_parent.get(k, (None, None))[CHILD] is delete:
+                raise KeyError
+            else:
                 try:
-                    del self.diff_parent[k]
+                    self.diff_parent[k] = (self.parent()[k], delete)
                 except KeyError:
-                    raise KeyError, 'no such key'
+                    # parent has no such key => key in self.diff_parent or KeyError
+                    try:
+                        del self.diff_parent[k]
+                    except KeyError:
+                        raise KeyError, 'no such key'
 
     def hatch(self):
         hatched = LinkedMapping(self.parent(), self.diff_parent, self.base, self.base_relation)
@@ -162,7 +165,8 @@ def first_egg(base):
     return LinkedDictionary(None, None, base, SELF)
 
 
-def test_linked_dictionary():
+@nose.tools.nottest
+def setup_tests():
     class X(object):
         pass
 
@@ -179,21 +183,52 @@ def test_linked_dictionary():
     bb[2] = 30
     del bb['to_delete']
 
-    with nose.tools.assert_raises(KeyError):
-        del bb['no_such_key']
+    return aa, bb
+
+
+def test_linked_dictionary():
+    aa, bb = setup_tests()
 
     assert aa[1] == 10
     assert bb[1] == 20
     assert 2 not in aa
 
+
+def test_transfer_core():
+    aa, bb = setup_tests()
     transfer_core(aa, bb)
 
     assert aa[1] == 10
     assert bb[1] == 20
     assert 2 not in aa
 
+
+def test_memory_management():
+    aa, bb = setup_tests()
+
     assert hasattr(bb, 'diff_parent')
     test_ref = weakref.ref(aa['to_delete'])
     del aa
+    assert hasattr(bb, 'diff_parent')
+    assert test_ref() is not None
+
+    transfer_core(bb.parent(), bb)    # bb.parent() points to aa until core is transferred
+
     assert not hasattr(bb, 'diff_parent')
     assert test_ref() is None
+
+
+def test_linked_dictionary_error_handling():
+    aa, bb = setup_tests()
+
+    with nose.tools.assert_raises(KeyError):
+        aa['no_such_key']
+
+    with nose.tools.assert_raises(KeyError):
+        del bb['no_such_key']
+
+    with nose.tools.assert_raises(KeyError):
+        bb['to_delete']
+
+    with nose.tools.assert_raises(KeyError):
+        del bb['to_delete']
