@@ -6,34 +6,52 @@ import nose.tools
 
 delete = ('delete', object)
 
-class LinkedDictionary(collections.MutableMapping):
-    def __init__(self, parent, base):
+PARENT = 0
+CHILD = 1
+SELF = 2
+
+def opposite_relation(parent_or_child):
+    return 1 - parent_or_child
+
+
+class LinkedMapping(collections.Mapping):
+    def __init__(self, parent, diff_parent, base, base_relation):
+        """LinkedMapping
+
+        :param LinkedMapping parent:  can also be None
+        :param dict diff_parent:      Used iff parent != None
+        :param dict base:             Base data
+        :param base_relation:         PARENT, CHILD, or SELF
+
+        """
+
         self.parent = weakref.ref(parent) if parent is not None else lambda : None
 
         self.del_hooks = []
 
-        if parent is not None:
-            parent.diff_child = self.diff_parent = {}
+        self.diff_parent = diff_parent
 
+        if parent is not None:
+            maybe_self = weakref.ref(self)
             def del_hook():
-                del self.diff_parent
-            
+                if maybe_self():
+                    del maybe_self().diff_parent
+
             parent.del_hooks.append(del_hook)
 
-        self.set_base(base)
+        self.base = base
+        self.base_relation = base_relation
+        self.set_diff()
 
-    def set_base(self, base):
-        if base is None:                     # None means to set base to self
-            self.base = {}
+    def set_diff(self):
+        if self.base_relation is SELF:
             self.diff_base = {}
             self.diff_side = None
-        elif base is self.parent():
-            self.base = base
+        elif self.base_relation is PARENT:
             self.diff_base = self.diff_parent
             self.diff_side = 1
-        elif self.base is not None:  # is a child
-            self.base = base
-            self.diff_base = base.diff_parent
+        elif self.base_relation is CHILD:
+            self.diff_base = self.base.diff_parent
             self.diff_side = 0
 
     def __del__(self):
@@ -45,14 +63,6 @@ class LinkedDictionary(collections.MutableMapping):
 
         for del_hook in self.del_hooks:
             del_hook()
-
-    def __setitem__(self, k, v):
-        # cannot have children
-        if self.parent():
-            self.diff_parent[k] = (self.parent().get(k, delete), v)
-
-        if self.diff_side is None:
-            self.base[k] = v
 
     def __getitem__(self, k):
         try:
@@ -82,6 +92,19 @@ class LinkedDictionary(collections.MutableMapping):
                 count += 1
         return count
 
+    def egg(self):
+        return LinkedDictionary(self, {}, self, PARENT)
+
+
+class LinkedDictionary(LinkedMapping, collections.MutableMapping):
+    def __setitem__(self, k, v):
+        # cannot have children
+        if self.parent():
+            self.diff_parent[k] = (self.parent().get(k, delete), v)
+
+        if self.diff_side is None:
+            self.base[k] = v
+
     def __delitem__(self, k):
         # cannot have children
         if self.diff_side is None:
@@ -100,9 +123,19 @@ class LinkedDictionary(collections.MutableMapping):
                 except KeyError:
                     raise KeyError, 'no such key'
 
+    def hatch(self):
+        hatched = LinkedMapping(self.parent(), self.diff_parent, self.base, self.base_relation)
+
+        # make self unusable; references to self should be deleted so memory can be reclaimed.
+        del self.base
+        del self.base_relation
+        del self.diff_base
+
+        return hatched
+
 
 def transfer_core(self, other):
-    assert self.diff_side is None 
+    assert self.diff_side is None
 
     core = self.base
 
@@ -125,15 +158,22 @@ def transfer_core(self, other):
         self.diff_side = 1
 
 
+def first_egg(base):
+    return LinkedDictionary(None, None, base, SELF)
+
+
 def test_linked_dictionary():
     class X(object):
         pass
 
-    aa = LinkedDictionary(None, None)
-    aa[1] = 10
-    aa['to_delete'] = X()
+    aa_egg = first_egg({})
+    aa_egg[1] = 10
+    aa_egg['to_delete'] = X()
 
-    bb = LinkedDictionary(aa, aa)
+    aa = aa_egg.hatch()
+    del aa_egg
+
+    bb = aa.egg()
 
     bb[1] = 20
     bb[2] = 30
@@ -157,4 +197,3 @@ def test_linked_dictionary():
     del aa
     assert not hasattr(bb, 'diff_parent')
     assert test_ref() is None
-
