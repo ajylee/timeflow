@@ -23,6 +23,21 @@ class LinkedMapping(collections.Mapping):
         :param dict base:             Base data
         :param base_relation:         PARENT, CHILD, or SELF
 
+        Attributes
+        ----------
+
+        :attr diff_parent:            Dict mapping a key to a difference pair,
+                                      (Parent value, self value)
+        :attr base:                   Base data, can parent LinkedMapping, a child LinkedMapping,
+                                      or an independent dictionary.
+
+
+        Memory management
+        -----------------
+
+        A LinkedMapping has no strong refs to its parent except for :attr:base .
+        :attr:diff_parent is automatically removed if the parent has no strong refs.
+
         """
 
         self.parent = weakref.ref(parent) if parent is not None else lambda : None
