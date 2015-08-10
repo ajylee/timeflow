@@ -40,16 +40,3 @@ class BridgeMappingFlow(MappingFlow, collections.Mapping):
 
     def __repr__(self):
         return repr(self.at(self.timeline.HEAD))
-
-
-# Aliases
-# ################################################################################
-
-
-def SnapshotMapping(base, copy=True):
-    modifications = {}
-
-    if copy:
-        return DerivedMapping(base.copy(), modifications=modifications)
-    else:
-        return DerivedMapping(base, modifications=modifications)

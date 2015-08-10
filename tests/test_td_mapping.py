@@ -1,4 +1,4 @@
-from timeflow import SnapshotMapping, Plan, BridgeMappingFlow
+from timeflow import Plan, BridgeMappingFlow
 from timeflow import TimeLine, StepLine, now, Event
 
 import weakref
