@@ -6,24 +6,6 @@ from collections import OrderedDict
 from timeflow.td_mapping import MappingFlow
 import nose.tools
 
-class Repo(object):
-
-    def new_root_event(self):
-        assert not self.refs['HEAD'] or self.refs[self.current_branch]
-        _e = Event(parent=None)
-        self.refs[self.current_branch] = _e
-        self.refs['HEAD'] = _e
-        return _e
-
-
-class StepRepo(Repo):
-    """Repo that only keeps the current version"""
-
-    def commit(self, plan):
-        event = Repo.commit(self, plan)
-        # TODO: forget previous events
-        return event
-
 
 class TestData:
     original = dict(a=10, b=20, to_delete=1000)
