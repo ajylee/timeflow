@@ -54,11 +54,13 @@ class LinkedMapping(collections.Mapping):
 
             parent.del_hooks.append(del_hook)
 
+        self.set_base(base, base_relation)
+
+
+    def set_base(self, base, base_relation):
         self.base = base
         self.base_relation = base_relation
-        self.set_diff()
 
-    def set_diff(self):
         if self.base_relation is SELF:
             self.diff_base = {}
             self.diff_side = None
@@ -122,7 +124,7 @@ class LinkedDictionary(LinkedMapping, collections.MutableMapping):
         if self.parent():
             self.diff_parent[k] = (self.parent().get(k, delete), v)
 
-        if self.diff_side is None:
+        if self.base_relation is SELF:
             self.base[k] = v
 
     def __delitem__(self, k):
@@ -159,7 +161,7 @@ class LinkedDictionary(LinkedMapping, collections.MutableMapping):
 
 
 def transfer_core(self, other):
-    assert self.diff_side is None
+    assert self.base_relation is SELF
 
     core = self.base
 
@@ -169,17 +171,13 @@ def transfer_core(self, other):
         else:
             core[k] = v[other.diff_side]
 
-    self.base = other
-    other.base = core
-    other.diff_base = {}
-    other.diff_side = None
-
-    if other.parent() is self:
-        self.diff_base = other.diff_parent
-        self.diff_side = 0
+    if self.parent() is other:
+        self.set_base(other, PARENT)
     else:
-        self.diff_base = self.diff_parent
-        self.diff_side = 1
+        assert other.parent() is self
+        self.set_base(other, CHILD)
+
+    other.set_base(core, SELF)
 
 
 def first_egg(base):
