@@ -49,6 +49,7 @@ class LinkedMapping(collections.Mapping):
         self.diff_parent = diff_parent
 
         if parent is not None:
+            assert not isinstance(parent, collections.MutableMapping)
             maybe_self = weakref.ref(self)
             def del_hook():
                 if maybe_self():
@@ -114,6 +115,14 @@ class LinkedMapping(collections.Mapping):
 
 
 class LinkedDictionary(LinkedMapping, collections.MutableMapping):
+    """Mutable version of LinkedMapping, with restrictions
+
+    The LinkedDictionary cannot have children. In particular,
+    its `base_relation` cannot be CHILD. This assumption simplifies
+    implementation.
+
+    """
+
     def __setitem__(self, k, v):
         # cannot have children
         if self.parent():
@@ -124,13 +133,13 @@ class LinkedDictionary(LinkedMapping, collections.MutableMapping):
 
     def __delitem__(self, k):
         # cannot have children
-        if self.diff_side is None:
+        if self.base_relation is SELF:
             try:
                 del self.base[k]
             except KeyError:
                 raise KeyError
 
-        if self.parent():
+        elif self.base_relation is PARENT:
             if self.diff_parent.get(k, (None, None))[CHILD] is delete:
                 raise KeyError
             else:
@@ -142,6 +151,9 @@ class LinkedDictionary(LinkedMapping, collections.MutableMapping):
                         del self.diff_parent[k]
                     except KeyError:
                         raise KeyError, 'no such key'
+
+        else:
+            raise ValueError, "Invalid base_relation."
 
     def hatch(self):
         hatched = LinkedMapping(self.parent(), self.diff_parent, self.base, self.base_relation)
