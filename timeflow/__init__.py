@@ -6,7 +6,8 @@
 
 from .td_mapping import (
     SnapshotMapping,
-    MappingFlow
+    MappingFlow,
+    BridgeMappingFlow,
 )
 
 from .td_set import (

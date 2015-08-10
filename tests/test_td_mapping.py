@@ -1,4 +1,4 @@
-from timeflow import SnapshotMapping, Plan
+from timeflow import SnapshotMapping, Plan, BridgeMappingFlow
 from timeflow import TimeLine, StepLine, now, Event
 
 import weakref
@@ -85,13 +85,10 @@ def test_step_mapping():
     assert sm.at(tl.HEAD) == {'a':30, 'b':20, 'new':100}
 
 
-def nottest_step_mapping_errors():
-    repo = Repo()
+def test_bridge_mapping_errors():
+    tl = StepLine()
 
-    original = TestData.original
+    sm = BridgeMappingFlow(tl, TestData.original.copy())
 
-    e0 = repo.new_root_event()
-    #sm = StepMapping({e0: SnapshotMapping(original.copy())})
-
-    #with nose.tools.assert_raises(TypeError):
-    #    sm.at(repo.HEAD)['a'] = 10
+    with nose.tools.assert_raises(TypeError):
+        sm['a'] = 10
