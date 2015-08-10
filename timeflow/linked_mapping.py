@@ -45,7 +45,7 @@ class LinkedMapping(collections.Mapping):
             assert not isinstance(parent, collections.MutableMapping)
             maybe_self = weakref.ref(self)
             def del_hook():
-                if maybe_self():
+                if maybe_self() is not None:
                     del maybe_self().diff_parent
 
             parent.del_hooks.append(del_hook)
