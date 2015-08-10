@@ -1,3 +1,5 @@
+import collections
+
 delete = ('delete', object)
 
 PARENT = 0
@@ -25,3 +27,21 @@ def transfer_core(self, other):
     other.set_base(core, SELF)
 
 
+class EmptyMapping(collections.Mapping):
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def __getitem__(key):
+        raise KeyError
+
+    @staticmethod
+    def __iter__():
+        return iter(())
+
+    @staticmethod
+    def __len__():
+        return 0
+
+
+empty_mapping = EmptyMapping()

@@ -1,7 +1,7 @@
 import collections
 import itertools
 import weakref
-from linked_structure import PARENT, CHILD, SELF, delete
+from linked_structure import PARENT, CHILD, SELF, delete, empty_mapping
 
 
 class LinkedMapping(collections.Mapping):
@@ -58,7 +58,7 @@ class LinkedMapping(collections.Mapping):
         self.base_relation = base_relation
 
         if self.base_relation is SELF:
-            self.diff_base = {}
+            self.diff_base = empty_mapping
             self.diff_side = None
         elif self.base_relation is PARENT:
             self.diff_base = self.diff_parent
