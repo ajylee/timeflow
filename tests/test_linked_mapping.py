@@ -1,7 +1,8 @@
 import weakref
 import nose.tools
 
-from timeflow.linked_mapping import first_egg, transfer_core
+from timeflow.linked_structure import transfer_core
+from timeflow.linked_mapping import first_egg
 
 
 @nose.tools.nottest
