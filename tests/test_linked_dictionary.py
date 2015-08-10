@@ -10,9 +10,6 @@ PARENT = 0
 CHILD = 1
 SELF = 2
 
-def opposite_relation(parent_or_child):
-    return 1 - parent_or_child
-
 
 class LinkedMapping(collections.Mapping):
     def __init__(self, parent, diff_parent, base, base_relation):
@@ -73,9 +70,6 @@ class LinkedMapping(collections.Mapping):
             self.diff_side = 0
 
     def __del__(self):
-        # TODO: delete children's parent refs and diff_parent.
-        #del self.parent.diff_child
-
         if self.parent():
             del self.diff_parent
 
