@@ -14,6 +14,9 @@ class LinkedMapping(collections.Mapping):
     def __init__(self, parent, diff_parent, base, base_relation):
         """LinkedMapping
 
+        Used create a tree of Mappings, each represented by diffs from parent or
+        child, or directly using a dict.
+
         :param LinkedMapping parent:  can also be None
         :param dict diff_parent:      Used iff parent != None
         :param dict base:             Base data
