@@ -133,7 +133,7 @@ class LinkedDictionary(LinkedMapping, collections.MutableMapping):
             except KeyError:
                 raise KeyError
 
-        elif self.base_relation is PARENT:
+        if self.parent():
             if self.diff_parent.get(k, (None, None))[CHILD] is delete:
                 raise KeyError
             else:
@@ -146,8 +146,6 @@ class LinkedDictionary(LinkedMapping, collections.MutableMapping):
                     except KeyError:
                         raise KeyError, 'no such key'
 
-        else:
-            raise ValueError, "Invalid base_relation."
 
     def hatch(self):
         hatched = LinkedMapping(self.parent(), self.diff_parent, self.base, self.base_relation)
