@@ -1,7 +1,7 @@
 import collections
 import itertools
 import weakref
-from linked_structure import PARENT, CHILD, SELF, delete, empty_mapping
+from linked_structure import PARENT, CHILD, SELF, delete, EmptyMapping, empty_mapping
 
 
 class LinkedMapping(collections.Mapping):
@@ -149,12 +149,35 @@ class LinkedDictionary(LinkedMapping, collections.MutableMapping):
         hatched = LinkedMapping(self.parent(), self.diff_parent, self.base, self.base_relation)
 
         # make self unusable; references to self should be deleted so memory can be reclaimed.
-        del self.base
-        del self.base_relation
-        del self.diff_base
+        # NB we cannot simply delete these attrs -- LinkedMapping.__del__ will make warnings.
+        self.base = empty_mapping
+        self.diff_base = empty_mapping
 
         return hatched
 
 
 def first_egg(base):
     return LinkedDictionary(None, None, base, SELF)
+
+
+class EmptyLinkedMapping(EmptyMapping):
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def __getitem__(key):
+        raise KeyError
+
+    @staticmethod
+    def __iter__():
+        return iter(())
+
+    @staticmethod
+    def __len__():
+        return 0
+
+    def egg(self):
+        return first_egg({})
+
+
+empty_linked_mapping = EmptyLinkedMapping()
