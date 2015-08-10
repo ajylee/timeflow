@@ -1,6 +1,5 @@
-from timeflow import StepMapping, DerivedDictionary, SnapshotMapping, Plan
+from timeflow import SnapshotMapping, Plan
 from timeflow import TimeLine, StepLine, now, Event
-from timeflow.td_mapping import ReferrerPreservingDictionary
 
 import weakref
 from collections import OrderedDict
@@ -49,14 +48,12 @@ def test_td_mapping_2():
     del tdi.at(plan)['to_delete']
 
 
-    assert tdi.at(plan)._base == tdi.at(e0)
     assert tdi.at(e0) == original
 
     e1 = tl.commit(plan)
 
     assert tdi.at(e0) == original
     assert tdi.at(e1) == dict(a=30, b=60)
-    assert tdi.at(e0)._base == tdi.at(e1)
 
     assert tdi.at(e0)['a'] == 10
 
@@ -94,29 +91,7 @@ def nottest_step_mapping_errors():
     original = TestData.original
 
     e0 = repo.new_root_event()
-    sm = StepMapping({e0: SnapshotMapping(original.copy())})
+    #sm = StepMapping({e0: SnapshotMapping(original.copy())})
 
-    with nose.tools.assert_raises(TypeError):
-        sm.at(repo.HEAD)['a'] = 10
-
-
-def test_referrent_preserving_dictionary():
-
-    dd = ReferrerPreservingDictionary()
-    dd._base = TestData.original.copy()
-
-    referrer = DerivedDictionary(dd, {})
-
-    dd._referrer = referrer
-
-    dd['a'] = 20
-    del dd['to_delete']
-
-    assert referrer == TestData.original
-
-
-    # Test adding and deleting a new k/v pair
-    dd['new'] = 'some value'
-    assert referrer == TestData.original
-    del dd['new']
-    assert referrer == TestData.original
+    #with nose.tools.assert_raises(TypeError):
+    #    sm.at(repo.HEAD)['a'] = 10

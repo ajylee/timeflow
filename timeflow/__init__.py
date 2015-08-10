@@ -5,8 +5,8 @@
 ##################
 
 from .td_mapping import (
-    DerivedDictionary, StepMapping, DerivedMapping,
-    SnapshotMapping
+    SnapshotMapping,
+    MappingFlow
 )
 
 from .td_set import (

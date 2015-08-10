@@ -2,6 +2,7 @@ import collections
 import uuid
 from abc import abstractmethod
 from event import Event, NullEvent
+from linked_structure import transfer_core, SELF
 
 
 now = ('now', uuid.UUID('5e625fb4-7574-4720-bb91-3a598d2332bd'))
@@ -26,7 +27,7 @@ class Plan(object):
         try:
             return self.stage[flow]
         except KeyError:
-            _stage = self.base_event.instance.get(flow, flow.default).new_stage()
+            _stage = self.base_event.instance.get(flow, flow.default).egg()
             self[flow] = _stage
             return _stage
 
@@ -102,12 +103,12 @@ class TimeLine(object):
         instance_map = parent_event.instance.copy()
 
         for flow, instance in plan.stage.items():
-            frozen_item = instance.frozen_view()
+            frozen_item = instance.hatch()
             instance_map[flow] = frozen_item
 
-            if frozen_item is not flow.default:
+            if frozen_item is not flow.default and frozen_item.base_relation is not SELF:
                 _parent_item = parent_event.instance.get(flow, flow.default)
-                _parent_item._reroot_base(frozen_item)
+                transfer_core(_parent_item, frozen_item)
 
         self.HEAD = Event(parent=parent_event, instance_map=instance_map)
         return self.HEAD
