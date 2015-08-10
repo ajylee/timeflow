@@ -21,7 +21,9 @@ class LinkedMapping(collections.Mapping):
         :param LinkedMapping parent:  can also be None
         :param dict diff_parent:      Used iff parent != None
         :param dict base:             Base data
-        :param base_relation:         PARENT, CHILD, or SELF
+        :param base_relation:         PARENT, CHILD, or SELF. Relationship of base to self, e.g.
+                                      for PARENT, means base is parent of self.
+
 
         Attributes
         ----------
