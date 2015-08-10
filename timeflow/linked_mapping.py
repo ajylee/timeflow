@@ -11,36 +11,36 @@ SELF = 2
 
 
 class LinkedMapping(collections.Mapping):
+    """LinkedMapping
+
+    Used create a tree of Mappings, each represented by diffs from parent or
+    child, or directly using a dict.
+
+    :param LinkedMapping parent:  can also be None
+    :param dict diff_parent:      Used iff parent != None
+    :param dict base:             Base data
+    :param base_relation:         PARENT, CHILD, or SELF. Relationship of base to self, e.g.
+                                    for PARENT, means base is parent of self.
+
+
+    Attributes
+    ----------
+
+    :attr diff_parent:            Dict mapping a key to a difference pair,
+                                    (Parent value, self value)
+    :attr base:                   Base data, can parent LinkedMapping, a child LinkedMapping,
+                                    or an independent dictionary.
+
+
+    Memory management
+    -----------------
+
+    A LinkedMapping has no strong refs to its parent except for :attr:base .
+    :attr:diff_parent is automatically removed if the parent has no strong refs.
+
+    """
+
     def __init__(self, parent, diff_parent, base, base_relation):
-        """LinkedMapping
-
-        Used create a tree of Mappings, each represented by diffs from parent or
-        child, or directly using a dict.
-
-        :param LinkedMapping parent:  can also be None
-        :param dict diff_parent:      Used iff parent != None
-        :param dict base:             Base data
-        :param base_relation:         PARENT, CHILD, or SELF. Relationship of base to self, e.g.
-                                      for PARENT, means base is parent of self.
-
-
-        Attributes
-        ----------
-
-        :attr diff_parent:            Dict mapping a key to a difference pair,
-                                      (Parent value, self value)
-        :attr base:                   Base data, can parent LinkedMapping, a child LinkedMapping,
-                                      or an independent dictionary.
-
-
-        Memory management
-        -----------------
-
-        A LinkedMapping has no strong refs to its parent except for :attr:base .
-        :attr:diff_parent is automatically removed if the parent has no strong refs.
-
-        """
-
         self.parent = weakref.ref(parent) if parent is not None else lambda : None
 
         self.del_hooks = []
