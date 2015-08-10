@@ -68,9 +68,6 @@ class LinkedMapping(collections.Mapping):
             self.diff_side = 0
 
     def __del__(self):
-        if self.parent():
-            del self.diff_parent
-
         for del_hook in self.del_hooks:
             del_hook()
 
