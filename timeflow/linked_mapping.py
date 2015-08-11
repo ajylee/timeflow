@@ -54,7 +54,11 @@ class LinkedDictionary(LinkedMapping, collections.MutableMapping):
     def __setitem__(self, k, v):
         # cannot have children
         if self.parent():
-            self.diff_parent[k] = (self.parent().get(k, delete), v)
+            parent_value = self.parent().get(k, delete)
+            if parent_value != v:
+                self.diff_parent[k] = (parent_value, v)
+            else:
+                self.diff_parent.pop(k, None)
 
         if self.base_relation is SELF:
             self.base[k] = v
