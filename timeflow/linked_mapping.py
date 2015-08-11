@@ -41,6 +41,15 @@ class LinkedMapping(LinkedStructure, collections.Mapping):
     def egg(self):
         return LinkedDictionary(self, {}, self, PARENT)
 
+    @staticmethod
+    def _update_core(core, target):
+        for k,v in target.diff_base.items():
+            target_val = v[target.diff_side]
+            if target_val is delete:
+                del core[k]
+            else:
+                core[k] = target_val
+
 
 class LinkedDictionary(LinkedMapping, collections.MutableMapping):
     """Mutable version of LinkedMapping, with restrictions

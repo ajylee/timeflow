@@ -14,19 +14,14 @@ def transfer_core(self, other):
 
     core = self.base
 
-    for k,v in other.diff_base.items():
-        if v[other.diff_side] is delete:
-            del core[k]
-        else:
-            core[k] = v[other.diff_side]
+    self._update_core(core, other)
+    other.set_base(core, SELF)
 
     if self.parent() is other:
         self.set_base(other, PARENT)
     else:
         assert other.parent() is self
         self.set_base(other, CHILD)
-
-    other.set_base(core, SELF)
 
 
 class EmptyMapping(collections.Mapping):
@@ -117,4 +112,14 @@ class LinkedStructure(object):
 
     @abstractmethod
     def egg(self):
+        pass
+
+    @staticmethod
+    @abstractmethod
+    def _update_core(core, target):
+        """Used when transferring core from neighbor to self.
+
+        Mutates the `core` so that `core == target`.
+
+        """
         pass
