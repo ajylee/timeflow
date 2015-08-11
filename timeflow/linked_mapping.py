@@ -101,21 +101,6 @@ def first_egg(base):
 
 
 class EmptyLinkedMapping(EmptyMapping):
-    def __init__(self):
-        pass
-
-    @staticmethod
-    def __getitem__(key):
-        raise KeyError
-
-    @staticmethod
-    def __iter__():
-        return iter(())
-
-    @staticmethod
-    def __len__():
-        return 0
-
     def egg(self):
         return first_egg({})
 
