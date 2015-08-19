@@ -1,4 +1,4 @@
-from timeflow import StepSet, Plan, StepPlan, SnapshotSet
+from timeflow import Plan, StepLine, SetFlow, BridgeSetFlow
 from timeflow import TimeLine, now
 from collections import OrderedDict
 import nose.tools
@@ -9,72 +9,61 @@ class TestData:
 
 def test_td_set():
     original = TestData.original
-    tl = TimeLine({0: SnapshotSet(original)})
+    tl = TimeLine()
 
-    plan = Plan([tl], 0)
+    initial_plan = tl.new_plan()
+    sf = SetFlow()
+    sf.at(initial_plan).update(original)
 
-    plan[tl].add(30)
-    plan[tl].remove('to_delete')
+    e0 = tl.commit(initial_plan)
 
-    assert plan[tl]._base == tl[0]
-    assert tl[0] == original
+    plan = tl.new_plan()
 
-    plan.commit(1)
+    sf.at(plan).add(30)
+    sf.at(plan).remove('to_delete')
 
-    assert tl[0] == original
-    assert tl[1] == {10, 20, 30, 1000}
-    assert tl[0]._base == tl[1]
+    assert sf.at(e0) == original
+
+    e1 = tl.commit(plan)
+
+    assert sf.at(e0) == original
+    assert sf.at(e1) == {10, 20, 30, 1000}
 
 
 def test_step_set():
-    original = TestData.original
-    ss = StepSet(original.copy())
+    tl = StepLine()
 
-    plan = StepPlan([ss])
+    initial = tl.new_plan()
+    sf = SetFlow()
+    sf.at(initial).update(TestData.original)
 
-    plan[ss].add(30)
-    plan[ss].add(100)
-    plan[ss].remove('to_delete')
+    tl.commit(initial); del initial
 
-    assert ss.head == original
-    plan.commit()
-    assert ss.head == {10, 20, 30, 100, 1000}
+    plan = tl.new_plan()
 
-    plan[ss].add(40)
-    plan[ss].remove(10)
-    assert ss.head == {10, 20, 30, 100, 1000}
-    plan.commit()
-    assert ss.head == {20, 30, 40, 100, 1000}
+    sf.at(plan).add(30)
+    sf.at(plan).add(100)
+    sf.at(plan).remove('to_delete')
 
-    
-def test_step_set_at_interface():
-    """Test the 'at' interface for extending plans"""
-    original = TestData.original
-    ss = StepSet(original.copy())
+    assert sf.at(tl.HEAD) == TestData.original
+    tl.commit(plan); del plan
+    assert sf.at(tl.HEAD) == {10, 20, 30, 100, 1000}
 
-    plan = StepPlan([])
+    plan2 = tl.new_plan()
 
-    ss.at(plan).add(30)
-    ss.at(plan).add(100)
-    ss.at(plan).remove('to_delete')
-
-    assert ss.head == original
-    plan.commit()
-    assert ss.head == {10, 20, 30, 100, 1000}
-
-    ss.at(plan).add(40)
-    ss.at(plan).remove(10)
-    assert ss.head == {10, 20, 30, 100, 1000}
-    plan.commit()
-    assert ss.head == {20, 30, 40, 100, 1000}
+    sf.at(plan2).add(40)
+    sf.at(plan2).remove(10)
+    assert sf.at(tl.HEAD) == {10, 20, 30, 100, 1000}
+    tl.commit(plan2); del plan2
+    assert sf.at(tl.HEAD) == {20, 30, 40, 100, 1000}
 
 
 def test_step_mapping_errors():
-    original = TestData.original
-    sm = StepSet(original.copy())
+    tl = TimeLine()
+    sf = BridgeSetFlow(tl, TestData.original)
 
     with nose.tools.assert_raises(AttributeError):
-        sm.head.add(30)
+        sf.head.add(30)
 
     with nose.tools.assert_raises(AttributeError):
-        sm.head.remove('to_delete')
+        sf.head.remove('to_delete')
