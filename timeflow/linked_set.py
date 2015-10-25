@@ -30,6 +30,10 @@ class LinkedSet(LinkedStructure, collections.Set):
 
     @staticmethod
     def _update_core(core, target):
+        """Make core equal to target (as sets)"""
+
+        # Add elts that are in target but not in core to core.
+        # Remove elts that are in core but not in target from core.
         for k,v in target.diff_base.items():
             if v is target.diff_side:
                 core.add(k)
