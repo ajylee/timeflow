@@ -2,7 +2,7 @@ import weakref
 import nose.tools
 
 from timeflow.linked_structure import transfer_core
-from timeflow.linked_mapping import first_egg
+from timeflow.linked_mapping import LinkedMapping
 
 
 @nose.tools.nottest
@@ -10,7 +10,7 @@ def setup_tests():
     class X(object):
         pass
 
-    aa_egg = first_egg({})
+    aa_egg = LinkedMapping.first_egg({})
     aa_egg[1] = 10
     aa_egg['to_delete'] = X()
 

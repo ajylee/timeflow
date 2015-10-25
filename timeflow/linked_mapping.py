@@ -38,9 +38,6 @@ class LinkedMapping(LinkedStructure, collections.Mapping):
                 count += 1
         return count
 
-    def egg(self):
-        return LinkedDictionary(self, {}, self, PARENT)
-
     @staticmethod
     def _update_core(core, target):
         for k,v in target.diff_base.items():
@@ -105,8 +102,7 @@ class LinkedDictionary(LinkedMapping, collections.MutableMapping):
         return hatched
 
 
-def first_egg(base):
-    return LinkedDictionary(None, None, base, SELF)
+LinkedMapping.mutable_variant = LinkedDictionary
 
 
 class EmptyLinkedMapping(EmptyMapping):

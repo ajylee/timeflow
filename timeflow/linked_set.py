@@ -5,6 +5,8 @@ from linked_structure import PARENT, CHILD, SELF, EmptyMapping, empty_mapping, L
 
 
 class LinkedSet(LinkedStructure, collections.Set):
+    # mutable_variant is set after LinkedMutableSet is defined
+
     def __contains__(self, k):
         try:
             return self.diff_base[k] is self.diff_side
@@ -24,9 +26,6 @@ class LinkedSet(LinkedStructure, collections.Set):
             else:
                 count -= 1
         return count
-
-    def egg(self):
-        return LinkedMutableSet(self, {}, self, PARENT)
 
     @staticmethod
     def _update_core(core, target):
@@ -89,8 +88,7 @@ class LinkedMutableSet(LinkedSet, collections.MutableSet):
         return hatched
 
 
-def first_egg(base):
-    return LinkedMutableSet(None, None, base, SELF)
+LinkedSet.mutable_variant = LinkedMutableSet
 
 
 class EmptyLinkedSet(frozenset):

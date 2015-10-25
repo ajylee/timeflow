@@ -2,7 +2,7 @@ import weakref
 import nose.tools
 
 from timeflow.linked_structure import transfer_core
-from timeflow.linked_set import first_egg
+from timeflow.linked_set import LinkedSet
 
 
 class X(object):
@@ -12,7 +12,7 @@ class X(object):
 @nose.tools.nottest
 def setup_tests():
 
-    aa_egg = first_egg(set())
+    aa_egg = LinkedSet.first_egg(set())
     aa_egg.add(1)
     aa_egg.add('to_delete')
 

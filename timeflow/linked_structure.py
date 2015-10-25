@@ -74,6 +74,11 @@ class LinkedStructure(object):
 
     """
 
+    # A class that adds mutability to the LinkedStructure.
+    # Abstract attribute; needs to be set in subclass.
+    mutable_variant = None
+
+
     def __init__(self, parent, diff_parent, base, base_relation):
         self.parent = weakref.ref(parent) if parent is not None else lambda : None
 
@@ -110,9 +115,17 @@ class LinkedStructure(object):
         for del_hook in self.del_hooks:
             del_hook()
 
-    @abstractmethod
+
+    @classmethod
+    def first_egg(cls, base):
+        return cls.mutable_variant(parent=None, diff_parent=None,
+                                   base=base, base_relation=SELF)
+
+
     def egg(self):
-        pass
+        return self.mutable_variant(parent=self, diff_parent={},
+                                 base=self, base_relation=PARENT)
+
 
     @staticmethod
     @abstractmethod
