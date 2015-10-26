@@ -1,7 +1,7 @@
 import collections
 import itertools
 import weakref
-from linked_structure import PARENT, CHILD, SELF, EmptyMapping, empty_mapping, LinkedStructure
+from linked_structure import SELF, EmptyMapping, empty_mapping, LinkedStructure
 
 
 class LinkedSet(LinkedStructure, collections.Set):
@@ -9,19 +9,19 @@ class LinkedSet(LinkedStructure, collections.Set):
 
     def __contains__(self, k):
         try:
-            return self.diff_base[k] is self.diff_side
+            return self.diff_base[k] is self.relation_to_base
         except KeyError:
             return k in self.base
 
     def __iter__(self):
         return itertools.chain(
-            (k for k,v in self.diff_base.iteritems() if v is self.diff_side),
+            (k for k,v in self.diff_base.iteritems() if v is self.relation_to_base),
             (k for k in self.base if k not in self.diff_base))
 
     def __len__(self):
         count = len(self.base)
         for k,v in self.diff_base.iteritems():
-            if v is self.diff_side:
+            if v is self.relation_to_base:
                 count += 1
             else:
                 count -= 1
@@ -34,7 +34,7 @@ class LinkedSet(LinkedStructure, collections.Set):
         # Add elts that are in target but not in core to core.
         # Remove elts that are in core but not in target from core.
         for k,v in target.diff_base.items():
-            if v is target.diff_side:
+            if v is target.relation_to_base:
                 core.add(k)
             else:
                 core.remove(k)
@@ -44,13 +44,13 @@ class LinkedMutableSet(LinkedSet, collections.MutableSet):
     """Mutable version of LinkedSet, with restrictions
 
     The LinkedDictionary cannot have children. In particular,
-    its `base_relation` cannot be CHILD. This assumption simplifies
+    its `relation_to_base` cannot be PARENT. This assumption simplifies
     implementation.
 
     """
 
     def add(self, k):
-        if self.base_relation is SELF:
+        if self.relation_to_base is SELF:
             self.base.add(k)
 
         # NB cannot have children
@@ -61,7 +61,7 @@ class LinkedMutableSet(LinkedSet, collections.MutableSet):
                 self.diff_parent.pop(k, None)
 
     def discard(self, k):
-        if self.base_relation is SELF:
+        if self.relation_to_base is SELF:
             self.base.discard(k)
 
         # NB cannot have children
@@ -78,7 +78,7 @@ class LinkedMutableSet(LinkedSet, collections.MutableSet):
 
 
     def hatch(self):
-        hatched = LinkedSet(self.parent(), self.diff_parent, self.base, self.base_relation)
+        hatched = LinkedSet(self.parent(), self.diff_parent, self.base, self.relation_to_base)
 
         # make self unusable; references to self should be deleted so memory can be reclaimed.
         # NB we cannot simply delete these attrs -- LinkedMapping.__del__ will make warnings.

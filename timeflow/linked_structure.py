@@ -10,7 +10,7 @@ SELF = 2
 
 
 def transfer_core(self, other):
-    assert self.base_relation is SELF
+    assert self.relation_to_base is SELF
 
     core = self.base
 
@@ -18,10 +18,10 @@ def transfer_core(self, other):
     other.set_base(core, SELF)
 
     if self.parent() is other:
-        self.set_base(other, PARENT)
+        self.set_base(other, relation_to_base=CHILD)
     else:
         assert other.parent() is self
-        self.set_base(other, CHILD)
+        self.set_base(other, relation_to_base=PARENT)
 
 
 class EmptyMapping(collections.Mapping):
@@ -53,8 +53,8 @@ class LinkedStructure(object):
     :param LinkedStructure parent:  can also be None
     :param dict diff_parent:        Used iff parent != None
     :param dict base:               Base data
-    :param base_relation:           PARENT, CHILD, or SELF. Relationship of base to self, e.g.
-                                    for PARENT, means base is parent of self.
+    :param relation_to_base:        PARENT, CHILD, or SELF. Relationship of self to base, e.g.
+                                    for CHILD, means self is child of base.
 
 
     Attributes
@@ -79,38 +79,35 @@ class LinkedStructure(object):
     mutable_variant = None
 
 
-    def __init__(self, parent, diff_parent, base, base_relation):
+    def __init__(self, parent, diff_parent, base, relation_to_base):
         def _del_diff_parent(unused_):
             self.diff_parent = None
 
         self.parent = weakref.ref(parent, _del_diff_parent) if parent is not None else lambda : None
         self.diff_parent = diff_parent
-        self.set_base(base, base_relation)
+        self.set_base(base, relation_to_base)
 
 
-    def set_base(self, base, base_relation):
+    def set_base(self, base, relation_to_base):
         self.base = base
-        self.base_relation = base_relation
+        self.relation_to_base = relation_to_base
 
-        if self.base_relation is SELF:
+        if self.relation_to_base is SELF:
             self.diff_base = empty_mapping
-            self.diff_side = None
-        elif self.base_relation is PARENT:
+        elif self.relation_to_base is CHILD:
             self.diff_base = self.diff_parent
-            self.diff_side = CHILD
-        elif self.base_relation is CHILD:
+        elif self.relation_to_base is PARENT:
             self.diff_base = self.base.diff_parent
-            self.diff_side = PARENT
 
     @classmethod
     def first_egg(cls, base):
         return cls.mutable_variant(parent=None, diff_parent=None,
-                                   base=base, base_relation=SELF)
+                                   base=base, relation_to_base=SELF)
 
 
     def egg(self):
         return self.mutable_variant(parent=self, diff_parent={},
-                                 base=self, base_relation=PARENT)
+                                 base=self, relation_to_base=CHILD)
 
 
     @staticmethod
