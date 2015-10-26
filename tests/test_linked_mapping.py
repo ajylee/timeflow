@@ -52,15 +52,15 @@ def test_transfer_core():
 def test_memory_management():
     aa, bb = setup_tests()
 
-    assert hasattr(bb, 'diff_parent')
+    bb.diff_parent is not None
     test_ref = weakref.ref(aa['to_delete'])
     del aa
-    assert hasattr(bb, 'diff_parent')
+    bb.diff_parent is not None
     assert test_ref() is not None
 
     transfer_core(bb.parent(), bb)    # bb.parent() points to aa until core is transferred
 
-    assert not hasattr(bb, 'diff_parent')
+    bb.diff_parent is None
     assert test_ref() is None
 
 

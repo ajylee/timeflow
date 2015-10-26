@@ -80,20 +80,11 @@ class LinkedStructure(object):
 
 
     def __init__(self, parent, diff_parent, base, base_relation):
-        self.parent = weakref.ref(parent) if parent is not None else lambda : None
+        def _del_diff_parent(unused_):
+            self.diff_parent = None
 
-        self.del_hooks = []
-
+        self.parent = weakref.ref(parent, _del_diff_parent) if parent is not None else lambda : None
         self.diff_parent = diff_parent
-
-        if parent is not None:
-            maybe_self = weakref.ref(self)
-            def del_hook():
-                if maybe_self() is not None:
-                    del maybe_self().diff_parent
-
-            parent.del_hooks.append(del_hook)
-
         self.set_base(base, base_relation)
 
 
@@ -106,15 +97,10 @@ class LinkedStructure(object):
             self.diff_side = None
         elif self.base_relation is PARENT:
             self.diff_base = self.diff_parent
-            self.diff_side = 1
+            self.diff_side = CHILD
         elif self.base_relation is CHILD:
             self.diff_base = self.base.diff_parent
-            self.diff_side = 0
-
-    def __del__(self):
-        for del_hook in self.del_hooks:
-            del_hook()
-
+            self.diff_side = PARENT
 
     @classmethod
     def first_egg(cls, base):
