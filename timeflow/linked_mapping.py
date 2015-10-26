@@ -107,7 +107,7 @@ LinkedMapping.mutable_variant = LinkedDictionary
 
 class EmptyLinkedMapping(EmptyMapping):
     def egg(self):
-        return first_egg({})
+        return LinkedMapping.first_egg({})
 
 
 empty_linked_mapping = EmptyLinkedMapping()

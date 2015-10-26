@@ -108,7 +108,7 @@ class EmptyLinkedSet(frozenset):
         return 0
 
     def egg(self):
-        return first_egg(set())
+        return LinkedSet.first_egg(set())
 
 
 empty_linked_set = EmptyLinkedSet()
