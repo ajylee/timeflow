@@ -4,19 +4,37 @@
 Timeflow
 ########
 
+We describe mutating data structures as explicitly changing "flows" over time.
+"Flows" are parameterized by "events", which are managed by "time lines".
+Updates to flows are mediated by "plans".
+For example::
+
+  tl = TimeLine()
+  sf = SetFlow()             # initialize a flow that represents a mutable set.
+
+  initial_plan = tl.new_plan()
+
+  sf.at(initial_plan).add('initial_element')
+
+  e0 = initial_event = tl.commit(initial_plan)
+
+  assert 'initial_element' in sf.at(initial_event)
+
+  plan = tl.new_plan()
+  sf.at(plan).add('new_element')
+  e1 = tl.commit(plan)
+
+  assert 'new_element' in sf.at(e1)
+
 
 API
 ===
 
 
-There are two kinds of time dependent objects, or "flows". The TimeLine, and the TimeStep.
+Flow Implementations
+---------------------
 
-A Flow type is further parameterized by its data type at a given time. For example::
-
-
-  timeline = TimeLine({0: SnapshotMapping({'a', 10})})
-
-  assert timeline.at(0)['a'] == 10
+`SetFlow` and `MappingFlow` have been implemented.
 
 
 
