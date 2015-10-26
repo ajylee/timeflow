@@ -106,7 +106,7 @@ class TimeLine(object):
             frozen_item = instance.hatch()
             instance_map[flow] = frozen_item
 
-            if frozen_item is not flow.default and frozen_item.base_relation is not SELF:
+            if frozen_item is not flow.default and frozen_item.relation_to_base is not SELF:
                 _parent_item = parent_event.instance.get(flow, flow.default)
                 transfer_core(_parent_item, frozen_item)
 
