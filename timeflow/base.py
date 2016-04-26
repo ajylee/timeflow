@@ -23,7 +23,7 @@ class Plan(object):
 
         self.frozen = set()    # a set of frozen flows
 
-    def get_flow(self, flow):
+    def get_flow_instance(self, flow):
         try:
             return self.stage[flow]
         except KeyError:

@@ -6,7 +6,7 @@ class Flow(object):
         return object.__hash__(self)
 
     def at(self, event_like):
-        return event_like.get_flow(self)
+        return event_like.get_flow_instance(self)
 
     def read_at(self, event_like):
         pass
