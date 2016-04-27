@@ -72,14 +72,14 @@ class NullEvent:
 
 class Event(object):
     def __init__(self, parent=NullEvent, instance_map=None):
-        self._parent = strong_ref(parent) if parent else empty_ref
+        self.parent = strong_ref(parent) if parent else empty_ref
         if parent:
-            parent._child = weakref.ref(self)
+            parent.child = weakref.ref(self)
 
         self.instance = (instance_map if instance_map is not None else {})
 
-        self._child = empty_ref
-        self.time = _time.time()
+        self.child = empty_ref
+        self.time = int(_time.time())
 
         if parent and parent.time == self.time:
             self.count = parent.count + 1
@@ -95,31 +95,29 @@ class Event(object):
     def __cmp__(self, other):
         return cmp((self.time, self.count), (other.time, other.count))
 
-    def parent(self, nn=1):
-        target = self
-        while nn > 0:
-            nn = nn - 1
-            target = target._parent()
-            if not target:
-                return NullEvent
-
-        return target
-
-    def child(self, nn=1):
-        target = self
-        while nn > 0:
-            nn = nn - 1
-            target = target._child()
-            if not target:
-                raise ValueError, 'No child'
-
-        return target
-
-    def new_child(self):
-        return Event(parent=self)
-
     def __repr__(self):
         return 'Event(time={self.time}, count={self.count})'.format(self=self)
 
     def forget_parent(self):
-        self._parent = empty_ref
+        self.parent = empty_ref
+
+
+def walk(self, steps=1):
+    target = self
+    nn = abs(steps)
+
+    while nn > 0:
+        nn = nn - 1
+
+        if steps > 0:
+            target = target.child()
+            if target is None:
+                raise ValueError, 'No child'
+
+        else:
+            target = target.parent()
+
+            if target is None:
+                return NullEvent
+
+    return target
