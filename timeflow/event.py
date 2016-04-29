@@ -64,8 +64,14 @@ _neg_inf = _NegativeInfinity()
 
 # #########
 
+class NullEvent:
+    instance = {}
+    time = -inf
+    count = 0
+
+
 class Event(object):
-    def __init__(self, parent=None, instance_map=None):
+    def __init__(self, parent=NullEvent, instance_map=None):
         self.parent = strong_ref(parent) if parent else empty_ref
         if parent:
             parent.child = weakref.ref(self)
@@ -112,6 +118,6 @@ def walk(self, steps=1):
             target = target.parent()
 
             if target is None:
-                return None
+                return NullEvent
 
     return target

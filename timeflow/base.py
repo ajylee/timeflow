@@ -28,12 +28,12 @@ class Plan(object):
             return self.stage[flow]
         except KeyError:
             _stage = self.base_event.instance.get(flow, flow.default).egg()
-            self[flow] = _stage
+            self.stage[flow] = _stage
             return _stage
 
-    def __setitem__(self, flow, instance):
-        assert flow not in self.frozen, 'Tried to set frozen flow'
-        self.stage[flow] = instance
+    #def __setitem__(self, flow, instance):
+    #    assert flow not in self.frozen, 'Tried to set frozen flow'
+    #    self.stage[flow] = instance
 
     def __contains__(self, flow):
         return flow in self.stage
@@ -44,11 +44,6 @@ class Plan(object):
                 self[flow].update(_other_stage)
             else:
                 self[flow] = _other_stage
-
-    def introduce(self, flow, snapshot_or_stage):
-        self[flow] = (snapshot_or_stage, self.new_flow)
-        self.new_flows.append(flow)
-        return flow
 
 
 class SubPlan(Plan):
