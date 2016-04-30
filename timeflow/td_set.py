@@ -43,7 +43,7 @@ class BridgeSetFlow(SetFlow, collections.Set):
         return repr(self.head)
 
     def intersection(self, other):
-        return self.head.__and__(other)
+        return set(self.head).intersection(set(other))
 
     def union(self, other):
         return self.head.__or__(other)
