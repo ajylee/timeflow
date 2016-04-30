@@ -1,6 +1,5 @@
 import collections
 import itertools
-from .base import DerivedObject, DerivedStage
 from .flow import Flow
 from .linked_mapping import empty_linked_mapping
 
