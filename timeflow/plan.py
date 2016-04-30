@@ -1,15 +1,4 @@
 import collections
-from .linked_structure import transfer_core, SELF
-
-from .td_mapping import MappingFlow
-from .td_set import SetFlow
-
-
-# maps base types to flow types
-flow_types = {collections.Set: SetFlow,
-              set: SetFlow,
-              collections.Mapping: MappingFlow,
-              dict: MappingFlow}
 
 
 class Plan(object):
@@ -48,12 +37,6 @@ class Plan(object):
                 self[flow].update(_other_stage)
             else:
                 self[flow] = _other_stage
-
-    def introduce(self, initial_value):
-        """Convenience method for calling Flow.introduce_at"""
-        _flow = flow_types[type(initial_value)]()
-        _flow.at(self).update(initial_value)
-        return _flow
 
 
 class SubPlan(Plan):

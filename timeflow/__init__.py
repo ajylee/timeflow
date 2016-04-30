@@ -22,6 +22,8 @@ from .flow import Flow
 
 from .event import Event
 
+from .convenience import introduce
+
 
 ##################
 # Read pkg_info
