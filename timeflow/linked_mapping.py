@@ -47,6 +47,9 @@ class LinkedMapping(LinkedStructure, collections.Mapping):
             else:
                 core[k] = target_val
 
+    def __repr__(self):
+        return '{}({})'.format(repr(type(self)), repr(dict(self)))
+
 
 class LinkedDictionary(LinkedMapping, collections.MutableMapping):
     """Mutable version of LinkedMapping, with restrictions

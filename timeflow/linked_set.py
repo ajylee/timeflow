@@ -39,6 +39,9 @@ class LinkedSet(LinkedStructure, collections.Set):
             else:
                 core.remove(k)
 
+    def __repr__(self):
+        return '{}({})'.format(repr(type(self)), repr(list(self)))
+
 
 class LinkedMutableSet(LinkedSet, collections.MutableSet):
     """Mutable version of LinkedSet, with restrictions
