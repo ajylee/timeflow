@@ -1,4 +1,6 @@
 import collections
+from linked_structure import transfer_core, SELF
+from .event import Event
 
 
 class Plan(object):
@@ -37,6 +39,26 @@ class Plan(object):
                 self[flow].update(_other_stage)
             else:
                 self[flow] = _other_stage
+
+    def hatch(self):
+        """Create a new event from the plan
+
+        WARNING: Assumes flow instances of the parent event have "cores".
+
+        """
+
+        parent_event = self.base_event
+        instance_map = parent_event.instance.copy()
+
+        for flow, instance in self.stage.items():
+            hatched_item = instance.hatch()
+            instance_map[flow] = hatched_item
+
+            if hatched_item is not flow.default and hatched_item.relation_to_base is not SELF:
+                _parent_item = parent_event.instance.get(flow, flow.default)
+                transfer_core(_parent_item, hatched_item)
+
+        return Event(parent=parent_event, instance_map=instance_map)
 
 
 class SubPlan(Plan):
