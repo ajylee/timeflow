@@ -27,6 +27,12 @@ class BridgeMappingFlow(MappingFlow, collections.Mapping):
 
     # drop-in convenience methods
     # ############################
+    @property
+    def head(self):
+        return self.at(self.timeline.HEAD)
+
+    def __contains__(self, element):
+        return self.head.__contains__(element)
 
     def __getitem__(self, key):
         return self.at(self.timeline.HEAD)[key]
