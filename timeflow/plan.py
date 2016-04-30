@@ -36,9 +36,9 @@ class Plan(object):
     def update(self, other_plan):
         for flow, _other_stage in other_plan.stage.items():
             if flow in self.stage:
-                self[flow].update(_other_stage)
+                self.stage[flow].update(_other_stage)
             else:
-                self[flow] = _other_stage
+                self.stage[flow] = _other_stage
 
     def hatch(self):
         """Create a new event from the plan
