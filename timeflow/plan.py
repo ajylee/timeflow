@@ -55,8 +55,9 @@ class Plan(object):
             instance_map[flow] = hatched_item
 
             if hatched_item is not flow.default and hatched_item.relation_to_base is not SELF:
-                _parent_item = parent_event.instance.get(flow, flow.default)
-                transfer_core(_parent_item, hatched_item)
+                _parent_item = parent_event.instance.get(flow, None)
+                if _parent_item is not None:
+                    transfer_core(_parent_item, hatched_item)
 
         return Event(parent=parent_event, instance_map=instance_map)
 
