@@ -11,8 +11,8 @@ flow_types = {collections.Set: SetFlow,
               dict: MappingFlow}
 
 
-def introduce(self, initial_value):
+def introduce(plan, initial_value):
     """Convenience method for calling Flow.introduce_at"""
     _flow = flow_types[type(initial_value)]()
-    _flow.at(self).update(initial_value)
+    _flow.at(plan).update(initial_value)
     return _flow
