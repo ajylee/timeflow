@@ -14,9 +14,9 @@ from .td_set import (
     BridgeSetFlow,
 )
 
-from .base import (
-    TimeLine, StepLine, now, Plan
-)
+from .timeline import TimeLine, StepLine, now
+
+from .plan import Plan
 
 from .flow import Flow
 
