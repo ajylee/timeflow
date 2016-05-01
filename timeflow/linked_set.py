@@ -57,7 +57,7 @@ class LinkedMutableSet(LinkedSet, collections.MutableSet):
             self.base.add(k)
 
         # NB cannot have children
-        if self.parent():
+        if self.parent() is not None:
             if k not in self.parent():
                 self.diff_parent[k] = 1
             else:
@@ -68,7 +68,7 @@ class LinkedMutableSet(LinkedSet, collections.MutableSet):
             self.base.discard(k)
 
         # NB cannot have children
-        if self.parent():
+        if self.parent() is not None:
             if k in self.parent():
                 self.diff_parent[k] = 0
             else:

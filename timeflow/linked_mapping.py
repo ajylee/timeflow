@@ -62,7 +62,7 @@ class LinkedDictionary(LinkedMapping, collections.MutableMapping):
 
     def __setitem__(self, k, v):
         # cannot have children
-        if self.parent():
+        if self.parent() is not None:
             parent_value = self.parent().get(k, delete)
             if parent_value != v:
                 self.diff_parent[k] = (parent_value, v)
@@ -80,7 +80,7 @@ class LinkedDictionary(LinkedMapping, collections.MutableMapping):
             except KeyError:
                 raise KeyError
 
-        if self.parent():
+        if self.parent() is not None:
             if self.diff_parent.get(k, (None, None))[CHILD] is delete:
                 raise KeyError
             else:
