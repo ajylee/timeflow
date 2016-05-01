@@ -30,7 +30,7 @@ def test_td_set():
     assert sf.at(e1) == {10, 20, 30, 1000}
 
 
-def test_step_set():
+def test_step_line():
     tl = StepLine()
 
     initial = tl.new_plan()
@@ -58,7 +58,42 @@ def test_step_set():
     assert sf.at(tl.HEAD) == {20, 30, 40, 100, 1000}
 
 
-def test_step_mapping_errors():
+def test_empty_set():
+    tl = TimeLine()
+    original = TestData.original
+
+    initial = tl.new_plan([])
+    sm = SetFlow.introduce_at(initial, set())
+    tl.commit(initial)
+    del initial
+
+    plan = tl.new_plan()
+    sm.at(plan).add(30)
+    sm.at(plan).add(100)
+    tl.commit(plan); del plan
+
+    plan = tl.new_plan()
+    sm.at(plan).remove(30)
+    sm.at(plan).remove(100)
+    tl.commit(plan); del plan
+
+    assert set(sm.at(tl.HEAD)) == set()
+
+
+def test_bridge_set():
+    tl = TimeLine()
+    plan = tl.new_plan()
+
+    sf = BridgeSetFlow(tl, TestData.original)
+
+    sf.at(plan).add(30)
+    assert 30 not in sf
+
+    tl.commit(plan)
+    assert 30 in sf
+
+
+def test_bridge_set_errors():
     tl = TimeLine()
     sf = BridgeSetFlow(tl, TestData.original)
 

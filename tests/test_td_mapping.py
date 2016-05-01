@@ -39,7 +39,7 @@ def test_td_mapping_2():
     assert tdi.at(e0)['a'] == 10
 
 
-def test_step_mapping():
+def test_step_line():
     tl = StepLine()
     original = TestData.original
 
@@ -63,6 +63,29 @@ def test_step_mapping():
 
     assert all(test_ref() is None for test_ref in test_refs)
     assert sm.at(tl.HEAD) == {'a':30, 'b':20, 'new':100}
+
+
+def test_empty_mapping():
+    tl = TimeLine()
+    original = TestData.original
+
+    initial = tl.new_plan([])
+    sm = MappingFlow.introduce_at(initial, {})
+    tl.commit(initial)
+    del initial
+
+    plan = tl.new_plan()
+    sm.at(plan)['a'] = 30
+    sm.at(plan)['new'] = 100
+    tl.commit(plan); del plan
+
+    plan = tl.new_plan()
+    del sm.at(plan)['a']
+    del sm.at(plan)['new']
+    tl.commit(plan); del plan
+
+    assert dict(sm.at(tl.HEAD)) == {}
+
 
 
 def test_bridge_mapping_errors():
