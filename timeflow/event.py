@@ -69,6 +69,10 @@ class NullEvent:
     time = -inf
     count = 0
 
+    @staticmethod
+    def get_flow_instance(flow):
+        return flow.default
+
 
 class Event(object):
     def __init__(self, parent=NullEvent, instance_map=None):
