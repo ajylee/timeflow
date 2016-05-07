@@ -19,6 +19,7 @@ class TimeLine(object):
         return Plan(base_event, only_flows)
 
     def commit(self, plan):
+        assert plan.base_event == self.HEAD
         self.HEAD = plan.hatch()
         return self.HEAD
 
