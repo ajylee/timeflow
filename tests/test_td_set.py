@@ -84,18 +84,40 @@ def test_bridge_set():
     tl = TimeLine()
     plan = tl.new_plan()
 
-    sf = BridgeSetFlow(tl, TestData.original)
+    sf = BridgeSetFlow(tl)
 
     sf.at(plan).add(30)
     assert 30 not in sf
 
-    tl.commit(plan)
+    tl.commit(plan); del plan
     assert 30 in sf
+
+    plan2 = tl.new_plan()
+    sf.at(plan2).add(40)
+    tl.commit(plan2); del plan2
+
+    assert 30 in sf
+    assert 40 in sf
+
+    plan3 = tl.new_plan()
+    sf.at(plan3).remove(30)
+    sf.at(plan3).remove(40)
+    tl.commit(plan3); del plan3
+
+    assert 30 not in sf
+    assert 40 not in sf
+
+    plan4 = tl.new_plan()
+    sf.at(plan4).add(30)
+    tl.commit(plan4); del plan4
+
+    assert 30 in sf
+
 
 
 def test_bridge_set_errors():
     tl = TimeLine()
-    sf = BridgeSetFlow(tl, TestData.original)
+    sf = BridgeSetFlow(tl)
 
     with nose.tools.assert_raises(AttributeError):
         sf.head.add(30)

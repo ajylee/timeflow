@@ -9,7 +9,7 @@ delete = ('delete', object)
 class MappingFlow(Flow):
     default = empty_linked_mapping
 
-    
+
 class BridgeMappingFlow(MappingFlow, collections.Mapping):
     """Drop in replacement for a regular Dict
 
@@ -19,11 +19,8 @@ class BridgeMappingFlow(MappingFlow, collections.Mapping):
 
     """
 
-    def __init__(self, timeline, initial_value):
+    def __init__(self, timeline):
         self.timeline = timeline
-        plan = self.timeline.new_plan()
-        self.at(plan).update(initial_value)
-        self.timeline.commit(plan)
 
     # drop-in convenience methods
     # ############################

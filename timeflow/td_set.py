@@ -17,11 +17,8 @@ class BridgeSetFlow(SetFlow, collections.Set):
 
     """
 
-    def __init__(self, timeline, initial_value):
+    def __init__(self, timeline):
         self.timeline = timeline
-        plan = self.timeline.new_plan()
-        self.at(plan).update(initial_value)
-        self.timeline.commit(plan)
 
     # drop-in convenience methods
     # ############################
@@ -40,7 +37,7 @@ class BridgeSetFlow(SetFlow, collections.Set):
         return len(self.head)
 
     def __repr__(self):
-        return repr(self.head)
+        return object.__repr__(self) + repr(self.head)
 
     def intersection(self, other):
         return set(self.head).intersection(set(other))
