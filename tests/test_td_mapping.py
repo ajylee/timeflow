@@ -91,7 +91,9 @@ def test_empty_mapping():
 def test_bridge_mapping_errors():
     tl = StepLine()
 
-    sm = BridgeMappingFlow(tl, TestData.original.copy())
+    sm = BridgeMappingFlow(tl)
+    plan = tl.new_plan()
+    sm.at(plan).update(TestData.original)
 
     with nose.tools.assert_raises(TypeError):
         sm['a'] = 10
