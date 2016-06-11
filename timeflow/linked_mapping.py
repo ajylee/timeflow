@@ -1,7 +1,8 @@
 import collections
 import itertools
 import weakref
-from linked_structure import CHILD, SELF, delete, EmptyMapping, empty_mapping, LinkedStructure
+from .event import empty_ref
+from .linked_structure import CHILD, SELF, delete, EmptyMapping, empty_mapping, LinkedStructure
 
 
 class LinkedMapping(LinkedStructure, collections.Mapping):
@@ -109,6 +110,10 @@ LinkedMapping.mutable_variant = LinkedDictionary
 
 
 class EmptyLinkedMapping(EmptyMapping):
+
+    def __init__(self):
+        self.parent = empty_ref
+
     def egg(self):
         return LinkedMapping.first_egg({})
 

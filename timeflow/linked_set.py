@@ -1,7 +1,8 @@
 import collections
 import itertools
 import weakref
-from linked_structure import SELF, EmptyMapping, empty_mapping, LinkedStructure
+from .event import empty_ref
+from .linked_structure import SELF, EmptyMapping, empty_mapping, LinkedStructure
 
 
 class LinkedSet(LinkedStructure, collections.Set):
@@ -95,8 +96,9 @@ LinkedSet.mutable_variant = LinkedMutableSet
 
 
 class EmptyLinkedSet(frozenset):
+
     def __init__(self):
-        pass
+        self.parent = empty_ref
 
     @staticmethod
     def __contains__(key):
