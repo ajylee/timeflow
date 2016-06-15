@@ -43,6 +43,18 @@ class LinkedSet(LinkedStructure, collections.Set):
     def __repr__(self):
         return '{}({})'.format(repr(type(self)), repr(list(self)))
 
+    def __and__(self, other):
+        return self.intersection(other)
+
+    def __or__(self, other):
+        return self.union(other)
+
+    def intersection(self, other):
+        return frozenset(self).intersection(other)
+
+    def union(self, other):
+        return frozenset(self).union(other)
+
 
 class LinkedMutableSet(LinkedSet, collections.MutableSet):
     """Mutable version of LinkedSet, with restrictions
