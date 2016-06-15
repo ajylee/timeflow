@@ -50,10 +50,15 @@ class LinkedSet(LinkedStructure, collections.Set):
         return self.union(other)
 
     def intersection(self, other):
-        return frozenset(self).intersection(other)
+        if len(self) > len(other):
+            larger, smaller = self, other
+        else:
+            larger, smaller = other, self
+
+        return frozenset(elt for elt in smaller if elt in larger)
 
     def union(self, other):
-        return frozenset(self).union(other)
+        return frozenset(itertools.chain(self, other))
 
 
 class LinkedMutableSet(LinkedSet, collections.MutableSet):
