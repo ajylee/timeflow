@@ -15,4 +15,4 @@ class Flow(object):
         return event_like.get_flow_instance(self)
 
     def read_at(self, event_like):
-        pass
+        return event_like.read_flow_instance(self)

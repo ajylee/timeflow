@@ -22,9 +22,15 @@ class Plan(object):
         try:
             return self.stage[flow]
         except KeyError:
-            _stage = self.base_event.instance.get(flow, flow.default).egg()
+            _stage = self.base_event.get_flow_instance(flow).egg()
             self.stage[flow] = _stage
             return _stage
+
+    def read_flow_instance(self, flow):
+        try:
+            return self.stage[flow]
+        except KeyError:
+            return self.base_event.read_flow_instance(flow)
 
     #def __setitem__(self, flow, instance):
     #    assert flow not in self.frozen, 'Tried to set frozen flow'

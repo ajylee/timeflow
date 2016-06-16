@@ -93,6 +93,8 @@ class Event(object):
     def get_flow_instance(self, flow):
         return self.instance.get(flow, flow.default)
 
+    read_flow_instance = get_flow_instance
+
     def __hash__(self):
         return hash((self.time, self.count))
 
