@@ -41,7 +41,7 @@ def clean_if_empty_and_isolated(dd, event, key):
     if val is _key_error:
         return
 
-    resolved = val.at(event)
+    resolved = val.read_at(event)
 
     if not resolved:
         def callback(_unused):
