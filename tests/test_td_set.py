@@ -13,21 +13,31 @@ def test_td_set():
 
     initial_plan = tl.new_plan()
     sf = SetFlow()
+    sf2 = SetFlow()  # Test behavior when not set in initial plan
+
     sf.at(initial_plan).update(original)
 
     e0 = tl.commit(initial_plan)
+
+    assert sf2.read_at(e0) == set()
 
     plan = tl.new_plan()
 
     sf.at(plan).add(30)
     sf.at(plan).remove('to_delete')
 
-    assert sf.at(e0) == original
+    assert sf2.read_at(plan) is not sf2.at(plan)
+    sf2.at(plan).add(40)
+
+    assert sf.read_at(e0) == original
+    assert sf.read_at(e0) is sf.at(e0)
 
     e1 = tl.commit(plan)
 
     assert sf.at(e0) == original
     assert sf.at(e1) == {10, 20, 30, 1000}
+
+    assert sf2.read_at(e1) == {40}
 
 
 def test_step_line():
