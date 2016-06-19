@@ -92,3 +92,10 @@ def test_memory_management():
 
     assert bb.diff_parent is None
     assert test_ref() is None
+
+
+def test_diff():
+    aa, bb = setup_tests()
+
+    assert bb.diff_parent == {'to_delete': PARENT,
+                              'added': CHILD}
