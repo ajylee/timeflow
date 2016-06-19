@@ -100,8 +100,8 @@ class LinkedDictionary(LinkedMapping, collections.MutableMapping):
 
         # make self unusable; references to self should be deleted so memory can be reclaimed.
         # NB we cannot simply delete these attrs -- LinkedMapping.__del__ will make warnings.
-        self.base = empty_mapping
-        self.diff_base = empty_mapping
+        del self.base
+        del self.diff_base
 
         return hatched
 

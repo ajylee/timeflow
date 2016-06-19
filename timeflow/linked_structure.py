@@ -82,8 +82,12 @@ class LinkedStructure(object):
 
 
     def __init__(self, parent, diff_parent, base, relation_to_base):
+        weak_self = weakref.ref(self)
         def _del_diff_parent(unused_):
-            self.diff_parent = None
+            try:
+                weak_self().diff_parent = None
+            except AttributeError:
+                pass
 
         self.parent = weakref.ref(parent, _del_diff_parent) if parent is not None else lambda : None
         self.diff_parent = diff_parent
