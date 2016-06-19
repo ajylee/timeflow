@@ -48,4 +48,5 @@ def test_read_at():
     plan2 = tl.new_plan()
 
     # sf2.read_at(plan2) should not have the `add` attribute.
-    nose.tools.assert_raises(AttributeError, lambda : sf2.read_at(plan2).add(10))
+    with nose.tools.assert_raises(AttributeError):
+        sf2.read_at(plan2).add(10)
