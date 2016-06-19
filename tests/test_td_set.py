@@ -26,7 +26,9 @@ def test_td_set():
     sf.at(plan).add(30)
     sf.at(plan).remove('to_delete')
 
+    # `read_at` should not generate instance egg if one does not exist; `at` should.
     assert sf2.read_at(plan) is not sf2.at(plan)
+    assert sf2.read_at(plan) is sf2.at(plan)
     sf2.at(plan).add(40)
 
     assert sf.read_at(e0) == original
