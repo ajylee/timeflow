@@ -24,6 +24,9 @@ from .event import Event
 
 from .convenience import introduce
 
+# for handling diffs
+from .linked_structure import CHILD, PARENT, NO_VALUE
+
 
 ##################
 # Read pkg_info
