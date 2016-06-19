@@ -13,7 +13,7 @@ class X(object):
 def setup_tests():
 
     aa_egg = LinkedSet.first_egg(set())
-    aa_egg.add(1)
+    aa_egg.add('always_here')
     aa_egg.add('to_delete')
 
     x = X()
@@ -24,25 +24,29 @@ def setup_tests():
 
     bb = aa.egg()
 
-    bb.add(2)
+    bb.add('added')
     bb.remove('to_delete')
     bb.remove(x)
 
     return aa, bb
 
+
 @nose.tools.nottest
 def test_standard_assertions(aa, bb):
-    assert 1 in aa
-    assert 1 in bb
+    assert 'always_here' in aa
+    assert 'always_here' in bb
 
-    assert 2 not in aa
-    assert 2 in bb
+    assert 'added' not in aa
+    assert 'added' in bb
 
     assert 'to_delete' in aa
     assert 'to_delete' not in bb
 
-    assert 3 not in aa
-    assert 3 not in bb
+    assert 'never_here' not in aa
+    assert 'never_here' not in bb
+
+    assert aa == {'always_here', 'to_delete', filter(lambda x: isinstance(x, X), aa)[0]}, aa
+    assert bb == {'always_here', 'added'}, bb
 
 
 def test_basic():
