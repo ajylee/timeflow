@@ -14,14 +14,14 @@ def setup_tests():
     aa_egg[1] = 10
     aa_egg['to_delete'] = X()
 
-    aa = aa_egg.hatch()
-    del aa_egg
+    aa = aa_egg.hatch(); del aa_egg
 
-    bb = aa.egg()
+    bb_egg = aa.egg()
 
-    bb[1] = 20
-    bb[2] = 30
-    del bb['to_delete']
+    bb_egg[1] = 20
+    bb_egg[2] = 30
+    del bb_egg['to_delete']
+    bb = bb_egg.hatch(); del bb_egg
 
     return aa, bb
 
@@ -66,15 +66,30 @@ def test_memory_management():
 
 def test_linked_dictionary_error_handling():
     aa, bb = setup_tests()
+    cc_egg = bb.egg()
 
     with nose.tools.assert_raises(KeyError):
         aa['no_such_key']
 
-    with nose.tools.assert_raises(KeyError):
-        del bb['no_such_key']
 
     with nose.tools.assert_raises(KeyError):
         bb['to_delete']
 
     with nose.tools.assert_raises(KeyError):
+        bb['no_such_key']
+
+    with nose.tools.assert_raises(TypeError):
+        del bb['no_such_key']
+
+    with nose.tools.assert_raises(TypeError):
         del bb['to_delete']
+
+
+    with nose.tools.assert_raises(KeyError):
+        del cc_egg['no_such_key']
+
+    with nose.tools.assert_raises(KeyError):
+        cc_egg['to_delete']
+
+    with nose.tools.assert_raises(KeyError):
+        del cc_egg['to_delete']
