@@ -6,45 +6,53 @@ from timeflow.linked_mapping import LinkedMapping
 
 
 @nose.tools.nottest
-def setup_tests():
+def setup_main_test_cases():
 
     aa_egg = LinkedMapping.first_egg({})
-    aa_egg[1] = 10
+    aa_egg['varies'] = 10
     aa_egg['to_delete'] = 'to_delete_val'
 
     aa = aa_egg.hatch(); del aa_egg
 
     bb_egg = aa.egg()
 
-    bb_egg[1] = 20
-    bb_egg[2] = 30
+    bb_egg['varies'] = 20
+    bb_egg['additional'] = 'additional_val'
     del bb_egg['to_delete']
     bb = bb_egg.hatch(); del bb_egg
 
-    return aa, bb
+
+    desired_aa = {'varies': 10,
+                  'to_delete': 'to_delete_val'}
+
+    desired_bb = {'varies': 20,
+                  'additional': 'additional_val'}
+
+    return aa, bb, desired_aa, desired_bb
 
 
 def test_linked_dictionary():
-    aa, bb = setup_tests()
+    aa, bb, desired_aa, desired_bb = setup_main_test_cases()
 
-    assert aa[1] == 10
-    assert bb[1] == 20
-    assert 2 not in aa
+    assert aa['varies'] == 10
+    assert bb['varies'] == 20
+    assert 'additional' not in aa
+
+    assert aa == desired_aa
+    assert bb == desired_bb, bb
 
 
 def test_transfer_core():
-    aa, bb = setup_tests()
+    aa, bb, desired_aa, desired_bb = setup_main_test_cases()
     transfer_core(aa, bb)
 
-    assert aa[1] == 10
-    assert bb[1] == 20
-    assert 2 not in aa
+    assert aa == desired_aa
+    assert bb == desired_bb
 
     transfer_core(bb, aa)
 
-    assert aa[1] == 10
-    assert bb[1] == 20
-    assert 2 not in aa
+    assert aa == desired_aa
+    assert bb == desired_bb
 
 
 def test_memory_management():
@@ -73,7 +81,7 @@ def test_memory_management():
 
 
 def test_linked_dictionary_error_handling():
-    aa, bb = setup_tests()
+    aa, bb, _1, _2 = setup_main_test_cases()
     cc_egg = bb.egg()
 
     with nose.tools.assert_raises(KeyError):
