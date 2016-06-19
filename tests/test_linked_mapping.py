@@ -1,7 +1,7 @@
 import weakref
 import nose.tools
 
-from timeflow.linked_structure import transfer_core
+from timeflow.linked_structure import transfer_core, PARENT, CHILD, SELF
 from timeflow.linked_mapping import LinkedMapping
 
 
@@ -45,11 +45,15 @@ def test_linked_dictionary():
 def test_transfer_core():
     aa, bb, desired_aa, desired_bb = setup_main_test_cases()
     transfer_core(aa, bb)
+    assert aa.relation_to_base == PARENT
+    assert bb.relation_to_base == SELF
 
     assert aa == desired_aa
     assert bb == desired_bb
 
     transfer_core(bb, aa)
+    assert aa.relation_to_base == SELF
+    assert bb.relation_to_base == CHILD
 
     assert aa == desired_aa
     assert bb == desired_bb
