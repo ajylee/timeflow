@@ -47,7 +47,7 @@ class LinkedSet(LinkedStructure, collections.Set):
         return (val, (diff_side + 1) % 2)
 
     @staticmethod
-    def diff(left, right):
+    def _diff(left, right):
         return itertools.chain(((val, DIFF_LEFT) for val in left if val not in right),
                                ((val, DIFF_RIGHT) for val in right if val not in left))
 

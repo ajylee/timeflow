@@ -137,7 +137,7 @@ def test_diff():
                                   'new_cc_key': 'new_cc_val'}).hatch()
 
     assert (dict(diff(bb, cc))
-            == dict(LinkedMapping.diff(bb, cc))
+            == dict(LinkedMapping._diff(bb, cc))
             == {'varies': (20, 'new_varies_val'),
                 'additional': ('additional_val', NO_VALUE),
                 'new_cc_key': (NO_VALUE, 'new_cc_val')}), (dict(diff(bb,cc)),

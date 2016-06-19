@@ -109,7 +109,7 @@ def test_diff():
     cc = LinkedSet.first_egg({'always_here', 'to_delete', 'new_val'}).hatch()
 
     assert (dict(diff(bb, cc))
-            == dict(LinkedSet.diff(bb, cc))
+            == dict(LinkedSet._diff(bb, cc))
             == {'to_delete': DIFF_RIGHT,
                 'added': DIFF_LEFT,
                 'new_val': DIFF_RIGHT})

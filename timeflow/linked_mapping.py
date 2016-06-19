@@ -55,7 +55,7 @@ class LinkedMapping(LinkedStructure, collections.Mapping):
         return (key, (val[1], val[0]))
 
     @staticmethod
-    def diff(left, right):
+    def _diff(left, right):
         for key, left_val in left.iteritems():
             right_val = right.get(key, NO_VALUE)
             if left_val != right_val:

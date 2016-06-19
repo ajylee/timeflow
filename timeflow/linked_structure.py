@@ -128,6 +128,22 @@ class LinkedStructure(object):
         """
         pass
 
+    @staticmethod
+    @abstractmethod
+    def _diff(left, right):
+        """The diff between two elements of the LinkedStructure subclass
+
+        Format depends on the class.
+
+        """
+        pass
+
+    @staticmethod
+    @abstractmethod
+    def _reverse_diff(item):
+        """Reverses left/right polarity of an item from :meth:`_diff`"""
+        pass
+
 
 def diff(left, right):
     if left is right:
@@ -150,4 +166,4 @@ def diff(left, right):
                     right.diff_base.iteritems())
 
     else:
-        return left.diff(left, right)
+        return left._diff(left, right)
