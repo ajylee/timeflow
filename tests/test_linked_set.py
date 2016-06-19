@@ -16,16 +16,12 @@ def setup_tests():
     aa_egg.add('always_here')
     aa_egg.add('to_delete')
 
-    x = X()
-    aa_egg.add(x)
-
     aa = aa_egg.hatch(); del aa_egg
 
     bb_egg = aa.egg()
 
     bb_egg.add('added')
     bb_egg.remove('to_delete')
-    bb_egg.remove(x)
     bb = bb_egg.hatch(); del bb_egg
 
     return aa, bb
@@ -45,7 +41,7 @@ def test_standard_assertions(aa, bb):
     assert 'never_here' not in aa
     assert 'never_here' not in bb
 
-    assert aa == {'always_here', 'to_delete', filter(lambda x: isinstance(x, X), aa)[0]}, aa
+    assert aa == {'always_here', 'to_delete'}, aa
     assert bb == {'always_here', 'added'}, bb
 
 
@@ -66,7 +62,17 @@ def test_transfer_core():
 
 
 def test_memory_management():
-    aa, bb = setup_tests()
+    aa_egg = LinkedSet.first_egg(set())
+
+    x = X()
+    aa_egg.add(x)
+
+    aa = aa_egg.hatch(); del aa_egg
+
+    bb_egg = aa.egg()
+    bb_egg.remove(x); del x
+
+    bb = bb_egg.hatch(); del bb_egg
 
     assert bb.diff_parent is not None
     for elt in aa:
