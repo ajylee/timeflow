@@ -3,7 +3,7 @@ import weakref
 import collections
 import uuid
 
-delete = ('delete', uuid.UUID('db62de11-7c24-11e5-91b3-b88d12001ea8'))
+NO_VALUE = ('NO_VALUE', uuid.UUID('db62de11-7c24-11e5-91b3-b88d12001ea8'))
 
 
 PARENT = 0

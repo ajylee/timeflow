@@ -2,7 +2,7 @@ import collections
 import itertools
 import weakref
 from .event import empty_ref
-from .linked_structure import CHILD, SELF, delete, EmptyMapping, empty_mapping, LinkedStructure
+from .linked_structure import CHILD, SELF, NO_VALUE, EmptyMapping, empty_mapping, LinkedStructure
 
 
 class LinkedMapping(LinkedStructure, collections.Mapping):
@@ -20,20 +20,20 @@ class LinkedMapping(LinkedStructure, collections.Mapping):
             except KeyError:
                 raise KeyError
 
-        if val == delete:
+        if val == NO_VALUE:
             raise KeyError
         else:
             return val
 
     def __iter__(self):
         return itertools.chain(
-            (k for k,v in self.diff_base.iteritems() if v[self.relation_to_base] != delete),
+            (k for k,v in self.diff_base.iteritems() if v[self.relation_to_base] != NO_VALUE),
             (k for k in self.base if k not in self.diff_base))
 
     def __len__(self):
         count = len(self.base)
         for k,v in self.diff_base.iteritems():
-            if v[self.relation_to_base] is delete:
+            if v[self.relation_to_base] is NO_VALUE:
                 count -= 1
             elif k not in self.base:
                 count += 1
@@ -43,7 +43,7 @@ class LinkedMapping(LinkedStructure, collections.Mapping):
     def _update_core(core, target):
         for k,v in target.diff_base.items():
             target_val = v[target.relation_to_base]
-            if target_val is delete:
+            if target_val is NO_VALUE:
                 del core[k]
             else:
                 core[k] = target_val
@@ -64,7 +64,7 @@ class LinkedDictionary(LinkedMapping, collections.MutableMapping):
     def __setitem__(self, k, v):
         # cannot have children
         if self.parent() is not None:
-            parent_value = self.parent().get(k, delete)
+            parent_value = self.parent().get(k, NO_VALUE)
             if parent_value != v:
                 self.diff_parent[k] = (parent_value, v)
             else:
@@ -82,11 +82,11 @@ class LinkedDictionary(LinkedMapping, collections.MutableMapping):
                 raise KeyError
 
         if self.parent() is not None:
-            if self.diff_parent.get(k, (None, None))[CHILD] is delete:
+            if self.diff_parent.get(k, (None, None))[CHILD] is NO_VALUE:
                 raise KeyError
             else:
                 try:
-                    self.diff_parent[k] = (self.parent()[k], delete)
+                    self.diff_parent[k] = (self.parent()[k], NO_VALUE)
                 except KeyError:
                     # parent has no such key => key in self.diff_parent or KeyError
                     try:
