@@ -85,7 +85,7 @@ def test_memory_management():
 
 
 def test_linked_dictionary_error_handling():
-    aa, bb, _1, _2 = setup_main_test_cases()
+    aa, bb, _unused_1, _unused_2 = setup_main_test_cases()
     cc_egg = bb.egg()
 
     with nose.tools.assert_raises(KeyError):
