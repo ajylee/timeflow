@@ -25,7 +25,7 @@ from .event import Event
 from .convenience import introduce
 
 # for handling diffs
-from .linked_structure import CHILD, PARENT, NO_VALUE
+from .linked_structure import DIFF_LEFT, DIFF_RIGHT, NO_VALUE, diff
 
 
 ##################

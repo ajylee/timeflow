@@ -1,7 +1,7 @@
 import weakref
 import nose.tools
 
-from timeflow.linked_structure import transfer_core, PARENT, CHILD, SELF, NO_VALUE
+from timeflow.linked_structure import transfer_core, PARENT, CHILD, SELF, NO_VALUE, diff
 from timeflow.linked_mapping import LinkedMapping
 
 
@@ -10,6 +10,7 @@ def setup_main_test_cases():
 
     aa_egg = LinkedMapping.first_egg({})
     aa_egg['varies'] = 10
+    aa_egg['constant'] = 100
     aa_egg['to_delete'] = 'to_delete_val'
 
     aa = aa_egg.hatch(); del aa_egg
@@ -23,9 +24,11 @@ def setup_main_test_cases():
 
 
     desired_aa = {'varies': 10,
+                  'constant': 100,
                   'to_delete': 'to_delete_val'}
 
     desired_bb = {'varies': 20,
+                  'constant': 100,
                   'additional': 'additional_val'}
 
     return aa, bb, desired_aa, desired_bb
@@ -118,6 +121,24 @@ def test_linked_dictionary_error_handling():
 def test_diff():
     aa, bb, _unused_1, _unused_2 = setup_main_test_cases()
 
-    assert bb.diff_parent == {'varies': (10, 20),
-                              'to_delete': ('to_delete_val', NO_VALUE),
-                              'additional': (NO_VALUE, 'additional_val')}
+    assert dict(diff(aa, bb)) == {'varies': (10, 20),
+                                  'to_delete': ('to_delete_val', NO_VALUE),
+                                  'additional': (NO_VALUE, 'additional_val')}, dict(diff(bb, aa))
+
+
+    assert dict(diff(bb, aa)) == {k: (v[1], v[0]) for k,v in diff(aa, bb)}
+
+
+    assert list(diff(aa, aa)) == []
+
+
+    cc = LinkedMapping.first_egg({'varies': 'new_varies_val',
+                                  'constant': 100,
+                                  'new_cc_key': 'new_cc_val'}).hatch()
+
+    assert (dict(diff(bb, cc))
+            == dict(LinkedMapping.diff(bb, cc))
+            == {'varies': (20, 'new_varies_val'),
+                'additional': ('additional_val', NO_VALUE),
+                'new_cc_key': (NO_VALUE, 'new_cc_val')}), (dict(diff(bb,cc)),
+dict(diff(bb,cc)) == dict(LinkedMapping.diff(bb, cc)))

@@ -1,7 +1,7 @@
 import weakref
 import nose.tools
 
-from timeflow.linked_structure import transfer_core, PARENT, CHILD, SELF
+from timeflow.linked_structure import transfer_core, CHILD, SELF, DIFF_LEFT, DIFF_RIGHT, diff
 from timeflow.linked_set import LinkedSet
 
 
@@ -97,5 +97,19 @@ def test_memory_management():
 def test_diff():
     aa, bb = setup_tests()
 
-    assert bb.diff_parent == {'to_delete': PARENT,
-                              'added': CHILD}
+    assert dict(diff(aa, bb)) == {'to_delete': DIFF_LEFT,
+                                  'added': DIFF_RIGHT}
+
+    assert dict(diff(bb, aa)) == {'to_delete': DIFF_RIGHT,
+                                  'added': DIFF_LEFT}
+
+
+    assert list(diff(aa, aa)) == []
+
+    cc = LinkedSet.first_egg({'always_here', 'to_delete', 'new_val'}).hatch()
+
+    assert (dict(diff(bb, cc))
+            == dict(LinkedSet.diff(bb, cc))
+            == {'to_delete': DIFF_RIGHT,
+                'added': DIFF_LEFT,
+                'new_val': DIFF_RIGHT})

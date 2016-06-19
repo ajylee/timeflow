@@ -10,6 +10,8 @@ PARENT = 0
 CHILD = 1
 SELF = 2
 
+DIFF_LEFT, DIFF_RIGHT = 0, 1
+
 
 def transfer_core(self, other):
     assert self.relation_to_base is SELF
@@ -125,3 +127,27 @@ class LinkedStructure(object):
 
         """
         pass
+
+
+def diff(left, right):
+    if left is right:
+        return ()
+
+    elif left.base is right:
+        # NB: Cannot branch here if (left.relation_to_base is SELF)
+        if left.relation_to_base is PARENT:
+            return left.diff_base.iteritems()
+        else:
+            return (left._reverse_diff(item)
+                    for item in left.diff_base.iteritems())
+
+    elif right.base is left:
+        # NB: Cannot branch here if (left.relation_to_base is SELF)
+        if right.relation_to_base is CHILD:
+            return right.diff_base.iteritems()
+        else:
+            return (right._reverse_diff(item) for item in
+                    right.diff_base.iteritems())
+
+    else:
+        return left.diff(left, right)

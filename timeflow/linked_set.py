@@ -3,7 +3,7 @@ import itertools
 import weakref
 from .event import empty_ref
 from .linked_structure import (SELF, EmptyMapping, empty_mapping, LinkedStructure,
-                               PARENT, CHILD)
+                               PARENT, CHILD, DIFF_LEFT, DIFF_RIGHT)
 
 
 class LinkedSet(LinkedStructure, collections.Set):
@@ -40,6 +40,16 @@ class LinkedSet(LinkedStructure, collections.Set):
                 core.add(k)
             else:
                 core.remove(k)
+
+    @staticmethod
+    def _reverse_diff(item):
+        val, diff_side = item
+        return (val, (diff_side + 1) % 2)
+
+    @staticmethod
+    def diff(left, right):
+        return itertools.chain(((val, DIFF_LEFT) for val in left if val not in right),
+                               ((val, DIFF_RIGHT) for val in right if val not in left))
 
     def __repr__(self):
         return '{}({})'.format(repr(type(self)), repr(list(self)))

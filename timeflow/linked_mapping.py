@@ -2,7 +2,8 @@ import collections
 import itertools
 import weakref
 from .event import empty_ref
-from .linked_structure import CHILD, SELF, NO_VALUE, EmptyMapping, empty_mapping, LinkedStructure
+from .linked_structure import (CHILD, SELF, NO_VALUE, EmptyMapping,
+                               empty_mapping, LinkedStructure, DIFF_LEFT, DIFF_RIGHT)
 
 
 class LinkedMapping(LinkedStructure, collections.Mapping):
@@ -47,6 +48,22 @@ class LinkedMapping(LinkedStructure, collections.Mapping):
                 del core[k]
             else:
                 core[k] = target_val
+
+    @staticmethod
+    def _reverse_diff(item):
+        key, val = item
+        return (key, (val[1], val[0]))
+
+    @staticmethod
+    def diff(left, right):
+        for key, left_val in left.iteritems():
+            right_val = right.get(key, NO_VALUE)
+            if left_val != right_val:
+                yield (key, (left_val, right_val))
+
+        for key, right_val in right.iteritems():
+            if key not in left:
+                yield (key, (NO_VALUE, right_val))
 
     def __repr__(self):
         return '{}({})'.format(repr(type(self)), repr(dict(self)))
