@@ -1,7 +1,7 @@
 import weakref
 import nose.tools
 
-from timeflow.linked_structure import transfer_core, PARENT, CHILD, SELF
+from timeflow.linked_structure import transfer_core, PARENT, CHILD, SELF, NO_VALUE
 from timeflow.linked_mapping import LinkedMapping
 
 
@@ -113,3 +113,11 @@ def test_linked_dictionary_error_handling():
 
     with nose.tools.assert_raises(KeyError):
         del cc_egg['to_delete']
+
+
+def test_diff():
+    aa, bb, _unused_1, _unused_2 = setup_main_test_cases()
+
+    assert bb.diff_parent == {'varies': (10, 20),
+                              'to_delete': ('to_delete_val', NO_VALUE),
+                              'additional': (NO_VALUE, 'additional_val')}
