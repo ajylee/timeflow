@@ -3,8 +3,6 @@ import itertools
 from .flow import Flow
 from .linked_mapping import empty_linked_mapping
 
-delete = ('delete', object)
-
 
 class MappingFlow(Flow):
     default = empty_linked_mapping
