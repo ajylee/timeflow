@@ -19,14 +19,14 @@ def setup_tests():
     x = X()
     aa_egg.add(x)
 
-    aa = aa_egg.hatch()
-    del aa_egg
+    aa = aa_egg.hatch(); del aa_egg
 
-    bb = aa.egg()
+    bb_egg = aa.egg()
 
-    bb.add('added')
-    bb.remove('to_delete')
-    bb.remove(x)
+    bb_egg.add('added')
+    bb_egg.remove('to_delete')
+    bb_egg.remove(x)
+    bb = bb_egg.hatch(); del bb_egg
 
     return aa, bb
 
