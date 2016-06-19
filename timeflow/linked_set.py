@@ -2,7 +2,8 @@ import collections
 import itertools
 import weakref
 from .event import empty_ref
-from .linked_structure import SELF, EmptyMapping, empty_mapping, LinkedStructure
+from .linked_structure import (SELF, EmptyMapping, empty_mapping, LinkedStructure,
+                               PARENT, CHILD)
 
 
 class LinkedSet(LinkedStructure, collections.Set):
@@ -77,7 +78,7 @@ class LinkedMutableSet(LinkedSet, collections.MutableSet):
         # NB cannot have children
         if self.parent() is not None:
             if k not in self.parent():
-                self.diff_parent[k] = 1
+                self.diff_parent[k] = CHILD
             else:
                 self.diff_parent.pop(k, None)
 
@@ -88,7 +89,7 @@ class LinkedMutableSet(LinkedSet, collections.MutableSet):
         # NB cannot have children
         if self.parent() is not None:
             if k in self.parent():
-                self.diff_parent[k] = 0
+                self.diff_parent[k] = PARENT
             else:
                 self.diff_parent.pop(k, None)
 
