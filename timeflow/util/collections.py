@@ -46,7 +46,10 @@ def clean_if_empty_and_isolated(dd, event, key):
     if not resolved:
         def callback(_unused):
             if not event.child():
-                del dd[key]
+                try:
+                    del dd[key]
+                except KeyError:
+                    pass
 
         if resolved.parent() is None:
             callback(None)
