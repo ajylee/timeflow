@@ -57,7 +57,12 @@ class Plan(object):
         instance_map = parent_event.instance.copy()
 
         for flow, instance in self.stage.items():
-            hatched_item = instance.hatch()
+            try:
+                hatched_item = instance.hatch()
+            except AttributeError:
+                instance_map[flow] = instance
+                continue
+
             instance_map[flow] = hatched_item
 
             if hatched_item is not flow.default and hatched_item.relation_to_base is not SELF:

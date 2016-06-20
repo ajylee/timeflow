@@ -73,6 +73,8 @@ class NullEvent:
     def get_flow_instance(flow):
         return flow.default
 
+    read_flow_instance = get_flow_instance
+
 
 class Event(object):
     def __init__(self, parent=NullEvent, instance_map=None):

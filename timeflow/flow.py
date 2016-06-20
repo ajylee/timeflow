@@ -16,3 +16,16 @@ class Flow(object):
 
     def read_at(self, event_like):
         return event_like.read_flow_instance(self)
+
+
+class SimpleFlow(Flow):
+    default = None
+
+    @classmethod
+    def introduce_at(cls, plan, value):
+        _flow = cls()
+        _flow.set_at(plan, value)
+        return _flow
+
+    def set_at(self, plan, value):
+        plan.stage[self] = value
