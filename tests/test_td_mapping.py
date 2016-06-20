@@ -1,5 +1,5 @@
 from timeflow import Plan, BridgeMappingFlow
-from timeflow import TimeLine, StepLine, now, Event
+from timeflow import TimeLine, StepLine, Event
 
 import weakref
 from collections import OrderedDict

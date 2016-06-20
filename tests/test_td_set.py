@@ -1,5 +1,5 @@
 from timeflow import Plan, StepLine, SetFlow, BridgeSetFlow
-from timeflow import TimeLine, now
+from timeflow import TimeLine
 from collections import OrderedDict
 import nose.tools
 
