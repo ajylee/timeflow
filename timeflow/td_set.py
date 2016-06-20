@@ -1,10 +1,10 @@
 import collections
 import itertools
 from .linked_set import empty_linked_set
-from .flow import Flow
+from .flow import StructureFlow
 
 
-class SetFlow(Flow):
+class SetFlow(StructureFlow):
     default = empty_linked_set
 
 

@@ -1,10 +1,10 @@
 import collections
 import itertools
-from .flow import Flow
+from .flow import StructureFlow
 from .linked_mapping import empty_linked_mapping
 
 
-class MappingFlow(Flow):
+class MappingFlow(StructureFlow):
     default = empty_linked_mapping
 
 

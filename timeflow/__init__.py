@@ -18,7 +18,7 @@ from .timeline import TimeLine, StepLine, now
 
 from .plan import Plan
 
-from .flow import Flow
+from .flow import SimpleFlow
 
 from .event import Event
 
