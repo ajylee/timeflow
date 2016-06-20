@@ -1,5 +1,4 @@
-from timeflow import Plan, StepLine, Flow, TimeLine
-from timeflow.flow import SimpleFlow
+from timeflow import Plan, StepLine, SimpleFlow, TimeLine
 
 
 class IntFlow(SimpleFlow):
