@@ -1,4 +1,7 @@
 import collections
+from functools import partial
+import weakref
+
 from linked_structure import transfer_core, SELF
 from .event import Event
 
@@ -14,7 +17,7 @@ class Plan(object):
 
         self.stage = {}
 
-        self.categories = collections.defaultdict(set)
+        self.categories = collections.defaultdict(partial(SubPlan, weakref.proxy(self)))
 
         self.frozen = set()    # a set of frozen flows
 
@@ -35,6 +38,12 @@ class Plan(object):
     #def __setitem__(self, flow, instance):
     #    assert flow not in self.frozen, 'Tried to set frozen flow'
     #    self.stage[flow] = instance
+
+    def set_flow_instance(self, flow, value):
+        self.stage[flow] = value
+
+    def __getitem__(self, key):
+        return self.categories[key]
 
     def __contains__(self, flow):
         return flow in self.stage
@@ -73,7 +82,38 @@ class Plan(object):
         return Event(parent=parent_event, instance_map=instance_map)
 
 
-class SubPlan(Plan):
+class SubPlan(object):
+    def __init__(self, parent_proxy):
+        self._parent = parent_proxy   # weakref proxy to super plan
+        self._keys = set()
+
+    def __contains__(self, flow):
+        return flow in self._keys
+
+    def get_flow_instance(self, flow):
+        self._keys.add(flow)
+        return self._parent.get_flow_instance(flow)
+
+    def read_flow_instance(self, flow):
+        if flow in self._keys:
+            return self._parent.read_flow_instance(flow)
+        else:
+            raise KeyError
+
+    def set_flow_instance(self, flow, value):
+        self._keys.add(flow)
+        self._parent.set_flow_instance(flow, value)
+
+    def update(self, other_plan):
+        try:
+            self._keys.update(other_plan._keys)
+        except KeyError:
+            self._keys.update(other_plan.stage)
+
+        self._parent.update(other_plan)
+
+
+class OldSubPlan(Plan):
     def __init__(self, super_plan, category_key, readable_category_keys):
         self.category_key = category_key
         self.category = super_plan.categories[self.category_key]
