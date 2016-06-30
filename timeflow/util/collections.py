@@ -20,6 +20,22 @@ class WeakKeyDefaultDictionary(weakref.WeakKeyDictionary):
             return val
 
 
+class WeakValueDefaultDictionary(weakref.WeakValueDictionary):
+    """Calls default() when getting a key not in the dict"""
+
+    def __init__(self, default):
+        weakref.WeakValueDictionary.__init__(self)
+        self._default = default
+
+    def __getitem__(self, key):
+        try:
+            return weakref.WeakValueDictionary.__getitem__(self, key)
+        except KeyError:
+            val = self._default()
+            self[key] = val
+            return val
+
+
 _key_error = KeyError()
 
 def clean_if_empty(dd, key):
