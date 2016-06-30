@@ -41,4 +41,4 @@ class SimpleFlow(Flow):
         return _flow
 
     def set_at(self, plan, value):
-        plan.stage[self] = value
+        plan.set_flow_instance(self, value)
