@@ -121,6 +121,7 @@ class LinkedMutableSet(LinkedSet, collections.MutableSet):
 
 
 LinkedSet.mutable_variant = LinkedMutableSet
+LinkedMutableSet.immutable_variant = LinkedSet
 
 
 class EmptyLinkedSet(frozenset):
