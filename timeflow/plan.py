@@ -63,7 +63,7 @@ class Plan(object):
         """
 
         parent_event = self.base_event
-        instance_map = parent_event.instance.copy()
+        instance_map = parent_event.instance.egg()
 
         for flow, instance in self.stage.items():
             try:
@@ -82,7 +82,11 @@ class Plan(object):
                     if _parent_item is not None:
                         transfer_core(_parent_item, hatched_item)
 
-        return Event(parent=parent_event, instance_map=instance_map)
+        instance_map_hatched = instance_map.hatch()
+        if instance_map_hatched.relation_to_base is not SELF:
+            transfer_core(parent_event.instance, instance_map_hatched)
+
+        return Event(parent=parent_event, instance_map=instance_map_hatched)
 
 
 class SubPlan(object):

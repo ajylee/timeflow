@@ -1,15 +1,9 @@
 import time as _time
 import bisect
 import weakref
+import linked_mapping
+from ref_tools import strong_ref, empty_ref
 
-
-def strong_ref(xx):
-    def _strong_ref():
-        return xx
-
-    return _strong_ref
-
-empty_ref = strong_ref(None)
 
 
 def representative_event(events, event):
@@ -65,7 +59,7 @@ _neg_inf = _NegativeInfinity()
 # #########
 
 class NullEvent:
-    instance = {}
+    instance = linked_mapping.empty_linked_mapping
     time = -inf
     count = 0
 
@@ -82,7 +76,8 @@ class Event(object):
         if parent:
             parent.child = weakref.ref(self)
 
-        self.instance = (instance_map if instance_map is not None else {})
+        self.instance = (instance_map if instance_map is not None
+                      else linked_mapping.empty_linked_mapping)
 
         self.child = empty_ref
         self.time = int(_time.time())

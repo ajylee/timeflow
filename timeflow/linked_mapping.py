@@ -1,7 +1,7 @@
 import collections
 import itertools
 import weakref
-from .event import empty_ref
+from .ref_tools import empty_ref
 from .linked_structure import (CHILD, SELF, NO_VALUE, EmptyMapping,
                                empty_mapping, LinkedStructure, DIFF_LEFT, DIFF_RIGHT)
 
