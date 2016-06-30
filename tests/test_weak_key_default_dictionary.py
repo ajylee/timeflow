@@ -22,6 +22,27 @@ def test_weak_key_default_dictionary_1():
     assert wkd.items() == []
 
 
+def test_weak_value_default_dictionary():
+
+    strong_refs = []
+
+    def _mk_referenced_set():
+        _s = set()
+        strong_refs.append(_s)
+        return _s
+        
+
+    wvd = tuc.WeakValueDefaultDictionary(_mk_referenced_set)
+
+    wvd[1].add(10)
+
+    assert wvd[1] == set([10])
+
+    del strong_refs[:]
+
+    assert wvd.items() == []
+
+
 def test_clean():
     wkd = tuc.WeakKeyDefaultDictionary(set)
     w = Weakable()
