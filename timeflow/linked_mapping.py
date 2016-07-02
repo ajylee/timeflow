@@ -121,6 +121,7 @@ class EmptyLinkedMapping(EmptyMapping):
 
     def __init__(self):
         self.parent = empty_ref
+        self.relation_to_base = SELF
 
     def egg(self):
         return LinkedMapping.first_egg({})
@@ -131,4 +132,5 @@ empty_linked_mapping = EmptyLinkedMapping()
 
 LinkedMapping.mutable_variant = LinkedDictionary
 LinkedMapping.empty_variant = empty_linked_mapping
+LinkedMapping.core_type = dict
 LinkedDictionary.immutable_variant = LinkedMapping

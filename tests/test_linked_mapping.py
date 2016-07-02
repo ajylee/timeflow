@@ -1,7 +1,8 @@
 import weakref
 import nose.tools
 
-from timeflow.linked_structure import transfer_core, PARENT, CHILD, SELF, NO_VALUE, diff
+from timeflow.linked_structure import (transfer_core, create_core_in, 
+                                       PARENT, CHILD, SELF, NO_VALUE, diff)
 from timeflow.linked_mapping import LinkedMapping
 
 
@@ -61,6 +62,16 @@ def test_transfer_core():
     assert aa == desired_aa
     assert bb == desired_bb
 
+    
+def test_create_core_in():
+    aa, bb, desired_aa, desired_bb = setup_main_test_cases()
+    create_core_in(bb)
+    assert aa.relation_to_base == SELF
+    assert bb.relation_to_base == SELF
+
+    assert aa == desired_aa
+    assert bb == desired_bb
+
 
 def test_memory_management():
     class X(object):
@@ -68,6 +79,7 @@ def test_memory_management():
 
     aa_egg = LinkedMapping.first_egg({})
     aa_egg['to_delete'] = X()
+    aa_egg['to_keep'] = X()
 
     aa = aa_egg.hatch(); del aa_egg
     bb_egg = aa.egg()
@@ -84,6 +96,28 @@ def test_memory_management():
     transfer_core(bb.parent(), bb)    # bb.parent() points to aa until core is transferred
 
     bb.diff_parent is None
+    assert test_ref() is None
+
+    
+def test_hatch_empty_mapping():
+    class X(object):
+        pass
+
+    aa_egg = LinkedMapping.first_egg({})
+    aa_egg['to_delete'] = X()
+
+    aa = aa_egg.hatch(); del aa_egg
+    bb_egg = aa.egg()
+
+    del bb_egg['to_delete']
+    assert not bb_egg
+
+    bb = bb_egg.hatch(); del bb_egg
+    assert not bb
+    assert bb.relation_to_base == SELF
+
+    test_ref = weakref.ref(aa['to_delete'])
+    del aa
     assert test_ref() is None
 
 

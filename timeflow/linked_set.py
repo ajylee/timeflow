@@ -120,6 +120,7 @@ class EmptyLinkedSet(frozenset):
 
     def __init__(self):
         self.parent = empty_ref
+        self.relation_to_base = SELF
 
     @staticmethod
     def __contains__(key):
@@ -142,4 +143,5 @@ empty_linked_set = EmptyLinkedSet()
 
 LinkedSet.mutable_variant = LinkedMutableSet
 LinkedSet.empty_variant = LinkedMutableSet
+LinkedSet.core_type = set
 LinkedMutableSet.immutable_variant = LinkedSet

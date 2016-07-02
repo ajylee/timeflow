@@ -2,7 +2,7 @@ import collections
 from functools import partial
 import weakref
 
-from linked_structure import transfer_core, SELF
+from linked_structure import transfer_core, create_core_in, SELF, CHILD
 from .event import Event
 
 
@@ -62,8 +62,8 @@ class Plan(object):
 
         """
 
-        parent_event = self.base_event
-        instance_map = parent_event.instance.egg()
+        parent_instance_map = self.base_event.instance
+        instance_map = parent_instance_map.egg()
 
         for flow, instance in self.stage.items():
             try:
@@ -77,16 +77,18 @@ class Plan(object):
             else:
                 instance_map[flow] = hatched_item
 
-                if hatched_item.relation_to_base is not SELF:
-                    _parent_item = parent_event.instance.get(flow, None)
-                    if _parent_item is not None:
-                        transfer_core(_parent_item, hatched_item)
+                if hatched_item.relation_to_base == CHILD:
+                    if hatched_item.parent().relation_to_base is SELF:
+                        transfer_core(hatched_item.parent(), hatched_item)
+                    else:
+                        create_core_in(hatched_item)
 
         instance_map_hatched = instance_map.hatch()
-        if instance_map_hatched.relation_to_base is not SELF:
-            transfer_core(parent_event.instance, instance_map_hatched)
+        if (instance_map_hatched.relation_to_base is CHILD
+            and parent_instance_map.relation_to_base is SELF):
+            transfer_core(parent_instance_map, instance_map_hatched)
 
-        return Event(instance_map=instance_map_hatched, parent=parent_event)
+        return Event(instance_map=instance_map_hatched, parent=self.base_event)
 
 
 class SubPlan(object):

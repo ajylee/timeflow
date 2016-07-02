@@ -1,7 +1,8 @@
 import weakref
 import nose.tools
 
-from timeflow.linked_structure import transfer_core, CHILD, SELF, DIFF_LEFT, DIFF_RIGHT, diff
+from timeflow.linked_structure import (transfer_core, create_core_in,
+                                       CHILD, SELF, DIFF_LEFT, DIFF_RIGHT, diff)
 from timeflow.linked_set import LinkedSet
 
 
@@ -63,6 +64,16 @@ def test_transfer_core():
     test_standard_assertions(aa, bb)
 
     assert bb.relation_to_base == CHILD
+
+
+def test_create_core_in():
+    aa, bb = setup_tests()
+    create_core_in(bb)
+
+    test_standard_assertions(aa, bb)
+
+    assert aa.relation_to_base == SELF
+    assert bb.relation_to_base == SELF
 
 
 def test_memory_management():

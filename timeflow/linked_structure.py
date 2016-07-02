@@ -161,6 +161,12 @@ def hatch_egg(mutable_variant):
         return hatched
 
 
+def create_core_in(linked_structure):
+    linked_structure.base = linked_structure.core_type(linked_structure)
+    linked_structure.diff_base = empty_mapping
+    linked_structure.relation_to_base = SELF
+
+
 def diff(left, right):
     if left is right:
         return ()
