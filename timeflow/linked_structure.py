@@ -145,20 +145,20 @@ class LinkedStructure(object):
         pass
 
 
-class MutableLinkedStructure(object):
-    immutable_variant = None
+def hatch_egg(mutable_variant):
+    if mutable_variant == mutable_variant.empty_variant:
+        return mutable_variant.empty_variant
+    else:
+        hatched = mutable_variant.immutable_variant(
+            mutable_variant.parent(), mutable_variant.diff_parent,
+            mutable_variant.base, mutable_variant.relation_to_base)
 
-    def hatch(self):
-        hatched = self.immutable_variant(
-            self.parent(), self.diff_parent, self.base, self.relation_to_base)
-
-        # make self unusable; references to self should be deleted so memory can be reclaimed.
-        del self.base
-        del self.diff_base
+        # make mutable_variant unusable; references to mutable_variant should be
+        # deleted so memory can be reclaimed.
+        del mutable_variant.base
+        del mutable_variant.diff_base
 
         return hatched
-
-
 
 
 def diff(left, right):

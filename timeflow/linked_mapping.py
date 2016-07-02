@@ -113,17 +113,8 @@ class LinkedDictionary(LinkedMapping, collections.MutableMapping):
 
 
     def hatch(self):
-        hatched = LinkedMapping(self.parent(), self.diff_parent, self.base, self.relation_to_base)
-
-        # make self unusable; references to self should be deleted so memory can be reclaimed.
-        # NB we cannot simply delete these attrs -- LinkedMapping.__del__ will make warnings.
-        del self.base
-        del self.diff_base
-
-        return hatched
-
-
-LinkedMapping.mutable_variant = LinkedDictionary
+        from linked_structure import hatch_egg
+        return hatch_egg(self)
 
 
 class EmptyLinkedMapping(EmptyMapping):
@@ -136,3 +127,8 @@ class EmptyLinkedMapping(EmptyMapping):
 
 
 empty_linked_mapping = EmptyLinkedMapping()
+
+
+LinkedMapping.mutable_variant = LinkedDictionary
+LinkedMapping.empty_variant = empty_linked_mapping
+LinkedDictionary.immutable_variant = LinkedMapping

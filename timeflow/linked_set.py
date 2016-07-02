@@ -80,6 +80,7 @@ class LinkedMutableSet(LinkedSet, collections.MutableSet):
     implementation.
 
     """
+    immutable_variant = LinkedSet
 
     def add(self, k):
         if self.relation_to_base is SELF:
@@ -110,18 +111,9 @@ class LinkedMutableSet(LinkedSet, collections.MutableSet):
 
 
     def hatch(self):
-        hatched = LinkedSet(self.parent(), self.diff_parent, self.base, self.relation_to_base)
+        from linked_structure import hatch_egg
+        return hatch_egg(self)
 
-        # make self unusable; references to self should be deleted so memory can be reclaimed.
-        # NB we cannot simply delete these attrs -- LinkedMapping.__del__ will make warnings.
-        del self.base
-        del self.diff_base
-
-        return hatched
-
-
-LinkedSet.mutable_variant = LinkedMutableSet
-LinkedMutableSet.immutable_variant = LinkedSet
 
 
 class EmptyLinkedSet(frozenset):
@@ -146,3 +138,8 @@ class EmptyLinkedSet(frozenset):
 
 
 empty_linked_set = EmptyLinkedSet()
+
+
+LinkedSet.mutable_variant = LinkedMutableSet
+LinkedSet.empty_variant = LinkedMutableSet
+LinkedMutableSet.immutable_variant = LinkedSet
