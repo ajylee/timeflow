@@ -86,7 +86,7 @@ class Plan(object):
         if instance_map_hatched.relation_to_base is not SELF:
             transfer_core(parent_event.instance, instance_map_hatched)
 
-        return Event(parent=parent_event, instance_map=instance_map_hatched)
+        return Event(instance_map=instance_map_hatched, parent=parent_event)
 
 
 class SubPlan(object):

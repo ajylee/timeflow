@@ -71,13 +71,21 @@ class NullEvent:
 
 
 class Event(object):
-    def __init__(self, parent=NullEvent, instance_map=None):
+    def __init__(self, instance_map, parent):
+        """Events in a timeline map flows to instances
+
+        :param linked_mapping.LinkedMapping instance_map:
+            maps flows to instances.
+
+        :param Event parent:
+            will be weak referenced, for walking event graph.
+
+        """
         self.parent = strong_ref(parent) if parent else empty_ref
         if parent:
             parent.child = weakref.ref(self)
 
-        self.instance = (instance_map if instance_map is not None
-                      else linked_mapping.empty_linked_mapping)
+        self.instance = instance_map
 
         self.child = empty_ref
         self.time = int(_time.time())
