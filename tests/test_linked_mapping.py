@@ -1,7 +1,8 @@
 import weakref
 import nose.tools
 
-from timeflow.linked_structure import (transfer_core, create_core_in, 
+from timeflow.linked_structure import (transfer_core, create_core_in,
+                                       hatch_egg_simple, hatch_egg_optimized,
                                        PARENT, CHILD, SELF, NO_VALUE, diff)
 from timeflow.linked_mapping import LinkedMapping
 
@@ -14,14 +15,14 @@ def setup_main_test_cases():
     aa_egg['constant'] = 100
     aa_egg['to_delete'] = 'to_delete_val'
 
-    aa = aa_egg.hatch(); del aa_egg
+    aa = hatch_egg_simple(aa_egg); del aa_egg
 
     bb_egg = aa.egg()
 
     bb_egg['varies'] = 20
     bb_egg['additional'] = 'additional_val'
     del bb_egg['to_delete']
-    bb = bb_egg.hatch(); del bb_egg
+    bb = hatch_egg_simple(bb_egg); del bb_egg
 
 
     desired_aa = {'varies': 10,
@@ -81,11 +82,11 @@ def test_memory_management():
     aa_egg['to_delete'] = X()
     aa_egg['to_keep'] = X()
 
-    aa = aa_egg.hatch(); del aa_egg
+    aa = hatch_egg_simple(aa_egg); del aa_egg
     bb_egg = aa.egg()
 
     del bb_egg['to_delete']
-    bb = bb_egg.hatch(); del bb_egg
+    bb = hatch_egg_simple(bb_egg); del bb_egg
 
     bb.diff_parent is not None
     test_ref = weakref.ref(aa['to_delete'])
@@ -106,13 +107,13 @@ def test_hatch_empty_mapping():
     aa_egg = LinkedMapping.first_egg({})
     aa_egg['to_delete'] = X()
 
-    aa = aa_egg.hatch(); del aa_egg
+    aa = hatch_egg_simple(aa_egg); del aa_egg
     bb_egg = aa.egg()
 
     del bb_egg['to_delete']
     assert not bb_egg
 
-    bb = bb_egg.hatch(); del bb_egg
+    bb = hatch_egg_optimized(bb_egg); del bb_egg
     assert not bb
     assert bb.relation_to_base == SELF
 

@@ -3,7 +3,8 @@ import itertools
 import weakref
 from .event import empty_ref
 from .linked_structure import (SELF, EmptyMapping, empty_mapping, LinkedStructure,
-                               PARENT, CHILD, DIFF_LEFT, DIFF_RIGHT)
+                               PARENT, CHILD, DIFF_LEFT, DIFF_RIGHT,
+                               hatch_egg_optimized)
 
 
 class LinkedSet(LinkedStructure, collections.Set):
@@ -109,10 +110,7 @@ class LinkedMutableSet(LinkedSet, collections.MutableSet):
         for elt in other:
             self.add(elt)
 
-
-    def hatch(self):
-        from linked_structure import hatch_egg
-        return hatch_egg(self)
+    hatch = hatch_egg_optimized
 
 
 

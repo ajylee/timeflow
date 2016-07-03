@@ -145,18 +145,40 @@ class LinkedStructure(object):
         pass
 
 
-def hatch_egg(mutable_variant):
-    if mutable_variant == mutable_variant.empty_variant:
-        return mutable_variant.empty_variant
-    else:
-        hatched = mutable_variant.immutable_variant(
-            mutable_variant.parent(), mutable_variant.diff_parent,
-            mutable_variant.base, mutable_variant.relation_to_base)
+def hatch_egg_simple(egg):
+    hatched = egg.immutable_variant(
+        egg.parent(), egg.diff_parent,
+        egg.base, egg.relation_to_base)
 
-        # make mutable_variant unusable; references to mutable_variant should be
-        # deleted so memory can be reclaimed.
-        del mutable_variant.base
-        del mutable_variant.diff_base
+    # make egg unusable; references to
+    # egg should be deleted so memory can be reclaimed.
+    del egg.base
+    del egg.diff_base
+
+    return hatched
+
+
+def hatch_egg_optimized(egg):
+    """Hatch egg, optimizing memory management"""
+
+    if egg == egg.empty_variant:
+        return egg.empty_variant
+    else:
+        _parent = egg.parent()
+        hatched = egg.immutable_variant(
+            _parent, egg.diff_parent,
+            egg.base, egg.relation_to_base)
+
+        # make egg unusable; references to
+        # egg should be deleted so memory can be reclaimed.
+        del egg.base
+        del egg.diff_base
+
+        if hatched.relation_to_base == CHILD:
+            if _parent.relation_to_base is SELF:
+                transfer_core(_parent, hatched)
+            else:
+                create_core_in(hatched)
 
         return hatched
 

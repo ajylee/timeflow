@@ -3,7 +3,8 @@ import itertools
 import weakref
 from .ref_tools import empty_ref
 from .linked_structure import (CHILD, SELF, NO_VALUE, EmptyMapping,
-                               empty_mapping, LinkedStructure, DIFF_LEFT, DIFF_RIGHT)
+                               empty_mapping, LinkedStructure, DIFF_LEFT, DIFF_RIGHT,
+                               hatch_egg_optimized)
 
 
 class LinkedMapping(LinkedStructure, collections.Mapping):
@@ -112,9 +113,7 @@ class LinkedDictionary(LinkedMapping, collections.MutableMapping):
                         raise KeyError, 'no such key'
 
 
-    def hatch(self):
-        from linked_structure import hatch_egg
-        return hatch_egg(self)
+    hatch = hatch_egg_optimized
 
 
 class EmptyLinkedMapping(EmptyMapping):

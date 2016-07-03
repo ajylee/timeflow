@@ -1,7 +1,7 @@
 import weakref
 import nose.tools
 
-from timeflow.linked_structure import (transfer_core, create_core_in,
+from timeflow.linked_structure import (transfer_core, create_core_in, hatch_egg_simple,
                                        CHILD, SELF, DIFF_LEFT, DIFF_RIGHT, diff)
 from timeflow.linked_set import LinkedSet
 
@@ -17,13 +17,13 @@ def setup_tests():
     aa_egg.add('always_here')
     aa_egg.add('to_delete')
 
-    aa = aa_egg.hatch(); del aa_egg
+    aa = hatch_egg_simple(aa_egg); del aa_egg
 
     bb_egg = aa.egg()
 
     bb_egg.add('added')
     bb_egg.remove('to_delete')
-    bb = bb_egg.hatch(); del bb_egg
+    bb = hatch_egg_simple(bb_egg); del bb_egg
 
     return aa, bb
 
@@ -82,12 +82,12 @@ def test_memory_management():
     x = X()
     aa_egg.add(x)
 
-    aa = aa_egg.hatch(); del aa_egg
+    aa = hatch_egg_simple(aa_egg); del aa_egg
 
     bb_egg = aa.egg()
     bb_egg.remove(x); del x
 
-    bb = bb_egg.hatch(); del bb_egg
+    bb = hatch_egg_simple(bb_egg); del bb_egg
 
     assert bb.diff_parent is not None
     for elt in aa:
