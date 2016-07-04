@@ -55,6 +55,12 @@ inf = _Infinity()
 _neg_inf = _NegativeInfinity()
 
 
+def _drop_from_tuple(tt, element):
+    if len(tt) == 1:
+        return ()
+    else:
+        return tuple(elt for elt in tt if elt is not element)
+
 
 # #########
 
@@ -62,6 +68,9 @@ class NullEvent:
     instance = linked_mapping.empty_linked_mapping
     time = -inf
     count = 0
+
+    def __init__(self):
+        self.referrers = ()
 
     @staticmethod
     def get_flow_instance(flow):
@@ -81,13 +90,12 @@ class Event(object):
             will be weak referenced, for walking event graph.
 
         """
-        self.parent = strong_ref(parent) if parent else empty_ref
-        if parent:
-            parent.child = weakref.ref(self)
+        self.parent = parent
+        parent.referrers += (self,)
 
         self.instance = instance_map
 
-        self.child = empty_ref
+        self.referrers = ()
         self.time = int(_time.time())
 
         if parent and parent.time == self.time:
@@ -110,7 +118,16 @@ class Event(object):
         return 'Event(time={self.time}, count={self.count})'.format(self=self)
 
     def forget_parent(self):
-        self.parent = empty_ref
+        _parent = self.parent
+        _parent.referrers = _drop_from_tuple(_parent.referrers, self)
+        self.parent = None
+
+
+def walk_to_fork(event):
+    while len(event.referrers) < 2:
+        event = event.parent
+
+    return event
 
 
 def walk(self, steps=1):
@@ -121,12 +138,13 @@ def walk(self, steps=1):
         nn = nn - 1
 
         if steps > 0:
-            target = target.child()
-            if target is None:
+            try:
+                target = target.referrers[0]
+            except IndexError:
                 raise ValueError, 'No child'
 
         else:
-            target = target.parent()
+            target = target.parent
 
             if target is None:
                 return NullEvent

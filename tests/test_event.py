@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 
 def test_child():
-    e0 = Event(empty_mapping, NullEvent)
+    e0 = Event(empty_mapping, NullEvent())
     e1 = Event(empty_mapping, e0)
     e2 = Event(empty_mapping, e1)
 
@@ -23,7 +23,7 @@ def test_child():
     assert e0 < e1 < e2
 
 def test_event_time_collision():
-    parent_event = Event({}, NullEvent)
+    parent_event = Event({}, NullEvent())
 
     count = 0
 
