@@ -82,6 +82,7 @@ class LinkedStructure(object):
     # Abstract attribute; needs to be set in subclass.
     mutable_variant = None
 
+    alt_bases = None  # used in creating/deleting forks.
 
     def __init__(self, parent, diff_parent, base, relation_to_base):
         weak_self = weakref.ref(self)
@@ -160,6 +161,7 @@ def hatch_egg_simple(egg):
 
 def hatch_egg_optimized(egg):
     """Hatch egg, optimizing memory management"""
+    # TODO: rename this func to "hatch_egg_and_manage_memory"
 
     if egg == egg.empty_variant:
         return egg.empty_variant
@@ -179,6 +181,10 @@ def hatch_egg_optimized(egg):
                 transfer_core(_parent, hatched)
             else:
                 create_core_in(hatched)
+                if _parent.alt_bases:
+                    _parent.alt_bases.append(hatched)
+                else:
+                    _parent.alt_bases = []
 
         return hatched
 
@@ -187,6 +193,13 @@ def create_core_in(linked_structure):
     linked_structure.base = linked_structure.core_type(linked_structure)
     linked_structure.diff_base = empty_mapping
     linked_structure.relation_to_base = SELF
+
+
+def walk_to_core(linked_structure):
+    path = [linked_structure]
+    while path[-1].relation_to_base != SELF:
+        path.append(path[-1].base)
+    return path
 
 
 def diff(left, right):
