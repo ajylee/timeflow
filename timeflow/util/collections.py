@@ -49,25 +49,3 @@ def clean_if_empty(dd, key):
 
 _callback_refs = []   # contains weakrefs whose only function is to call cleanup
                      # callbacks
-
-def clean_if_empty_and_isolated(dd, event, key):
-    # Note: do not call if it has children
-
-    val = dd.get(key, _key_error)
-    if val is _key_error:
-        return
-
-    resolved = val.read_at(event)
-
-    if not resolved:
-        def callback(_unused):
-            if not event.child():
-                try:
-                    del dd[key]
-                except KeyError:
-                    pass
-
-        if resolved.parent() is None:
-            callback(None)
-        else:
-            _callback_refs.append(weakref.ref(resolved.parent(), callback))
