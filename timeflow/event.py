@@ -68,6 +68,7 @@ class NullEvent:
     instance = linked_mapping.empty_linked_mapping
     time = -inf
     count = 0
+    parent = None
 
     def __init__(self):
         self.referrers = ()
@@ -112,7 +113,8 @@ class Event(object):
         return hash((self.time, self.count))
 
     def __repr__(self):
-        return 'Event(time={self.time}, count={self.count})'.format(self=self)
+        return 'Event(time={self.time}, count={self.count}, id={id})'.format(
+            self=self, id=hex(id(self)))
 
     @property
     def time_order(self):
@@ -127,8 +129,8 @@ class Event(object):
 def walk_to_fork(event):
     path = [event]
     while len(path[-1].referrers) < 2:
-        if event.parent:
-            path.append(event.parent)
+        if path[-1].parent:
+            path.append(path[-1].parent)
         else:
             return path, False
 
@@ -146,11 +148,12 @@ def in_live_event(linked_structure):
         for d2 in gc.get_referrers(d1)
         if isinstance(d2, dict) and d2.get('instance') is d1
         for event in gc.get_referrers(d2)
-        if (isinstance(event, Event) and Event.__dict__ is d2
+        if (isinstance(event, Event) and event.__dict__ is d2
             and event.referrers)
     )
 
     for _event in event_referrers:
+        del event_referrers
         return True
     else:
         return False

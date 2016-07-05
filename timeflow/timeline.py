@@ -1,20 +1,23 @@
 import collections
 import uuid
 import operator
+import weakref
 from abc import abstractmethod
 
 import toolz
 
-from .event import Event, NullEvent, _drop_from_tuple, in_live_event
+from .event import Event, NullEvent, _drop_from_tuple, walk_to_fork, in_live_event
 from .plan import Plan
-from .linked_structure import walk_to_core, SELF, PARENT, CHILD
+from .linked_structure import (LinkedStructure, transfer_core, walk_to_core,
+                               SELF, PARENT, CHILD)
 
 now = ('now', uuid.UUID('5e625fb4-7574-4720-bb91-3a598d2332bd'))
 
 class TimeLine(object):
     def __init__(self, HEAD=None):
         self.HEAD = HEAD if HEAD is not None else NullEvent()
-        self.HEAD.referrers += (self,)
+        self.ref = weakref.ref(self)
+        self.HEAD.referrers += (self.ref,)
 
     #@property
     #def instance(self):
@@ -29,14 +32,15 @@ class TimeLine(object):
         assert base_event == self.HEAD
         self.HEAD = plan.hatch()
 
-        base_event.referrers = _drop_from_tuple(base_event.referrers, self)
-        self.HEAD.referrers += (self,)
+        base_event.referrers = _drop_from_tuple(base_event.referrers, self.ref)
+        self.HEAD.referrers += (self.ref,)
 
         return self.HEAD
 
     def __del__(self):
         """Update Event.referrers, LinkedStructure.base, alt_bases"""
-        self.HEAD.referrers = _drop_from_tuple(self.HEAD.referrers, self)
+        print 'delete'
+        self.HEAD.referrers = _drop_from_tuple(self.HEAD.referrers, self.ref)
         _event = self.HEAD
         path_to_fork, has_fork = walk_to_fork(self.HEAD)
 
