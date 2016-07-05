@@ -20,7 +20,7 @@ def test_child():
     assert walk(e2, -1) == e1
     assert walk(e2, -2) == e0
 
-    assert e0 < e1 < e2
+    assert e0.time_order < e1.time_order < e2.time_order
 
 def test_event_time_collision():
     parent_event = Event({}, NullEvent())
@@ -36,7 +36,7 @@ def test_event_time_collision():
             #print parent_event
             count = count + 1
 
-        assert event > parent_event
+        assert event.time_order > parent_event.time_order
 
         parent_event = event
 

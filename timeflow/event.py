@@ -111,11 +111,12 @@ class Event(object):
     def __hash__(self):
         return hash((self.time, self.count))
 
-    def __cmp__(self, other):
-        return cmp((self.time, self.count), (other.time, other.count))
-
     def __repr__(self):
         return 'Event(time={self.time}, count={self.count})'.format(self=self)
+
+    @property
+    def time_order(self):
+        return (self.time, self.count)
 
     def forget_parent(self):
         _parent = self.parent
