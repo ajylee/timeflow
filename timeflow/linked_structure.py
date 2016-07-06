@@ -149,6 +149,14 @@ class LinkedStructure(object):
         """Reverses left/right polarity of an item from :meth:`_diff`"""
         pass
 
+    def _get_self(self):
+        # only used in :prop:`unproxied_base`
+        return self
+
+    @property
+    def unproxied_base(self):
+        return self.base if self.relation_to_base == SELF else self.base._get_self()
+
     def _remove_alt_base(self, alt_base):
         """Weakref callback for cleaning up dead alt_base ref
 
@@ -211,7 +219,7 @@ class LinkedStructure(object):
 def hatch_egg_simple(egg):
     hatched = egg.immutable_variant(
         egg.parent(), egg.diff_parent,
-        egg.base, egg.relation_to_base)
+        egg.unproxied_base, egg.relation_to_base)
 
     # make egg unusable; references to
     # egg should be deleted so memory can be reclaimed.
@@ -231,7 +239,7 @@ def hatch_egg_optimized(egg):
         _parent = egg.parent()
         hatched = egg.immutable_variant(
             _parent, egg.diff_parent,
-            egg.base, egg.relation_to_base)
+            egg.unproxied_base, egg.relation_to_base)
 
         # make egg unusable; references to
         # egg should be deleted so memory can be reclaimed.
@@ -262,7 +270,7 @@ def create_core_in(linked_structure):
 def walk_to_core(linked_structure):
     path = [linked_structure]
     while path[-1].relation_to_base != SELF:
-        path.append(path[-1].base)
+        path.append(path[-1].unproxied_base)
     return path
 
 
@@ -270,7 +278,7 @@ def diff(left, right):
     if left is right:
         return ()
 
-    elif left.base is right:
+    elif left.unproxied_base is right:
         # NB: Cannot branch here if (left.relation_to_base is SELF)
         if left.relation_to_base is PARENT:
             return left.diff_base.iteritems()
@@ -278,7 +286,7 @@ def diff(left, right):
             return (left._reverse_diff(item)
                     for item in left.diff_base.iteritems())
 
-    elif right.base is left:
+    elif right.unproxied_base is left:
         # NB: Cannot branch here if (left.relation_to_base is SELF)
         if right.relation_to_base is CHILD:
             return right.diff_base.iteritems()
