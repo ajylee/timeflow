@@ -137,28 +137,6 @@ def walk_to_fork(event):
     return path, True
 
 
-def in_live_event(linked_structure):
-    """Whether linked_structure is referred to by an event that has referrers"""
-
-    import gc
-    event_referrers = (
-        event
-        for d1 in gc.get_referrers(linked_structure)
-        if isinstance(d1, dict)
-        for d2 in gc.get_referrers(d1)
-        if isinstance(d2, dict) and d2.get('instance') is d1
-        for event in gc.get_referrers(d2)
-        if (isinstance(event, Event) and event.__dict__ is d2
-            and event.referrers)
-    )
-
-    for _event in event_referrers:
-        del event_referrers
-        return True
-    else:
-        return False
-
-
 def walk(self, steps=1):
     target = self
     nn = abs(steps)

@@ -2,6 +2,10 @@ from abc import abstractmethod
 import weakref
 import collections
 import uuid
+import itertools
+
+import toolz
+
 
 NO_VALUE = ('NO_VALUE', uuid.UUID('db62de11-7c24-11e5-91b3-b88d12001ea8'))
 
@@ -82,7 +86,7 @@ class LinkedStructure(object):
     # Abstract attribute; needs to be set in subclass.
     mutable_variant = None
 
-    alt_bases = None  # used in creating/deleting forks.
+    alt_bases = ()  # used in creating/deleting forks.
 
     def __init__(self, parent, diff_parent, base, relation_to_base):
         weak_self = weakref.ref(self)
@@ -145,6 +149,64 @@ class LinkedStructure(object):
         """Reverses left/right polarity of an item from :meth:`_diff`"""
         pass
 
+    def _remove_alt_base(self, alt_base):
+        """Weakref callback for cleaning up dead alt_base ref
+
+        :param weakref.ReferenceType alt_base: weakref to an alt base
+
+        """
+        self.alt_bases = tuple(_elt for _elt in self.alt_bases
+                            if _elt is not alt_base)
+
+        if not self.alt_bases:
+            del self.alt_bases
+            if type(self.base) is weakref.ProxyType:
+                self.base = self.base.__hash__.__self__
+
+
+    def __del__(self):
+        # search up to
+        try:
+            if self.parent().relation_to_base != PARENT:
+                return
+        except AttributeError:
+            return
+
+        try:
+            self.parent().base  # if succeeds, no need to do anything
+            return
+        except weakref.ReferenceError:
+            pass
+
+        _parent = self.parent()
+
+        if _parent.alt_bases:
+            # set _parent base to an alternative
+            new_base = _parent.alt_bases[0]()
+            _parent.set_base(new_base)
+
+            # figure relation of _parent to new_base
+            if new_base.parent() is _parent:
+                relation_to_base = PARENT
+            elif _parent.parent() is new_base:
+                relation_to_base = CHILD
+            else:
+                raise ValueError, "invalid relation_to_base"
+
+            _parent.set_base(new_base, relation_to_base)
+
+            _rest_alt_bases = _parent.alt_bases[1:]
+            if not _rest_alt_bases:
+                del _parent.alt_bases
+            else:
+                _parent.alt_bases = _rest_alt_bases
+        else:
+            # move core to parent
+            _path = walk_to_core(self)
+            _path.reverse()  # now _path is from core to self
+            for ls1, ls2 in toolz.sliding_window(2, itertools.chain(_path, (_parent,))):
+                transfer_core(ls1, ls2)
+
 
 def hatch_egg_simple(egg):
     hatched = egg.immutable_variant(
@@ -180,11 +242,13 @@ def hatch_egg_optimized(egg):
             if _parent.relation_to_base is SELF:
                 transfer_core(_parent, hatched)
             else:
+                # creating a fork
                 create_core_in(hatched)
+                if type(_parent.base) is not weakref.ProxyType:
+                    _parent.base = weakref.proxy(_parent.base)
                 if _parent.alt_bases:
-                    _parent.alt_bases.append(hatched)
-                else:
-                    _parent.alt_bases = []
+                    _parent.alt_bases += (
+                        weakref.ref(hatched, _parent._remove_alt_base),)
 
         return hatched
 

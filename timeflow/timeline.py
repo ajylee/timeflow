@@ -6,7 +6,7 @@ from abc import abstractmethod
 
 import toolz
 
-from .event import Event, NullEvent, _drop_from_tuple, walk_to_fork, in_live_event
+from .event import Event, NullEvent, _drop_from_tuple, walk_to_fork
 from .plan import Plan
 from .linked_structure import (LinkedStructure, transfer_core, walk_to_core,
                                SELF, PARENT, CHILD)
@@ -47,38 +47,14 @@ class TimeLine(object):
         for _event, _parent in toolz.sliding_window(2, path_to_fork):
             _parent.referrers = _drop_from_tuple(_parent.referrers, _event)
 
-        if has_fork:
-            fork = path_to_fork[-1]
-            del path_to_fork
+        #if has_fork:
+        #    fork = path_to_fork[-1]
+        #    del path_to_fork
 
-            for maybe_linked_structure in toolz.cons(fork.instance,
-                                                     fork.instance.itervalues()):
-                if isinstance(maybe_linked_structure, LinkedStructure):
-                    _update_base_and_alt_bases(maybe_linked_structure)
-
-
-def _update_base_and_alt_bases(linked_structure_):
-    to_keep = list(filter(in_live_event, linked_structure_.alt_bases))
-
-    if (linked_structure_.relation_to_base == SELF or
-        in_live_event(linked_structure_.base)):
-        linked_structure_.alt_bases = to_keep or None
-
-    elif to_keep:
-            if linked_structure_.base.parent() is linked_structure_:
-                relation_to_base = PARENT
-            elif linked_structure_.parent() is linked_structure_.base:
-                relation_to_base = CHILD
-            else:
-                raise ValueError, "invalid relation_to_base"
-            linked_structure_.set_base(to_keep[0], relation_to_base)
-            linked_structure_.alt_bases = to_keep[1:] or None
-    else:
-        linked_structure_.alt_bases = None
-        _path = walk_to_core(linked_structure_)
-        _path.reverse()  # now _path is from core to linked_structure_
-        for ls1, ls2 in toolz.sliding_window(2, _path):
-            transfer_core(ls1, ls2)
+        #    for maybe_linked_structure in toolz.cons(fork.instance,
+        #                                             fork.instance.itervalues()):
+        #        if isinstance(maybe_linked_structure, LinkedStructure):
+        #            ls = maybe_linked_structure
 
 
 class StepLine(TimeLine):

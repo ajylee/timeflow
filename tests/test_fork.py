@@ -17,7 +17,7 @@ def setup_first_timeline():
         {mflow: {'a': 'a1'}},
         {mflow: {'a': 'a2'}},
         {mflow: {'a': 'a_3 branch_0'}},]
-               
+
     for elt in _updates:
         _plan = tl.new_plan()
 
@@ -47,8 +47,10 @@ def test_fork_1():
     #print gc.get_referrers(tl_head())
 
     import inspect, gc
+    del tl_2
+
+    #aa = gc.get_referrers(tl_head())
+    #print gc.get_referrers(aa[0])
 
     assert wr_tl() is None or gc.get_referrers(wr_tl()) == []
     assert tl_head() is None or gc.get_referrers(tl_head()) == [],  (gc.get_referrers(tl_head()))
-
-    del tl_2
