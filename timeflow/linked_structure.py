@@ -208,6 +208,7 @@ class LinkedStructure(object):
                 del _parent.alt_bases
             else:
                 _parent.alt_bases = _rest_alt_bases
+                _parent.base = weakref.proxy(_parent.base)
         else:
             # move core to parent
             _path = walk_to_core(self)
@@ -254,9 +255,8 @@ def hatch_egg_optimized(egg):
                 create_core_in(hatched)
                 if type(_parent.base) is not weakref.ProxyType:
                     _parent.base = weakref.proxy(_parent.base)
-                if _parent.alt_bases:
-                    _parent.alt_bases += (
-                        weakref.ref(hatched, _parent._remove_alt_base),)
+                _parent.alt_bases += (
+                    weakref.ref(hatched, _parent._remove_alt_base),)
 
         return hatched
 
