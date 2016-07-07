@@ -169,7 +169,7 @@ class LinkedStructure(object):
         if not self.alt_bases:
             del self.alt_bases
             if type(self.base) is weakref.ProxyType:
-                self.base = self.base.__hash__.__self__
+                self.base = self.unproxied_base
 
 
     def __del__(self):
