@@ -13,11 +13,10 @@ from .linked_structure import (LinkedStructure, transfer_core, walk_to_core,
 
 now = ('now', uuid.UUID('5e625fb4-7574-4720-bb91-3a598d2332bd'))
 
-def non_independent_linked_structures(event):
+def referent_linked_structures(event):
     for _elt in toolz.cons(event.instance, event.instance.itervalues()):
         try:
-            if _elt.relation_to_base != SELF:
-                yield _elt
+            yield _elt
         except AttributeError:
             pass
 
@@ -48,7 +47,6 @@ class TimeLine(object):
 
     def __del__(self):
         """Update Event.referrers, LinkedStructure.base, alt_bases"""
-        print 'delete'
         self.HEAD.referrers = _drop_from_tuple(self.HEAD.referrers, self.ref)
         _event = self.HEAD
         path_to_fork, has_fork = walk_to_fork(self.HEAD)
@@ -56,12 +54,14 @@ class TimeLine(object):
         for _event, _parent in toolz.sliding_window(2, path_to_fork):
             _parent.referrers = _drop_from_tuple(_parent.referrers, _event)
 
-        if has_fork:
+        if has_fork and all(isinstance(_referrer, TimeLine)
+                            for _referrer in path_to_fork[-1].referrers):
             # covers case where there is no fork topology; i.e. a branch has
             # been started but no fork commit has been made.
             fork = path_to_fork[-1]
             for _elt in non_independent_linked_structures(fork):
-                if type(_elt.base) is not weakref.ProxyType:
+                if (_elt.relation_to_base == PARENT
+                    and type(_elt.base) is not weakref.ProxyType):
                     _parent.base = weakref.proxy(_parent.base)
 
         #if has_fork:
