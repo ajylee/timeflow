@@ -7,8 +7,35 @@ from .linked_structure import (SELF, EmptyMapping, empty_mapping, LinkedStructur
                                hatch_egg_optimized)
 
 
+class EmptyLinkedSet(frozenset):
+
+    def __init__(self):
+        self.parent = empty_ref
+        self.relation_to_base = SELF
+
+    @staticmethod
+    def __contains__(key):
+        return False
+
+    @staticmethod
+    def __iter__():
+        return iter(())
+
+    @staticmethod
+    def __len__():
+        return 0
+
+    def egg(self):
+        return LinkedSet.first_egg(set())
+
+empty_linked_set = EmptyLinkedSet()
+
+
 class LinkedSet(LinkedStructure, collections.Set):
     # mutable_variant is set after LinkedMutableSet is defined
+
+    core_type = set
+    empty_variant = empty_linked_set
 
     def __contains__(self, k):
         try:
@@ -81,7 +108,6 @@ class LinkedMutableSet(LinkedSet, collections.MutableSet):
     implementation.
 
     """
-    immutable_variant = LinkedSet
 
     def add(self, k):
         if self.relation_to_base is SELF:
@@ -113,33 +139,5 @@ class LinkedMutableSet(LinkedSet, collections.MutableSet):
     hatch = hatch_egg_optimized
 
 
-
-class EmptyLinkedSet(frozenset):
-
-    def __init__(self):
-        self.parent = empty_ref
-        self.relation_to_base = SELF
-
-    @staticmethod
-    def __contains__(key):
-        return False
-
-    @staticmethod
-    def __iter__():
-        return iter(())
-
-    @staticmethod
-    def __len__():
-        return 0
-
-    def egg(self):
-        return LinkedSet.first_egg(set())
-
-
-empty_linked_set = EmptyLinkedSet()
-
-
 LinkedSet.mutable_variant = LinkedMutableSet
-LinkedSet.empty_variant = LinkedMutableSet
-LinkedSet.core_type = set
 LinkedMutableSet.immutable_variant = LinkedSet

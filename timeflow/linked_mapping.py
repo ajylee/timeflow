@@ -7,7 +7,22 @@ from .linked_structure import (CHILD, SELF, NO_VALUE, EmptyMapping,
                                hatch_egg_optimized)
 
 
+class EmptyLinkedMapping(EmptyMapping):
+
+    def __init__(self):
+        self.parent = empty_ref
+        self.relation_to_base = SELF
+
+    def egg(self):
+        return LinkedMapping.first_egg({})
+
+empty_linked_mapping = EmptyLinkedMapping()
+
+
 class LinkedMapping(LinkedStructure, collections.Mapping):
+
+    core_type = dict
+    empty_variant = empty_linked_mapping
 
     def __init__(self, parent, diff_parent, base, relation_to_base):
         assert not isinstance(parent, collections.MutableMapping)
@@ -116,20 +131,5 @@ class LinkedDictionary(LinkedMapping, collections.MutableMapping):
     hatch = hatch_egg_optimized
 
 
-class EmptyLinkedMapping(EmptyMapping):
-
-    def __init__(self):
-        self.parent = empty_ref
-        self.relation_to_base = SELF
-
-    def egg(self):
-        return LinkedMapping.first_egg({})
-
-
-empty_linked_mapping = EmptyLinkedMapping()
-
-
 LinkedMapping.mutable_variant = LinkedDictionary
-LinkedMapping.empty_variant = empty_linked_mapping
-LinkedMapping.core_type = dict
 LinkedDictionary.immutable_variant = LinkedMapping

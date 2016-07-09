@@ -1,3 +1,4 @@
+import six
 from abc import abstractmethod, ABCMeta
 import weakref
 import collections
@@ -52,6 +53,7 @@ class EmptyMapping(collections.Mapping):
 empty_mapping = EmptyMapping()
 
 
+@six.add_metaclass(ABCMeta)
 class LinkedStructure(object):
     """LinkedStructure
 
@@ -82,11 +84,11 @@ class LinkedStructure(object):
 
     """
 
-    __metaclass__ = ABCMeta
-
     # A class that adds mutability to the LinkedStructure.
     # Abstract attribute; needs to be set in subclass.
     mutable_variant = None
+    core_type = None
+    empty_variant = None
 
     alt_bases = ()  # used in creating/deleting forks.
 
