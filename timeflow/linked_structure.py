@@ -174,24 +174,23 @@ class LinkedStructure(object):
 
     def __del__(self):
         # search up to
+        _parent = self.parent()
+
         try:
-            if self.parent().relation_to_base != PARENT:
+            if _parent.relation_to_base != PARENT:
                 return
         except AttributeError:
             return
 
         try:
-            self.parent().base  # if succeeds, no need to do anything
+            _parent.base.relation_to_base  # if succeeds, no need to do anything
             return
         except weakref.ReferenceError:
             pass
 
-        _parent = self.parent()
-
         if _parent.alt_bases:
             # set _parent base to an alternative
             new_base = _parent.alt_bases[0]()
-            _parent.set_base(new_base)
 
             # figure relation of _parent to new_base
             if new_base.parent() is _parent:
