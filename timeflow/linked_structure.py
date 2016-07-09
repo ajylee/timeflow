@@ -1,4 +1,4 @@
-from abc import abstractmethod
+from abc import abstractmethod, ABCMeta
 import weakref
 import collections
 import uuid
@@ -81,6 +81,8 @@ class LinkedStructure(object):
     :attr:diff_parent is automatically removed if the parent has no strong refs.
 
     """
+
+    __metaclass__ = ABCMeta
 
     # A class that adds mutability to the LinkedStructure.
     # Abstract attribute; needs to be set in subclass.
