@@ -1,8 +1,12 @@
-from abc import abstractmethod
+import six
+from abc import abstractmethod, ABCMeta, abstractproperty
 
-
+@six.add_metaclass(ABCMeta)
 class Flow(object):
-    default = 'need override'
+
+    @abstractproperty
+    def default():
+        pass
 
     @classmethod
     @abstractmethod
@@ -15,7 +19,7 @@ class Flow(object):
     def read_at(self, event_like):
         return event_like.read_flow_instance(self)
 
-        
+
 class StructureFlow(Flow):
 
     @classmethod
