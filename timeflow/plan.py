@@ -2,7 +2,7 @@ import collections
 from functools import partial
 import weakref
 
-from linked_structure import SELF, CHILD
+from .linked_structure import SELF, CHILD
 from .event import Event
 
 
@@ -65,7 +65,7 @@ class Plan(object):
         parent_instance_map = self.base_event.instance
         instance_map = parent_instance_map.egg()
 
-        for flow, instance in self.stage.iteritems():
+        for flow, instance in self.stage.items():
             try:
                 hatched_item = instance.hatch()
             except AttributeError:
@@ -118,9 +118,8 @@ class OldSubPlan(Plan):
         self.category = super_plan.categories[self.category_key]
         self.super_plan = super_plan
         self.stage = super_plan.stage
-        self.readable = reduce(set.union,
-                            (super_plan.categories[_key]
-                             for _key in readable_category_keys))
+        self.readable = set.union(* (super_plan.categories[_key]
+                                  for _key in readable_category_keys))
 
     def __setitem__(self, timeline, small_stage):
         self.super_plan[timeline] = small_stage
@@ -134,7 +133,7 @@ class OldSubPlan(Plan):
             if timeline not in self.super_plan:
                 return timeline.at_time(self.super_plan.base_event)
             else:
-                raise KeyError, 'Access denied to timeline {}'.format(timeline)
+                raise KeyError('Access denied to timeline {}'.format(timeline))
         else:
             return self.super_plan.stage[timeline]
 

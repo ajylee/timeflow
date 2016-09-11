@@ -39,7 +39,7 @@ class EmptyMapping(collections.Mapping):
 
     @staticmethod
     def __getitem__(key):
-        raise KeyError
+        raise(KeyError)
 
     @staticmethod
     def __iter__():
@@ -202,7 +202,7 @@ class LinkedStructure(object):
             elif _parent.parent() is new_base:
                 relation_to_base = CHILD
             else:
-                raise ValueError, "invalid relation_to_base"
+                raise ValueError("invalid relation_to_base")
 
             _parent.set_base(new_base, relation_to_base)
 
@@ -284,18 +284,18 @@ def diff(left, right):
     elif left.unproxied_base is right:
         # NB: Cannot branch here if (left.relation_to_base is SELF)
         if left.relation_to_base is PARENT:
-            return left.diff_base.iteritems()
+            return left.diff_base.items()
         else:
             return (left._reverse_diff(item)
-                    for item in left.diff_base.iteritems())
+                    for item in left.diff_base.items())
 
     elif right.unproxied_base is left:
         # NB: Cannot branch here if (left.relation_to_base is SELF)
         if right.relation_to_base is CHILD:
-            return right.diff_base.iteritems()
+            return right.diff_base.items()
         else:
             return (right._reverse_diff(item) for item in
-                    right.diff_base.iteritems())
+                    right.diff_base.items())
 
     else:
         return left._diff(left, right)

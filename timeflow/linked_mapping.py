@@ -44,12 +44,12 @@ class LinkedMapping(LinkedStructure, collections.Mapping):
 
     def __iter__(self):
         return itertools.chain(
-            (k for k,v in self.diff_base.iteritems() if v[self.relation_to_base] != NO_VALUE),
+            (k for k,v in self.diff_base.items() if v[self.relation_to_base] != NO_VALUE),
             (k for k in self.base if k not in self.diff_base))
 
     def __len__(self):
         count = len(self.base)
-        for k,v in self.diff_base.iteritems():
+        for k,v in self.diff_base.items():
             if v[self.relation_to_base] is NO_VALUE:
                 count -= 1
             elif k not in self.base:
@@ -72,12 +72,12 @@ class LinkedMapping(LinkedStructure, collections.Mapping):
 
     @staticmethod
     def _diff(left, right):
-        for key, left_val in left.iteritems():
+        for key, left_val in left.items():
             right_val = right.get(key, NO_VALUE)
             if left_val != right_val:
                 yield (key, (left_val, right_val))
 
-        for key, right_val in right.iteritems():
+        for key, right_val in right.items():
             if key not in left:
                 yield (key, (NO_VALUE, right_val))
 
@@ -125,7 +125,7 @@ class LinkedDictionary(LinkedMapping, collections.MutableMapping):
                     try:
                         del self.diff_parent[k]
                     except KeyError:
-                        raise KeyError, 'no such key'
+                        raise KeyError('no such key')
 
 
     hatch = hatch_egg_optimized

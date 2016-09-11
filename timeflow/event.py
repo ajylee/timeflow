@@ -1,8 +1,8 @@
 import time as _time
 import bisect
 import weakref
-import linked_mapping
-from ref_tools import strong_ref, empty_ref
+from . import linked_mapping
+from .ref_tools import strong_ref, empty_ref
 
 
 
@@ -10,7 +10,7 @@ def representative_event(events, event):
     """If event is not in the list of events, return the event recorded just before."""
     index = bisect.bisect_right(events, event)
     if index == 0:
-        raise ValueError, "requested time too early in timeline"
+        raise ValueError("requested time too early in timeline")
     else:
         return events[index - 1]
 
@@ -148,7 +148,7 @@ def walk(self, steps=1):
             try:
                 target = target.referrers[0]
             except IndexError:
-                raise ValueError, 'No child'
+                raise ValueError('No child')
 
         else:
             target = target.parent

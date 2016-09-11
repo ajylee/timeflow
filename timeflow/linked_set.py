@@ -45,12 +45,12 @@ class LinkedSet(LinkedStructure, collections.Set):
 
     def __iter__(self):
         return itertools.chain(
-            (k for k,v in self.diff_base.iteritems() if v is self.relation_to_base),
+            (k for k,v in self.diff_base.items() if v is self.relation_to_base),
             (k for k in self.base if k not in self.diff_base))
 
     def __len__(self):
         count = len(self.base)
-        for k,v in self.diff_base.iteritems():
+        for k,v in self.diff_base.items():
             if v is self.relation_to_base:
                 count += 1
             else:

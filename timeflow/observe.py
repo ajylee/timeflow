@@ -7,7 +7,7 @@ class TDObserver(object):
 
     def __getitem__(self, time):
         return rule(*[oa[time] for oa in observed_args],
-                    **{k:v[time] for k,v in observed_kwargs.iteritems()})
+                    **{k:v[time] for k,v in observed_kwargs.items()})
 
 
 def TDRule(rule):
