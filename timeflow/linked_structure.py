@@ -189,7 +189,7 @@ class LinkedStructure(object):
         try:
             _parent.base.relation_to_base  # if succeeds, no need to do anything
             return
-        except weakref.ReferenceError:
+        except ReferenceError:
             pass
 
         if _parent.alt_bases:
