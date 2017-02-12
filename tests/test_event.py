@@ -41,4 +41,4 @@ def test_event_time_collision():
         parent_event = event
 
         if event.time - start_time > 5:
-            raise ValueError, 'Aborting test; use a faster setup.'
+            raise ValueError('Aborting test; use a faster setup.')
