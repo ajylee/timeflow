@@ -19,7 +19,7 @@ def test_weak_key_default_dictionary_1():
 
     _inner()
 
-    assert wkd.items() == []
+    assert list(wkd.items()) == []
 
 
 def test_weak_value_default_dictionary():
@@ -40,7 +40,7 @@ def test_weak_value_default_dictionary():
 
     del strong_refs[:]
 
-    assert wvd.items() == []
+    assert list(wvd.items()) == []
 
 
 def test_clean():
