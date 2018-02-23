@@ -158,7 +158,7 @@ def test_diff():
 
     assert dict(diff(aa, bb)) == {'varies': (10, 20),
                                   'to_delete': ('to_delete_val', NO_VALUE),
-                                  'additional': (NO_VALUE, 'additional_val')}, dict(diff(bb, aa))
+                                  'additional': (NO_VALUE, 'additional_val')}, dict(diff(aa, bb))
 
 
     assert dict(diff(bb, aa)) == {k: (v[1], v[0]) for k,v in diff(aa, bb)}
