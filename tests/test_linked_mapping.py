@@ -1,5 +1,5 @@
 import weakref
-import nose.tools
+import pytest
 
 from timeflow.linked_structure import (transfer_core, create_core_in,
                                        hatch_egg_simple, hatch_egg_optimized,
@@ -7,7 +7,7 @@ from timeflow.linked_structure import (transfer_core, create_core_in,
 from timeflow.linked_mapping import LinkedMapping
 
 
-@nose.tools.nottest
+@pytest.mark.skip(reason='not a test')
 def setup_main_test_cases():
 
     aa_egg = LinkedMapping.first_egg({})
@@ -126,30 +126,30 @@ def test_linked_dictionary_error_handling():
     aa, bb, _unused_1, _unused_2 = setup_main_test_cases()
     cc_egg = bb.egg()
 
-    with nose.tools.assert_raises(KeyError):
+    with pytest.raises(KeyError):
         aa['no_such_key']
 
 
-    with nose.tools.assert_raises(KeyError):
+    with pytest.raises(KeyError):
         bb['to_delete']
 
-    with nose.tools.assert_raises(KeyError):
+    with pytest.raises(KeyError):
         bb['no_such_key']
 
-    with nose.tools.assert_raises(TypeError):
+    with pytest.raises(TypeError):
         del bb['no_such_key']
 
-    with nose.tools.assert_raises(TypeError):
+    with pytest.raises(TypeError):
         del bb['to_delete']
 
 
-    with nose.tools.assert_raises(KeyError):
+    with pytest.raises(KeyError):
         del cc_egg['no_such_key']
 
-    with nose.tools.assert_raises(KeyError):
+    with pytest.raises(KeyError):
         cc_egg['to_delete']
 
-    with nose.tools.assert_raises(KeyError):
+    with pytest.raises(KeyError):
         del cc_egg['to_delete']
 
 
