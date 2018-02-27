@@ -4,13 +4,20 @@ import weakref
 
 from .linked_structure import SELF, CHILD
 from .event import Event
+from .flow import Flow
 
 
 class Plan(object):
     modified_flow = 'modified_flow'
     new_flow = 'new_flow'
 
-    def __init__(self,  base_event, only_flows=None):
+    # statuses
+    planning = 'planning'
+    committed = 'committed'
+    committing = 'committing'
+    cancelled = 'cancelled'
+
+    def __init__(self,  base_event: Event, only_flows=None):
         self.only_flows = only_flows   # unimplemented; restricts modifications
 
         self.base_event = base_event
@@ -21,7 +28,9 @@ class Plan(object):
 
         self.frozen = set()    # a set of frozen flows
 
-    def get_flow_instance(self, flow):
+        self.status = self.planning
+
+    def get_flow_instance(self, flow: Flow):
         try:
             return self.stage[flow]
         except KeyError:
@@ -29,7 +38,7 @@ class Plan(object):
             self.stage[flow] = _stage
             return _stage
 
-    def read_flow_instance(self, flow):
+    def read_flow_instance(self, flow: Flow):
         try:
             return self.stage[flow]
         except KeyError:
@@ -39,13 +48,13 @@ class Plan(object):
     #    assert flow not in self.frozen, 'Tried to set frozen flow'
     #    self.stage[flow] = instance
 
-    def set_flow_instance(self, flow, value):
+    def set_flow_instance(self, flow: Flow, value):
         self.stage[flow] = value
 
     def __getitem__(self, key):
         return self.categories[key]
 
-    def __contains__(self, flow):
+    def __contains__(self, flow: Flow):
         return flow in self.stage
 
     def update(self, other_plan):

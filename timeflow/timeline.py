@@ -22,20 +22,35 @@ def referent_linked_structures(event):
 
 
 class TimeLine(object):
-    def __init__(self, HEAD=None):
+
+    def __init__(self, HEAD=None, require_single_plan=True):
         self.HEAD = HEAD if HEAD is not None else NullEvent()
         self.ref = weakref.ref(self)
         self.HEAD.referrers += (self.ref,)
+        self.require_single_plan = require_single_plan
+
+        # Set to True when `new_plan` is called, set to False when `commit` is called
+        self.has_uncommitted_plan = False
 
     #@property
     #def instance(self):
     #    return self.HEAD.instance
 
     def new_plan(self, only_flows=None):
+        if self.require_single_plan:
+            assert not self.has_uncommitted_plan, '{} tried to start new plan while having an uncommitted plan.'.format(self)
+
+        self.has_uncommitted_plan = True
+
         base_event = self.HEAD
         return Plan(base_event, only_flows)
 
-    def commit(self, plan):
+    def commit(self, plan: Plan):
+        if self.require_single_plan:
+            assert self.has_uncommitted_plan, '{} tried to commit a plan, but there should be no uncommitted plan.'.format(self)
+        assert plan.status == Plan.planning
+        plan.status = Plan.committing
+
         base_event = plan.base_event
         assert base_event == self.HEAD
         self.HEAD = plan.hatch()
@@ -43,7 +58,16 @@ class TimeLine(object):
         base_event.referrers = _drop_from_tuple(base_event.referrers, self.ref)
         self.HEAD.referrers += (self.ref,)
 
+        self.has_uncommitted_plan = False
+        plan.status = Plan.committed
         return self.HEAD
+
+    def cancel(self, plan: Plan):
+        if self.require_single_plan:
+            assert self.has_uncommitted_plan, '{} tried to cancel a plan, but there should be no uncommitted plan.'.format(self)
+
+        plan.status = Plan.cancelled
+        self.has_uncommitted_plan = False
 
     def __del__(self):
         """Update Event.referrers, LinkedStructure.base, alt_bases"""
