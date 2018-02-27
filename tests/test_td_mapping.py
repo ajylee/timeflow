@@ -4,6 +4,7 @@ from timeflow import TimeLine, StepLine, Event
 import weakref
 from collections import OrderedDict
 from timeflow.td_mapping import MappingFlow
+from timeflow.linked_structure import CHILD, PARENT, SELF
 import nose.tools
 
 
@@ -97,3 +98,45 @@ def test_bridge_mapping_errors():
 
     with nose.tools.assert_raises(TypeError):
         sm['a'] = 10
+
+
+def test_nop_plan():
+    '''Memory management test. If nothing changes between events e0 and e1,
+
+    1. flow.at(e1) is flow.at(e0)
+    2. if flow.at(e0).relation_to_base was SELF, then it should remain SELF.
+
+    This was not the case before `Bugfix for [No-op plans cause unnecessary
+    forking]`. Before that fix, by accessing flow.at(plan) in any way,
+    `hatch_egg_optimized` would create a new LinkedMapping and `transfer_core`
+    to it, but the new event's `instance` map would recognize the new
+    LinkedMapping as the same as before. Therefore `flow.at(e1) is flow.at(e0)`,
+    but the core would have moved to a fork. Furthermore, there would be
+    no strong reference to the fork, so it would eventually be gc'd, causing
+    memory problems.
+
+    '''
+
+    tl = TimeLine()
+
+    initial_plan = tl.new_plan([])
+
+    flow = tdi = MappingFlow.introduce_at(initial_plan, dict(a=10, b=2, c=3))
+
+    e0 = tl.commit(initial_plan)
+
+    plan = tl.new_plan()
+
+    logger.info('access plan')
+    tdi.at(plan)['a'] == 10        # this causes hatched plan to be `is not flow.at(e0)`
+
+    assert tdi.at(e0).relation_to_base == SELF
+
+    e1 = tl.commit(plan)
+    assert tdi.at(e0).relation_to_base == SELF
+
+
+    assert flow.at(e1) is flow.at(e0)
+
+    trans = {CHILD:'CHILD', PARENT:'PARENT', SELF:'SELF'}
+    assert tdi.at(e1).relation_to_base == SELF, "relation_to_base is {}".format(trans[tdi.at(e1).relation_to_base])
