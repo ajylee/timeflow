@@ -233,12 +233,21 @@ def hatch_egg_simple(egg):
     return hatched
 
 
-def hatch_egg_optimized(egg):
-    """Hatch egg, optimizing memory management"""
+def hatch_egg_optimized(egg: LinkedStructure):
+    """Hatch egg, optimizing memory management
+
+    egg needs to be a mutable variant of the LinkedStructure
+    """
     # TODO: rename this func to "hatch_egg_and_manage_memory"
 
     if egg == egg.empty_variant:
         return egg.empty_variant
+    elif egg.relation_to_base is CHILD and len(egg.diff_base) == 0:
+        # make egg unusable; references to
+        # egg should be deleted so memory can be reclaimed.
+        del egg.base
+        del egg.diff_base
+        return egg.parent()
     else:
         _parent = egg.parent()
         hatched = egg.immutable_variant(
