@@ -117,14 +117,16 @@ class LinkedStructure(object):
 
 
     def set_base(self, base, relation_to_base):
-        self.base = base
         self.relation_to_base = relation_to_base
 
         if self.relation_to_base is SELF:
+            self.base = base
             self.diff_base = empty_mapping
         elif self.relation_to_base is CHILD:
+            self.base = base
             self.diff_base = self.diff_parent
         elif self.relation_to_base is PARENT:
+            self.base = weakref.proxy(base)
             self.diff_base = self.base.diff_parent
 
     @classmethod
@@ -297,8 +299,6 @@ def hatch_egg_optimized(egg: LinkedStructure):
                 logger.debug('Creating a fork.')
 
                 create_core_in(hatched)
-                if type(_parent.base) is not weakref.ProxyType:
-                    _parent.base = weakref.proxy(_parent.base)
                 _parent.alt_bases += (
                     weakref.ref(hatched, _parent._remove_alt_base),)
 

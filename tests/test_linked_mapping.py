@@ -1,6 +1,7 @@
 import weakref
 import pytest
 import logging
+import gc
 
 from timeflow.linked_structure import (transfer_core, create_core_in,
                                        hatch_egg_simple, hatch_egg_optimized,
@@ -77,7 +78,12 @@ def test_create_core_in():
     assert bb == desired_bb
 
 
-def test_memory_management():
+def test_memory_management(log_level):
+    import timeflow.linked_structure
+
+    logger.setLevel(log_level)
+    timeflow.linked_structure.logger.setLevel(log_level)
+
     class X(object):
         pass
 
@@ -86,20 +92,23 @@ def test_memory_management():
     aa_egg['to_keep'] = X()
 
     aa = hatch_egg_simple(aa_egg); del aa_egg
+    aa.debug_label = 'aa'
     bb_egg = aa.egg()
 
     del bb_egg['to_delete']
     bb = hatch_egg_simple(bb_egg); del bb_egg
+    bb.debug_label = 'bb'
 
     bb.diff_parent is not None
     test_ref = weakref.ref(aa['to_delete'])
+    logger.debug('del aa')
     del aa
     bb.diff_parent is not None
     assert test_ref() is not None
 
     transfer_core(bb.parent(), bb)    # bb.parent() points to aa until core is transferred
 
-    bb.diff_parent is None
+    assert bb.diff_parent is None
     assert test_ref() is None
 
 
@@ -254,9 +263,12 @@ def test_hatch_egg_optimized(log_level: int):
         assert aa.unproxied_base is cc
         assert aa.base == {'constant': 100, 'varies': ('c', ii)}
 
-        if timeflow.linked_structure.DEBUG: # debug_labels are only set if DEBUG is true
-            logger.debug('bottom: aa.base: %s', aa.base.debug_label)
+        assert type(cc.parent().base) is weakref.ProxyType
 
         logger.debug('del cc{}'.format(ii))
+        cc_ref = weakref.ref(cc)
         del cc
+
+        assert cc_ref() is None or not gc.get_referrers(ref())
+
         logger.debug('bottom: aa.base: %s', (aa.debug_label if aa.relation_to_base is SELF else aa.base.debug_label))
