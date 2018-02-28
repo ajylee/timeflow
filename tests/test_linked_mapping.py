@@ -190,8 +190,7 @@ def test_hatch_egg_optimized(log_level: int):
 
     logger.setLevel(log_level)
     timeflow.linked_structure.logger.setLevel(log_level)
-    if logger.getEffectiveLevel() <= logging.DEBUG:
-        timeflow.linked_structure.DEBUG = True
+    timeflow.linked_structure.DEBUG = (log_level <= logging.DEBUG)
 
 
     aa_egg = LinkedMapping.first_egg({})
@@ -203,10 +202,11 @@ def test_hatch_egg_optimized(log_level: int):
 
 
     for ii in range(5):
-
-        logger.debug('top: aa.base: %s', (aa.debug_label if aa.relation_to_base is SELF else aa.base.debug_label))
+        if timeflow.linked_structure.DEBUG: # debug_labels are only set if DEBUG is true
+            logger.debug('top: aa.base: %s', (aa.debug_label if aa.relation_to_base is SELF else aa.base.debug_label))
 
         logger.debug('start bb{}'.format(ii))
+
         bb_egg = aa.egg()
         bb_egg['varies'] = ('b', ii)
         bb = hatch_egg_optimized(bb_egg, debug_label_suffix='bb{}'.format(ii)); del bb_egg
@@ -224,7 +224,8 @@ def test_hatch_egg_optimized(log_level: int):
         # this may trigger ReferenceError
         assert aa.base == cc == {'constant': 100, 'varies': ('c', ii)}
 
-        logger.debug('bottom: aa.base: %s', aa.base.debug_label)
+        if timeflow.linked_structure.DEBUG: # debug_labels are only set if DEBUG is true
+            logger.debug('bottom: aa.base: %s', aa.base.debug_label)
 
         logger.debug('del cc{}'.format(ii))
         del cc
