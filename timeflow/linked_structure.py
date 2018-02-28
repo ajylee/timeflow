@@ -20,7 +20,6 @@ SELF = 2
 
 DIFF_LEFT, DIFF_RIGHT = 0, 1
 
-DEBUG = False
 
 def transfer_core(self, other):
     assert self.relation_to_base is SELF
@@ -257,7 +256,7 @@ def hatch_egg_simple(egg):
     return hatched
 
 
-def hatch_egg_optimized(egg: LinkedStructure, debug_label_suffix='c'):
+def hatch_egg_optimized(egg: LinkedStructure):
     """Hatch egg, optimizing memory management
 
     egg needs to be a mutable variant of the LinkedStructure
@@ -273,6 +272,8 @@ def hatch_egg_optimized(egg: LinkedStructure, debug_label_suffix='c'):
 
         # make egg unusable; references to
         # egg should be deleted so memory can be reclaimed.
+        logger.debug('NOP')
+
         del egg.base
         del egg.diff_base
         return egg.parent()
@@ -289,22 +290,11 @@ def hatch_egg_optimized(egg: LinkedStructure, debug_label_suffix='c'):
 
         if hatched.relation_to_base == CHILD:
             if _parent.relation_to_base is SELF:
+                logger.debug('Transferring core.')
+
                 transfer_core(_parent, hatched)
-                if DEBUG:
-                    hatched.debug_label = getattr(_parent, 'debug_label', str(id(_parent))) + '.' + debug_label_suffix
-                    _parent_label = getattr(_parent, 'debug_label', id(_parent))
-                    logger.debug('transferred core %s -> %s', _parent_label, hatched.debug_label)
             else:
-                # creating a fork
-                if DEBUG:
-                    hatched.debug_label = getattr(_parent, 'debug_label', str(id(_parent))) + '.' + debug_label_suffix
-                    logger.debug('creating a fork, parent.relation_to_base: {}, parent: {}, hatched: {}, parent.base: {}'
-                                 .format(
-                                     {CHILD:'CHILD', PARENT:'PARENT', SELF:'SELF'}[_parent.relation_to_base],
-                                     getattr(_parent, 'debug_label', id(_parent)),
-                                     hatched.debug_label,
-                                     getattr(_parent.base, 'debug_label', id(_parent.unproxied_base)),
-                                 ))
+                logger.debug('Creating a fork.')
 
                 create_core_in(hatched)
                 if type(_parent.base) is not weakref.ProxyType:

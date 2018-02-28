@@ -182,6 +182,38 @@ def test_diff():
                                                            dict(diff(bb,cc)) == dict(LinkedMapping.diff(bb, cc)))
 
 
+def hatch_egg_optimized_with_debug_messages(egg, debug_label_suffix):
+    orig_parent_relation_to_base = egg.parent().relation_to_base
+    orig_parent_base = (egg.parent().debug_label
+                        if egg.parent().relation_to_base is SELF
+                        else egg.parent().base.debug_label)
+
+    ss = hatch_egg_optimized(egg); del egg
+    ss.debug_label = ss.parent().debug_label + debug_label_suffix
+
+    if (ss.relation_to_base is SELF
+        and orig_parent_relation_to_base is SELF
+        and ss.parent().relation_to_base is PARENT
+        and ss.parent().unproxied_base is ss):
+        logger.debug('Transferred core %s -> %s', ss.parent().debug_label, ss.debug_label)
+    elif (ss.parent().unproxied_base is not ss):
+        logger.debug(
+            'Created a fork, orig_parent_relation_to_base: {}, parent: {}, hatched: {}, orig_parent_base: {}, parent.base: {}'
+            .format(
+                {CHILD:'CHILD', PARENT:'PARENT', SELF:'SELF'}[orig_parent_relation_to_base],
+                ss.parent().debug_label,
+                ss.debug_label,
+                orig_parent_base,
+                (ss.parent().debug_label
+                 if ss.parent().relation_to_base is SELF
+                 else ss.parent().base.debug_label),
+            ))
+    else:
+        logger.debug('??')
+
+    return ss
+
+
 def test_hatch_egg_optimized(log_level: int):
     # Create a fork with no strong refs, then reference through a weak ref. Test if there is a ReferenceError.
     # (There shouldn't be.)
@@ -190,8 +222,6 @@ def test_hatch_egg_optimized(log_level: int):
 
     logger.setLevel(log_level)
     timeflow.linked_structure.logger.setLevel(log_level)
-    timeflow.linked_structure.DEBUG = (log_level <= logging.DEBUG)
-
 
     aa_egg = LinkedMapping.first_egg({})
     aa_egg['varies'] = ('a', 0)
@@ -200,32 +230,33 @@ def test_hatch_egg_optimized(log_level: int):
     aa = hatch_egg_optimized(aa_egg); del aa_egg
     aa.debug_label = 'aa'
 
-
     for ii in range(5):
-        if timeflow.linked_structure.DEBUG: # debug_labels are only set if DEBUG is true
-            logger.debug('top: aa.base: %s', (aa.debug_label if aa.relation_to_base is SELF else aa.base.debug_label))
+        logger.debug('top: aa.base: %s', (aa.debug_label if aa.relation_to_base is SELF else aa.base.debug_label))
 
         logger.debug('start bb{}'.format(ii))
 
         bb_egg = aa.egg()
         bb_egg['varies'] = ('b', ii)
-        bb = hatch_egg_optimized(bb_egg, debug_label_suffix='bb{}'.format(ii)); del bb_egg
+        bb = hatch_egg_optimized_with_debug_messages(bb_egg, debug_label_suffix='.bb{}'.format(ii)); del bb_egg
 
 
         logger.debug('start cc{}'.format(ii))
         cc_egg = aa.egg()
         cc_egg['varies'] = ('c', ii)
 
-        cc = hatch_egg_optimized(cc_egg, debug_label_suffix='cc{}'.format(ii)); del cc_egg
+        cc = hatch_egg_optimized_with_debug_messages(cc_egg, debug_label_suffix='.cc{}'.format(ii)); del cc_egg
 
         logger.debug('del bb{}'.format(ii))
         del bb
 
         # this may trigger ReferenceError
-        assert aa.base == cc == {'constant': 100, 'varies': ('c', ii)}
+        logger.debug('assert aa.base is {}'.format(cc.debug_label))
+        assert aa.unproxied_base is cc
+        assert aa.base == {'constant': 100, 'varies': ('c', ii)}
 
         if timeflow.linked_structure.DEBUG: # debug_labels are only set if DEBUG is true
             logger.debug('bottom: aa.base: %s', aa.base.debug_label)
 
         logger.debug('del cc{}'.format(ii))
         del cc
+        logger.debug('bottom: aa.base: %s', (aa.debug_label if aa.relation_to_base is SELF else aa.base.debug_label))
