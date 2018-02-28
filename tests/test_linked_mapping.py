@@ -1,7 +1,6 @@
 import weakref
 import pytest
 import logging
-import gc
 
 from timeflow.linked_structure import (transfer_core, create_core_in,
                                        hatch_egg_simple, hatch_egg_optimized,
@@ -10,6 +9,13 @@ from timeflow.linked_mapping import LinkedMapping
 
 
 logger = logging.getLogger(__name__)
+
+def ghosted(rr: weakref.ReferenceType):
+    '''Whether the referred object has been deleted or has no referrers'''
+    import gc
+
+    return rr() is None or not gc.get_referrers(rr())
+
 
 @pytest.mark.skip(reason='not a test')
 def setup_main_test_cases():
@@ -242,33 +248,43 @@ def test_hatch_egg_optimized(log_level: int):
     for ii in range(5):
         logger.debug('top: aa.base: %s', (aa.debug_label if aa.relation_to_base is SELF else aa.base.debug_label))
 
+        #~~ start bb ~~#
         logger.debug('start bb{}'.format(ii))
 
         bb_egg = aa.egg()
         bb_egg['varies'] = ('b', ii)
         bb = hatch_egg_optimized_with_debug_messages(bb_egg, debug_label_suffix='.bb{}'.format(ii)); del bb_egg
 
+        #~~ start cc ~~#
 
         logger.debug('start cc{}'.format(ii))
         cc_egg = aa.egg()
         cc_egg['varies'] = ('c', ii)
 
+        # this should create a fork
         cc = hatch_egg_optimized_with_debug_messages(cc_egg, debug_label_suffix='.cc{}'.format(ii)); del cc_egg
 
+        assert aa.unproxied_base is bb   # tests whether fork was created
+        assert aa.relation_to_base is PARENT and isinstance(aa.base, weakref.ProxyType)
+
+        bb_ref = weakref.ref(bb)
         logger.debug('del bb{}'.format(ii))
         del bb
+
+        assert ghosted(bb_ref)
 
         # this may trigger ReferenceError
         logger.debug('assert aa.base is {}'.format(cc.debug_label))
         assert aa.unproxied_base is cc
         assert aa.base == {'constant': 100, 'varies': ('c', ii)}
 
-        assert type(cc.parent().base) is weakref.ProxyType
+        assert cc.parent() is aa
+        assert isinstance(aa.base, weakref.ProxyType)
 
         logger.debug('del cc{}'.format(ii))
         cc_ref = weakref.ref(cc)
         del cc
 
-        assert cc_ref() is None or not gc.get_referrers(ref())
+        assert ghosted(cc_ref)
 
         logger.debug('bottom: aa.base: %s', (aa.debug_label if aa.relation_to_base is SELF else aa.base.debug_label))
