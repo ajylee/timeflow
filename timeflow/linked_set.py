@@ -2,7 +2,7 @@ import collections
 import itertools
 import weakref
 from .event import empty_ref
-from .linked_structure import (SELF, EmptyMapping, empty_mapping, LinkedStructure,
+from .linked_structure import (SELF, LinkedStructure,
                                PARENT, CHILD, DIFF_LEFT, DIFF_RIGHT,
                                hatch_egg_optimized)
 

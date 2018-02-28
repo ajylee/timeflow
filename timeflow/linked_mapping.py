@@ -2,12 +2,12 @@ import collections
 import itertools
 import weakref
 from .ref_tools import empty_ref
-from .linked_structure import (CHILD, SELF, NO_VALUE, EmptyMapping,
+from .linked_structure import (CHILD, SELF, NO_VALUE,
                                empty_mapping, LinkedStructure, DIFF_LEFT, DIFF_RIGHT,
                                hatch_egg_optimized)
 
 
-class EmptyLinkedMapping(EmptyMapping):
+class EmptyLinkedMapping(type(empty_mapping)):
 
     def __init__(self):
         self.parent = empty_ref

@@ -55,6 +55,7 @@ class EmptyMapping(collections.Mapping):
 
 
 empty_mapping = EmptyMapping()
+del EmptyMapping
 
 
 @six.add_metaclass(ABCMeta)
@@ -266,6 +267,10 @@ def hatch_egg_optimized(egg: LinkedStructure, debug_label_suffix='c'):
     if egg == egg.empty_variant:
         return egg.empty_variant
     elif egg.relation_to_base is CHILD and len(egg.diff_base) == 0:
+        # The egg is a NOP.
+        # NOTE: If egg.relation_to_base is SELF, then `len(egg.diff_base) == 0`
+        # trivially and tells us nothing.
+
         # make egg unusable; references to
         # egg should be deleted so memory can be reclaimed.
         del egg.base
@@ -323,7 +328,7 @@ def walk_to_core(linked_structure):
     return path
 
 
-def diff(left, right):
+def diff(left: LinkedStructure, right: LinkedStructure):
     if left is right:
         return ()
 
