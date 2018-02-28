@@ -1,10 +1,13 @@
 import collections
 from functools import partial
 import weakref
+import logging
 
 from .linked_structure import SELF, CHILD
 from .event import Event
 from .flow import Flow
+
+logger = logging.getLogger(__name__)
 
 
 class Plan(object):
@@ -85,6 +88,8 @@ class Plan(object):
                 instance_map.pop(flow, None)
             else:
                 instance_map[flow] = hatched_item
+                if instance_map[flow] is not hatched_item:
+                    logger.warn('Plan.hatch: redundant attempt to update flow')
 
         return Event(instance_map=instance_map.hatch(),
                      parent=self.base_event)
