@@ -1,11 +1,14 @@
 import weakref
 import pytest
+import logging
 
 from timeflow.linked_structure import (transfer_core, create_core_in,
                                        hatch_egg_simple, hatch_egg_optimized,
                                        PARENT, CHILD, SELF, NO_VALUE, diff)
 from timeflow.linked_mapping import LinkedMapping
 
+
+logger = logging.getLogger(__name__)
 
 @pytest.mark.skip(reason='not a test')
 def setup_main_test_cases():
@@ -63,7 +66,7 @@ def test_transfer_core():
     assert aa == desired_aa
     assert bb == desired_bb
 
-    
+
 def test_create_core_in():
     aa, bb, desired_aa, desired_bb = setup_main_test_cases()
     create_core_in(bb)
@@ -99,7 +102,7 @@ def test_memory_management():
     bb.diff_parent is None
     assert test_ref() is None
 
-    
+
 def test_hatch_empty_mapping():
     class X(object):
         pass
@@ -176,4 +179,52 @@ def test_diff():
             == {'varies': (20, 'new_varies_val'),
                 'additional': ('additional_val', NO_VALUE),
                 'new_cc_key': (NO_VALUE, 'new_cc_val')}), (dict(diff(bb,cc)),
-dict(diff(bb,cc)) == dict(LinkedMapping.diff(bb, cc)))
+                                                           dict(diff(bb,cc)) == dict(LinkedMapping.diff(bb, cc)))
+
+
+def test_hatch_egg_optimized(log_level: int):
+    # Create a fork with no strong refs, then reference through a weak ref. Test if there is a ReferenceError.
+    # (There shouldn't be.)
+
+    import timeflow.linked_structure
+
+    logger.setLevel(log_level)
+    timeflow.linked_structure.logger.setLevel(log_level)
+    if logger.getEffectiveLevel() <= logging.DEBUG:
+        timeflow.linked_structure.DEBUG = True
+
+
+    aa_egg = LinkedMapping.first_egg({})
+    aa_egg['varies'] = ('a', 0)
+    aa_egg['constant'] = 100
+
+    aa = hatch_egg_optimized(aa_egg); del aa_egg
+    aa.debug_label = 'aa'
+
+
+    for ii in range(5):
+
+        logger.debug('top: aa.base: %s', (aa.debug_label if aa.relation_to_base is SELF else aa.base.debug_label))
+
+        logger.debug('start bb{}'.format(ii))
+        bb_egg = aa.egg()
+        bb_egg['varies'] = ('b', ii)
+        bb = hatch_egg_optimized(bb_egg, debug_label_suffix='bb{}'.format(ii)); del bb_egg
+
+
+        logger.debug('start cc{}'.format(ii))
+        cc_egg = aa.egg()
+        cc_egg['varies'] = ('c', ii)
+
+        cc = hatch_egg_optimized(cc_egg, debug_label_suffix='cc{}'.format(ii)); del cc_egg
+
+        logger.debug('del bb{}'.format(ii))
+        del bb
+
+        # this may trigger ReferenceError
+        assert aa.base == cc == {'constant': 100, 'varies': ('c', ii)}
+
+        logger.debug('bottom: aa.base: %s', aa.base.debug_label)
+
+        logger.debug('del cc{}'.format(ii))
+        del cc

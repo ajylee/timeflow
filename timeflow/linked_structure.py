@@ -4,8 +4,11 @@ import weakref
 import collections
 import uuid
 import itertools
+import logging
 
 import toolz
+
+logger = logging.getLogger(__name__)
 
 
 NO_VALUE = ('NO_VALUE', uuid.UUID('db62de11-7c24-11e5-91b3-b88d12001ea8'))
@@ -17,6 +20,7 @@ SELF = 2
 
 DIFF_LEFT, DIFF_RIGHT = 0, 1
 
+DEBUG = False
 
 def transfer_core(self, other):
     assert self.relation_to_base is SELF
@@ -81,6 +85,13 @@ class LinkedStructure(object):
 
     A LinkedStructure has no strong refs to its parent except for :attr:base .
     :attr:diff_parent is automatically removed if the parent has no strong refs.
+
+
+
+    Specs (Incomplete)
+    -------------------
+
+    - "~EX a b . (LinkedStructure a) AND a.base == b AND mutable b"
 
     """
 
@@ -178,19 +189,31 @@ class LinkedStructure(object):
 
     def __del__(self):
         # search up to
+
+        if type(self) is self.mutable_variant:
+            # no structure other than `self` should be based on the mutable variant
+            return
+
         _parent = self.parent()
 
         try:
             if _parent.relation_to_base != PARENT:
                 return
         except AttributeError:
+            # should only happen if _parent is None
             return
 
         try:
-            _parent.base.relation_to_base  # if succeeds, no need to do anything
-            return
-        except ReferenceError:
+            _base = _parent.unproxied_base
+        except ReferenceError as exc:
+            # Parent has no base; need to get it a new one. (this shouldn't happen though.)
+            logger.error("{}; `_parent.base` is missing. Shouldn't happen, but continuing with new base."
+                         .format(exc), exc_info=True)
             pass
+        else:
+            if _base is not self:
+                # _parent.base should be another child; no need to do anything
+                return
 
         if _parent.alt_bases:
             # set _parent base to an alternative
@@ -233,7 +256,7 @@ def hatch_egg_simple(egg):
     return hatched
 
 
-def hatch_egg_optimized(egg: LinkedStructure):
+def hatch_egg_optimized(egg: LinkedStructure, debug_label_suffix='c'):
     """Hatch egg, optimizing memory management
 
     egg needs to be a mutable variant of the LinkedStructure
@@ -262,8 +285,22 @@ def hatch_egg_optimized(egg: LinkedStructure):
         if hatched.relation_to_base == CHILD:
             if _parent.relation_to_base is SELF:
                 transfer_core(_parent, hatched)
+                if DEBUG:
+                    hatched.debug_label = getattr(_parent, 'debug_label', str(id(_parent))) + '.' + debug_label_suffix
+                    _parent_label = getattr(_parent, 'debug_label', id(_parent))
+                    logger.debug('transferred core %s -> %s', _parent_label, hatched.debug_label)
             else:
                 # creating a fork
+                if DEBUG:
+                    hatched.debug_label = getattr(_parent, 'debug_label', str(id(_parent))) + '.' + debug_label_suffix
+                    logger.debug('creating a fork, parent.relation_to_base: {}, parent: {}, hatched: {}, parent.base: {}'
+                                 .format(
+                                     {CHILD:'CHILD', PARENT:'PARENT', SELF:'SELF'}[_parent.relation_to_base],
+                                     getattr(_parent, 'debug_label', id(_parent)),
+                                     hatched.debug_label,
+                                     getattr(_parent.base, 'debug_label', id(_parent.unproxied_base)),
+                                 ))
+
                 create_core_in(hatched)
                 if type(_parent.base) is not weakref.ProxyType:
                     _parent.base = weakref.proxy(_parent.base)
